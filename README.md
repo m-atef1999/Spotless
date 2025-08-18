@@ -6,9 +6,9 @@ Graduation project for DEPI: a home maintenance service platform.
   <img src="docs/HomeHero_Logo1.png" alt="Project Logo" width="200"/>
 </p>
 
-![License](https://img.shields.io/github/license/<user>/<repo>)
-![Contributors](https://img.shields.io/github/contributors/<user>/<repo>)
-![Last Commit](https://img.shields.io/github/last-commit/<user>/<repo>)
+![License](https://img.shields.io/github/license/m-atef1999/HomeHero)
+![Contributors](https://img.shields.io/github/contributors/m-atef1999/HomeHero)
+![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/HomeHero)
 ![Made with .NET](https://img.shields.io/badge/Made%20with-.NET-blue)
 
 
