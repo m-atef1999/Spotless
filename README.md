@@ -19,7 +19,7 @@ Graduation project for DEPI: a home maintenance service platform.
 - [🛠 Tech Stack](#-tech-stack)
 - [📂 Project Structure](#-project-structure)
 - [⚡ Getting Started](#-getting-started)
-- [👥 Contributors](#-contributors)
+- [👥 Contributors](#-team-members)
 - [📄 License](#-license)
 
 ---
@@ -69,6 +69,6 @@ cd HomeHero
 dotnet run
 ```
 ---
-📄 License
+## 📄 License
 
-This project is licensed under the MIT License.
+- This project is licensed under the MIT License.
