@@ -34,12 +34,11 @@ Graduation project for DEPI: a home maintenance service platform.
 ```bash
 git clone https://github.com/m-atef1999/HomeHero.git
 cd HomeHero
-dotnet run
+dotnet run```
 
 ### 5. **Navigation**
 Use a table of contents so reviewers can jump:
 
-```markdown
 ## 📚 Table of Contents
 - [Overview](#-project-overview)
 - [Demo](#-demo)
