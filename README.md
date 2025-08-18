@@ -34,7 +34,7 @@ Graduation project for DEPI: a home maintenance service platform.
 ```bash
 git clone https://github.com/m-atef1999/HomeHero.git
 cd HomeHero
-dotnet run```markdown
+dotnet run
 
 ### 5. **Navigation**
 ## 📚 Table of Contents
