@@ -67,3 +67,8 @@ Graduation project for DEPI: a home maintenance service platform.
 git clone https://github.com/m-atef1999/HomeHero.git
 cd HomeHero
 dotnet run
+```
+---
+📄 License
+
+This project is licensed under the MIT License.
