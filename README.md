@@ -19,6 +19,7 @@ Graduation project for DEPI: a home maintenance service platform.
 - [🛠 Tech Stack](#-tech-stack)
 - [📂 Project Structure](#-project-structure)
 - [⚡ Getting Started](#-getting-started)
+- [👥 Contributors](#-contributors)
 - [📄 License](#-license)
 
 ---
@@ -27,6 +28,11 @@ Graduation project for DEPI: a home maintenance service platform.
 - 🔧 Built with ASP.NET Core + SQL Server
 - 🎯 Purpose: Home Maintenance Service Platform
 - 👥 Team: Home Hero
+
+---
+👥 Team
+
+<a href="https://github.com/m-atef1999/HomeHero/graphs/contributors"> <img src="https://contrib.rocks/image?repo=m-atef1999/HomeHero" /> </a>
 
 ---
 
