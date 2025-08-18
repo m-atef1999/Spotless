@@ -34,8 +34,8 @@ Graduation project for DEPI: a home maintenance service platform.
 ## 👥 Team Members
 
 | [Mahmoud Atef](https://github.com/m-atef1999) | [Simon Noshy](https://github.com/simonnoshy) | [Amira Amin](https://github.com/amiraamin279-collab) | [Rodaina Mahmoud](https://github.com/RodainaMahmoud) |
-|-----------------------------------------------|----------------------------------------------|------------------------------------------------------|------------------------------------------------------|
-| <img src="https://avatars.githubusercontent.com/u/178003051?v=4" width="100" /> | <img src="https://avatars.githubusercontent.com/u/176732730?v=4" width="100" /> | <img src="https://avatars.githubusercontent.com/u/176945590?v=4" width="100" /> | <img src="https://avatars.githubusercontent.com/u/176945899?v=4" width="100" /> |
+|---|---|---|---|
+| <img alt="Mahmoud Atef" src="https://github.com/m-atef1999.png?size=100" width="100" /> | <img alt="Simon Noshy" src="https://github.com/simonnoshy.png?size=100" width="100" /> | <img alt="Amira Amin" src="https://github.com/amiraamin279-collab.png?size=100" width="100" /> | <img alt="Rodaina Mahmoud" src="https://github.com/RodainaMahmoud.png?size=100" width="100" /> |
 
 ---
 
