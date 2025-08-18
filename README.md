@@ -32,8 +32,9 @@ Graduation project for DEPI: a home maintenance service platform.
 ---
 ## 👥 Team Members
 
-<a href="https://github.com/m-atef1999/HomeHero/graphs/contributors"> <img src="https://contrib.rocks/image?repo=m-atef1999/HomeHero" /> </a>
-
+<a href="https://github.com/m-atef1999/HomeHero/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=m-atef1999/HomeHero" />
+</a>
 ---
 
 ## 🌐 Live Demo
