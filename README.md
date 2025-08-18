@@ -16,10 +16,10 @@ Graduation project for DEPI: a home maintenance service platform.
 ## 📚 Table of Contents
 - [📌 Project Overview](#-project-overview)
 - [🌐 Live Demo](#-live-demo)
-- [🛠 Tech Stack](#tech-stack)
-- [📂 Project Structure](#project-structure)
+- [🛠 Tech Stack](#-tech-stack)
+- [📂 Project Structure](#-project-structure)
 - [⚡ Getting Started](#-getting-started)
-- [📄 License](#license)
+- [📄 License](#-license)
 
 ---
 
