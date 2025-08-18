@@ -11,7 +11,11 @@ Graduation project for DEPI: a home maintenance service platform.
 ![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/HomeHero)
 ![Made with .NET](https://img.shields.io/badge/Made%20with-.NET-blue)
 
-
+## 📌 Project Overview
+- 🔧 Built with ASP.NET Core + SQL Server
+- 🎯 Purpose: [Home Maintenance Service Platform]
+- 👥 Team: [Home Hero]
+  
 ## Tech Stack
 - ASP.NET Core, C# (.NET 8)
 - EF Core + SQL Server
@@ -25,6 +29,23 @@ Graduation project for DEPI: a home maintenance service platform.
 - Tests → HomeHero.Tests
 - Database scripts → db/
 - Documentation → docs/
+
+## ⚡ Getting Started
+```bash
+git clone https://github.com/m-atef1999/HomeHero.git
+cd HomeHero
+dotnet run
+
+### 5. **Navigation**
+Use a table of contents so reviewers can jump:
+
+```markdown
+## 📚 Table of Contents
+- [Overview](#-project-overview)
+- [Demo](#-demo)
+- [Setup](#-getting-started)
+- [Docs](#-documentation)
+
 
 ## License
 MIT
