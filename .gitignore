@@ -416,3 +416,16 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# Visual Studio files and folders
+.vs/
+*.vs/
+*.vspscc
+*.vssscc
+*.vspscc
+*.vspcc
+
+# Build folders
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
