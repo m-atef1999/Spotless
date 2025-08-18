@@ -33,13 +33,7 @@ Graduation project for DEPI: a home maintenance service platform.
 
 ## 👥 Team Members
 
-| [Mahmoud Atef](https://github.com/m-atef1999) | [Simon Noshy](https://github.com/simonnoshy) | [Amira Amin](https://github.com/amiraamin279-collab) | [Rodaina Mahmoud](https://github.com/RodainaMahmoud) |
-|---|---|---|---|
-| <img alt="Mahmoud Atef" src="https://github.com/m-atef1999.png?size=80" width="80" /> | <img alt="Simon Noshy" src="https://github.com/simonnoshy.png?size=80" width="80" /> | <img alt="Amira Amin" src="https://github.com/amiraamin279-collab.png?size=80" width="80" /> | <img alt="Rodaina Mahmoud" src="https://github.com/RodainaMahmoud.png?size=80" width="80" /> |
-
-## 👥 Team Memberss
-
-| <a href="https://github.com/m-atef1999"><img src="https://github.com/m-atef1999.png?size=100" width="100"/><br /><sub><b>Mahmoud Atef</b></sub></a> | <a href="https://github.com/simonnoshy"><img src="https://github.com/simonnoshy.png?size=100" width="100"/><br /><sub><b>Simon Noshy</b></sub></a> | <a href="https://github.com/amiraamin279-collab"><img src="https://github.com/amiraamin279-collab.png?size=100" width="100"/><br /><sub><b>Amira Amin</b></sub></a> | <a href="https://github.com/RodainaMahmoud"><img src="https://github.com/RodainaMahmoud.png?size=100" width="100"/><br /><sub><b>Rodaina Mahmoud</b></sub></a> |
+| <a href="https://github.com/m-atef1999"><img src="https://github.com/m-atef1999.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Mahmoud Atef</b></span></a> | <a href="https://github.com/simonnoshy"><img src="https://github.com/simonnoshy.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Simon Noshy</b></span></a> | <a href="https://github.com/amiraamin279-collab"><img src="https://github.com/amiraamin279-collab.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Amira Amin</b></span></a> | <a href="https://github.com/RodainaMahmoud"><img src="https://github.com/RodainaMahmoud.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Rodaina Mahmoud</b></span></a> |
 |---|---|---|---|
 
 ---
