@@ -6,9 +6,9 @@ Graduation project for DEPI: a home maintenance services platform.
   <img src="docs/HomeHero_Logo1.png" alt="Project Logo" width="200"/>
 </p>
 
-![License](https://img.shields.io/github/license/m-atef1999/HomeHero)
-![Contributors](https://img.shields.io/github/contributors/m-atef1999/HomeHero)
-![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/HomeHero)
+![License](https://img.shields.io/github/license/m-atef1999/Home-Maintenance-Platform)
+![Contributors](https://img.shields.io/github/contributors/m-atef1999/Home-Maintenance-Platform)
+![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/Home-Maintenance-Platform)
 ![Made with .NET](https://img.shields.io/badge/Made%20with-.NET-blue)
 
 ---
@@ -66,8 +66,8 @@ Graduation project for DEPI: a home maintenance services platform.
 ## ⚡ Getting Started
 
 ```bash
-git clone https://github.com/m-atef1999/HomeHero.git
-cd HomeHero
+git clone https://github.com/m-atef1999/Home-Maintenance-Platform.git
+cd Home-Maintenance-Platform
 dotnet run
 ```
 ---
