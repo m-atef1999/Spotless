@@ -1,6 +1,6 @@
-# HomeHero
+# Home Maintenance Platform
 
-Graduation project for DEPI: a home maintenance service platform.
+Graduation project for DEPI: a home maintenance services platform.
 
 <p align="center">
   <img src="docs/HomeHero_Logo1.png" alt="Project Logo" width="200"/>
@@ -27,7 +27,7 @@ Graduation project for DEPI: a home maintenance service platform.
 ## 📌 Project Overview
 - 🔧 Built with ASP.NET Core + SQL Server
 - 🎯 Purpose: Home Maintenance Service Platform
-- 👥 Team: Home Hero
+- 👥 Team: Home Maintenance Platform
 
 ---
 
