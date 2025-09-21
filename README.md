@@ -47,7 +47,7 @@ Graduation project for DEPI: a cleaning services platform.
 - ASP.NET Core, C# (.NET 8)
 - EF Core + SQL Server
 - Blazor/MVC
-- HTML, CSS, Bootstrap
+- HTML, CSS, (Angular, React, Bootstrap)
 - Docker
 - Jira
 - Figma
