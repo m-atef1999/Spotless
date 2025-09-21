@@ -7,7 +7,7 @@ Graduation project for DEPI: a cleaning services platform.
 </p>
 
 ![License](https://img.shields.io/github/license/m-atef1999/Spotless)
-![Contributors](https://img.shields.io/github/contributors/m-atef1999/HSpotless)
+![Contributors](https://img.shields.io/github/contributors/m-atef1999/Spotless)
 ![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/Spotless)
 ![Made with .NET](https://img.shields.io/badge/Made%20with-.NET-blue)
 
