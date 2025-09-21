@@ -1,14 +1,14 @@
 # Spotless
 
-Graduation project for DEPI: a home maintenance services platform.
+Graduation project for DEPI: a cleaning services platform.
 
 <p align="center">
   <img src="docs/spotless_logo.png" alt="Project Logo" width="200"/>
 </p>
 
-![License](https://img.shields.io/github/license/m-atef1999/Home-Maintenance-Platform)
-![Contributors](https://img.shields.io/github/contributors/m-atef1999/Home-Maintenance-Platform)
-![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/Home-Maintenance-Platform)
+![License](https://img.shields.io/github/license/m-atef1999/Spotless)
+![Contributors](https://img.shields.io/github/contributors/m-atef1999/HSpotless)
+![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/Spotless)
 ![Made with .NET](https://img.shields.io/badge/Made%20with-.NET-blue)
 
 ---
@@ -26,8 +26,8 @@ Graduation project for DEPI: a home maintenance services platform.
 
 ## 📌 Project Overview
 - 🔧 Built with ASP.NET Core + SQL Server
-- 🎯 Purpose: Home Maintenance Service Platform
-- 👥 Team: Home Maintenance Platform
+- 🎯 Purpose: Cleaning Services Platform
+- 👥 Team: Cleaning Services Platform
 
 ---
 
