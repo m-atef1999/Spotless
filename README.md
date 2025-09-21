@@ -1,9 +1,9 @@
-# Home Maintenance Platform
+# Spotless
 
 Graduation project for DEPI: a home maintenance services platform.
 
 <p align="center">
-  <img src="docs/HomeHero_Logo1.png" alt="Project Logo" width="200"/>
+  <img src="docs/spotless_logo.png" alt="Project Logo" width="200"/>
 </p>
 
 ![License](https://img.shields.io/github/license/m-atef1999/Home-Maintenance-Platform)
@@ -39,7 +39,7 @@ Graduation project for DEPI: a home maintenance services platform.
 ---
 
 ## 🌐 Live Demo
-👉 [Check out the website](https://preview--homehero-design-kit.lovable.app/)
+👉 [Check out the website](https://preview--quickclean-wash-wave.lovable.app/)
 
 ---
 
@@ -47,17 +47,20 @@ Graduation project for DEPI: a home maintenance services platform.
 - ASP.NET Core, C# (.NET 8)
 - EF Core + SQL Server
 - Blazor/MVC
+- HTML, CSS, Bootstrap
 - Docker
+- Jira
+- Figma
 - GitHub Actions
 
 ---
 
 ## 📂 Project Structure
-- **API endpoints** → `HomeHero.Api`
-- **UI (MVC/Blazor)** → `HomeHero.Web`
-- **Entities + services** → `HomeHero.Core`
-- **EF Core DbContext + migrations** → `HomeHero.Infrastructure`
-- **Tests** → `HomeHero.Tests`
+- **API endpoints** → `Spotless.Api`
+- **UI (MVC/Blazor)** → `Spotless.Web`
+- **Entities + services** → `Spotless.Core`
+- **EF Core DbContext + migrations** → `Spotless.Infrastructure`
+- **Tests** → `Spotless.Tests`
 - **Database scripts** → `db/`
 - **Documentation** → `docs/`
 
@@ -66,8 +69,8 @@ Graduation project for DEPI: a home maintenance services platform.
 ## ⚡ Getting Started
 
 ```bash
-git clone https://github.com/m-atef1999/Home-Maintenance-Platform.git
-cd Home-Maintenance-Platform
+git clone https://github.com/m-atef1999/Spotless.git
+cd Spotless
 dotnet run
 ```
 ---
