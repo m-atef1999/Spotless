@@ -58,23 +58,26 @@ Graduation project for DEPI: a cleaning services platform.
 
 ## 📂 Project Structure
 
+<pre>
 📦 Spotless
 │
 ├── src/
-│   ├── Spotless.API/              → Presentation layer
-│   │                                (Controllers, endpoints, dependency injection, Swagger setup)
+│   ├── Spotless.API/            → Presentation layer
+│   │                             (Controllers, endpoints, dependency injection, Swagger setup)
 │   │
-│   ├── Spotless.Domain/           → Business logic layer
-│   │                                (Entities, DTOs, service interfaces, validation, domain rules)
+│   ├── Spotless.Domain/         → Business logic layer
+│   │                             (Entities, DTOs, service interfaces, validation, domain rules)
 │   │
-│   ├── Spotless.Data/             → Data access layer
-│   │                                (EF Core DbContext, repositories, migrations, data seeding)
+│   ├── Spotless.Data/           → Data access layer
+│   │                             (EF Core DbContext, repositories, migrations, data seeding)
 │   │
-│   └── Spotless.sln               → Visual Studio solution file
+│   └── Spotless.sln             → Visual Studio solution file
 │
-├── db/                            → SQL scripts or manual database exports (optional)
+├── db/                          → SQL scripts or manual database exports (optional)
 │
-└── docs/                          → Documentation, diagrams, and API usage notes
+└── docs/                        → Documentation, diagrams, and API usage notes
+</pre>
+
 
 ---
 
