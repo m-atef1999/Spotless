@@ -58,7 +58,7 @@ Graduation project for DEPI: a cleaning services platform.
 
 ## 📂 Project Structure
 
-<pre>
+```bash
 📦 Spotless
 │
 ├── src/
@@ -73,11 +73,10 @@ Graduation project for DEPI: a cleaning services platform.
 │   │
 │   └── Spotless.sln             → Visual Studio solution file
 │
-├── db/                          → SQL scripts or manual database exports (optional)
+├── db/                          → SQL scripts or manual database exports
 │
 └── docs/                        → Documentation, diagrams, and API usage notes
-</pre>
-
+```
 
 ---
 
