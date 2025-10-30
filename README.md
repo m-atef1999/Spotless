@@ -57,13 +57,35 @@ Graduation project for DEPI: a cleaning services platform.
 ---
 
 ## 📂 Project Structure
-- **API endpoints** → `Spotless.Api`
-- **UI (MVC/Blazor)** → `Spotless.Web`
-- **Entities + services** → `Spotless.Core`
-- **EF Core DbContext + migrations** → `Spotless.Infrastructure`
-- **Tests** → `Spotless.Tests`
-- **Database scripts** → `db/`
-- **Documentation** → `docs/`
+
+📦 Spotless
+│
+├── src/
+│   ├── Spotless.API/            → Presentation layer  
+│   │                             (Controllers, endpoints, dependency injection, Swagger setup)
+│   │
+│   ├── Spotless.Domain/         → Business logic layer  
+│   │                             (Entities, DTOs, service interfaces, validation, domain rules)
+│   │
+│   ├── Spotless.Data/           → Data access layer  
+│   │                             (EF Core DbContext, repositories, migrations, data seeding)
+│   │
+│   └── Spotless.sln             → Visual Studio solution file
+│
+├── db/                          → SQL scripts or manual database exports (optional)
+│
+└── docs/                        → Documentation, diagrams, and API usage notes
+
+---
+
+### 🧠 Layer Responsibilities
+
+| Layer | Folder | Description |
+|-------|---------|-------------|
+| **Presentation (API)** | `Spotless.API` | Exposes HTTP endpoints, handles requests/responses, and configures dependency injection. |
+| **Business Logic (Domain)** | `Spotless.Domain` | Contains entities, DTOs, business rules, and service interfaces. |
+| **Data Access** | `Spotless.Data` | Manages persistence with Entity Framework Core (DbContext, repositories, migrations, seeding). |
+
 
 ---
 
