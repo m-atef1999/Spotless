@@ -94,8 +94,16 @@ Graduation project for DEPI: a cleaning services platform.
 ## ⚡ Getting Started
 
 ```bash
+# Clone the repository
 git clone https://github.com/m-atef1999/Spotless.git
-cd Spotless
+
+# Navigate into the API project
+cd Spotless/src/Spotless.API
+
+# Restore dependencies
+dotnet restore
+
+# Run the API
 dotnet run
 ```
 ---
