@@ -21,7 +21,7 @@ namespace Spotless.Infrastructure.Services
                 throw new KeyNotFoundException($"Service with ID {serviceId} not found.");
             }
 
-            return service.Price;
+            return service.PricePerUnit;
         }
     }
 }
