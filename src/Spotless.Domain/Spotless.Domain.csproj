@@ -7,20 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Dtos\" />
-    <Folder Include="Managers\" />
-    <Folder Include="Validators\" />
-    <Folder Include="Profiles\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.0.0" />
     <PackageReference Include="MediatR" Version="13.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.10" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Spotless.Data\Spotless.Data.csproj" />
+    <Folder Include="Dtos\Response\" />
+    <Folder Include="Dtos\Request\" />
+    <Folder Include="Commands\" />
+    <Folder Include="Enums\" />
+    <Folder Include="Interfaces\IServices\" />
+    <Folder Include="Profiles\" />
+    <Folder Include="Validators\" />
+    <Folder Include="Queries\" />
   </ItemGroup>
 
 </Project>
