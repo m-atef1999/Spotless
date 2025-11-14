@@ -11,7 +11,10 @@ namespace Spotless.Application.Mappers
                 Id: service.Id,
                 CategoryId: service.CategoryId,
                 Name: service.Name,
-                Description: service.Description
+                Description: service.Description,
+                PricePerUnitAmount: service.PricePerUnit.Amount,
+                PricePerUnitCurrency: service.PricePerUnit.Currency,
+                EstimatedDurationHours: service.EstimatedDurationHours
             );
         }
     }

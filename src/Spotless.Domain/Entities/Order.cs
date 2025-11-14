@@ -6,70 +6,79 @@ namespace Spotless.Domain.Entities
     public class Order : BaseEntity
     {
 
+
         public Guid CustomerId { get; private set; }
         public Guid? DriverId { get; private set; }
-        public Guid ServiceId { get; private set; }
-        public Guid? AdminId { get; private set; }
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
+        public Guid? AdminId { get; private set; }
+        public Location PickupLocation { get; private set; } = null!;
+        public Location DeliveryLocation { get; private set; } = null!;
         public Money TotalPrice { get; private set; } = null!;
-        public DateTime PickupTime { get; private set; }
-        public DateTime DeliveryTime { get; private set; }
+        public Guid TimeSlotId { get; private set; }
+        public DateTime ScheduledDate { get; private set; }
+        public virtual TimeSlot TimeSlot { get; private set; } = null!;
         public OrderStatus Status { get; private set; } = OrderStatus.Requested;
         public PaymentMethod PaymentMethod { get; private set; }
         public DateTime OrderDate { get; private set; } = DateTime.UtcNow;
 
         public virtual Customer Customer { get; private set; } = null!;
 
-        public virtual Service Service { get; private set; } = null!;
+
+
+        private readonly List<OrderItem> _items = new();
+        public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
 
         protected Order() { }
 
-        public Order(Guid customerId, Guid serviceId, Money totalPrice, DateTime pickupTime, DateTime deliveryTime, PaymentMethod paymentMethod) : base()
+
+        public Order(Guid customerId, IEnumerable<OrderItem> items, Money totalPrice, Guid timeSlotId, DateTime scheduledDate, PaymentMethod paymentMethod, Location pickupLocation, Location deliveryLocation) : base()
         {
+            if (!items.Any())
+                throw new InvalidOperationException("An order must contain at least one service item.");
+
             CustomerId = customerId;
-            ServiceId = serviceId;
+
+            _items.AddRange(items);
+
             TotalPrice = totalPrice;
-            PickupTime = pickupTime;
-            DeliveryTime = deliveryTime;
             PaymentMethod = paymentMethod;
             OrderDate = DateTime.UtcNow;
             Status = OrderStatus.Requested;
+            TimeSlotId = timeSlotId;
+            ScheduledDate = scheduledDate.Date;
+            PickupLocation = pickupLocation;
+            DeliveryLocation = deliveryLocation;
         }
 
-        public void AssignDriver(Guid driverId)
-        {
-            if (Status != OrderStatus.Requested)
-                throw new InvalidOperationException("Cannot assign driver to an order that is not in a 'Requested' status.");
 
-            DriverId = driverId;
-        }
 
-        public void SetStatus(OrderStatus newStatus)
-        {
+        public void AssignDriver(Guid driverId) { /* ... */ }
 
-            if (this.Status == OrderStatus.Delivered && newStatus == OrderStatus.Cancelled)
-            {
-                throw new InvalidOperationException("Completed orders cannot be cancelled.");
-            }
+        public void SetStatus(OrderStatus newStatus) { /* ... */ }
 
-            this.Status = newStatus;
-        }
 
-        public void UpdateDetails(Guid serviceId, DateTime pickupTime, DateTime deliveryTime)
+        public void UpdateDetails(Guid newTimeSlotId, DateTime newScheduledDate, Location newPickupLocation, Location newDeliveryLocation)
         {
             if (this.Status != OrderStatus.Requested || this.DriverId.HasValue)
             {
                 throw new InvalidOperationException($"Cannot update order details. Status is {this.Status} or a driver is assigned.");
             }
 
-            if (pickupTime >= deliveryTime)
-            {
-                throw new InvalidOperationException("Pickup time must be before delivery time.");
-            }
+            TimeSlotId = newTimeSlotId;
+            ScheduledDate = newScheduledDate.Date;
+            PickupLocation = newPickupLocation;
+            DeliveryLocation = newDeliveryLocation;
+        }
 
-            this.ServiceId = serviceId;
-            this.PickupTime = pickupTime;
-            this.DeliveryTime = deliveryTime;
+
+        public void AddItem(OrderItem item)
+        {
+            if (this.Status != OrderStatus.Requested)
+                throw new InvalidOperationException("Cannot add items to an order that is not in the 'Requested' status.");
+
+            _items.Add(item);
+
         }
     }
 }

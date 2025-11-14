@@ -12,27 +12,29 @@ namespace Spotless.Infrastructure.Configurations
             builder.HasKey(a => a.Id);
 
             builder.Property(a => a.Email)
-                   .IsRequired()
-                   .HasMaxLength(256);
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+            builder.HasIndex(a => a.Email)
+                   .IsUnique()
+                   .HasDatabaseName("IX_Admin_Email_Unique");
+
+
 
             builder.HasMany(a => a.Drivers)
-                   .WithOne()
-                   .HasForeignKey(d => d.AdminId)
-                   .OnDelete(DeleteBehavior.SetNull);
+                    .WithOne()
+                    .HasForeignKey(d => d.AdminId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
 
 
             builder.HasMany(a => a.Orders)
-                   .WithOne()
-                   .HasForeignKey(o => o.AdminId)
-                   .IsRequired(false)
-                   .OnDelete(DeleteBehavior.SetNull);
+                    .WithOne()
+                    .HasForeignKey(o => o.AdminId)
+                    .IsRequired(false)
+                    .OnDelete(DeleteBehavior.SetNull);
 
 
-            builder.HasMany(a => a.Payments)
-                   .WithOne()
-                   .HasForeignKey(p => p.AdminId)
-                   .IsRequired(false)
-                   .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

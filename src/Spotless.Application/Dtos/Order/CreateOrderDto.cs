@@ -1,13 +1,15 @@
 ﻿using Spotless.Domain.Enums;
-using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Dtos.Order
 {
     public record CreateOrderDto(
-        Guid ServiceId,
-        Address PickupAddress,
-        Address DeliveryAddress,
-        DateTime PickupTime,
-        DateTime DeliveryTime,
-        PaymentMethod PaymentMethod);
+        IReadOnlyList<OrderItemDto> Items,
+        Guid TimeSlotId,
+        DateTime ScheduledDate,
+        PaymentMethod PaymentMethod,
+        decimal PickupLatitude,
+        decimal PickupLongitude,
+        decimal DeliveryLatitude,
+        decimal DeliveryLongitude
+    );
 }

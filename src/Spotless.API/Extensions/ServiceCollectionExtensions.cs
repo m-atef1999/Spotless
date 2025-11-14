@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using Spotless.Application.Behaviors;
 using Spotless.Application.Dtos.Order;
 using Spotless.Application.Interfaces;
+using Spotless.Application.Markers;
 using Spotless.Application.Validation;
 using Spotless.Infrastructure.Context;
 using Spotless.Infrastructure.Identity;
@@ -101,9 +102,9 @@ namespace Spotless.API.Extensions
                 )
             );
             services.AddMediatR(cfg =>
-        cfg.RegisterServicesFromAssembly(typeof(Spotless.Application.AssemblyMarker).Assembly));
+        cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
 
-            services.AddValidatorsFromAssembly(typeof(Spotless.Application.AssemblyMarker).Assembly);
+            services.AddValidatorsFromAssembly(typeof(AssemblyMarker).Assembly);
 
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 

@@ -6,8 +6,9 @@ namespace Spotless.Domain.Entities
     {
         public string Name { get; private set; } = string.Empty;
         public string Email { get; private set; } = string.Empty;
-        public AdminRole Role { get; private set; }
+        public AdminRole AdminRole { get; private set; }
 
+        public UserRole Role { get; private set; } = UserRole.Admin;
 
         private readonly List<Driver> _drivers = new();
         public IReadOnlyCollection<Driver> Drivers => _drivers.AsReadOnly();
@@ -22,11 +23,12 @@ namespace Spotless.Domain.Entities
 
         protected Admin() { }
 
-        public Admin(string name, string email, AdminRole role) : base()
+        public Admin(string name, string email, AdminRole adminrole) : base()
         {
             Name = name;
             Email = email;
-            Role = role;
+            AdminRole = adminrole;
+            this.Role = UserRole.Admin;
         }
 
     }

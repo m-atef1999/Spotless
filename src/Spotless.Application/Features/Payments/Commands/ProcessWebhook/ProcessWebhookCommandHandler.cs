@@ -17,10 +17,8 @@ namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
 
         public async Task<Unit> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
         {
-            // 1. Verify status with the external gateway
             PaymentStatus finalStatus = await _paymentGatewayService
                 .VerifyPaymentAsync(request.PaymentReference, cancellationToken);
-
 
             if (!Guid.TryParse(request.PaymentReference, out Guid paymentId))
                 throw new ArgumentException("Invalid payment reference format.");
@@ -30,23 +28,26 @@ namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
             if (payment == null)
                 throw new KeyNotFoundException($"Payment record with ID {paymentId} not found.");
 
-
             if (finalStatus == PaymentStatus.Completed)
             {
                 payment.CompletePayment();
 
 
-                var order = await _unitOfWork.Orders.GetByIdAsync(payment.OrderId);
-                if (order != null)
+                if (payment.OrderId.HasValue)
                 {
 
-                    order.SetStatus(OrderStatus.PickedUp);
-                    await _unitOfWork.Orders.UpdateAsync(order);
+                    var order = await _unitOfWork.Orders.GetByIdAsync(payment.OrderId.Value);
+
+                    if (order != null)
+                    {
+                        order.SetStatus(OrderStatus.PickedUp);
+                        await _unitOfWork.Orders.UpdateAsync(order);
+                    }
                 }
             }
             else if (finalStatus == PaymentStatus.Failed)
             {
-
+                // TODO: Add logic here to handle failed payment status (e.g., payment.FailPayment())
             }
 
             await _unitOfWork.Payments.UpdateAsync(payment);

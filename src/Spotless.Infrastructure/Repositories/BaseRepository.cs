@@ -14,10 +14,15 @@ namespace Spotless.Infrastructure.Repositories
         {
             _dbContext = dbContext;
         }
-
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbContext.Set<T>().FindAsync(id);
+        }
+        public async Task<IReadOnlyList<T>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            return await _dbContext.Set<T>()
+                                   .Where(e => ids.Contains(e.Id))
+                                   .ToListAsync();
         }
 
         public async Task<IReadOnlyList<T>> GetAllAsync()

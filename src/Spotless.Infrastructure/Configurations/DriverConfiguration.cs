@@ -11,14 +11,38 @@ namespace Spotless.Infrastructure.Configurations
             builder.ToTable("Drivers");
             builder.HasKey(d => d.Id);
 
-            builder.Property(d => d.Email).IsRequired().HasMaxLength(256);
+            builder.OwnsOne(d => d.CurrentLocation, location =>
+            {
+                location.Property(l => l.Latitude).HasColumnName("CurrentLatitude").HasColumnType("decimal(10,8)").IsRequired(false);
+                location.Property(l => l.Longitude).HasColumnName("CurrentLongitude").HasColumnType("decimal(11,8)").IsRequired(false);
+            });
+
+            builder.Property(d => d.Email)
+                    .IsRequired()
+                    .HasMaxLength(256);
+
+            builder.HasIndex(d => d.Email)
+                   .IsUnique()
+                   .HasDatabaseName("IX_Driver_Email_Unique");
+
+
+            builder.HasIndex(d => d.AdminId)
+                   .HasDatabaseName("IX_Driver_AdminId");
+
+
+
             builder.Property(d => d.VehicleInfo).HasMaxLength(500);
 
-
             builder.HasMany(d => d.Orders)
-                   .WithOne()
-                   .HasForeignKey(o => o.DriverId)
-                   .OnDelete(DeleteBehavior.SetNull);
+                    .WithOne()
+                    .HasForeignKey(o => o.DriverId)
+                    .OnDelete(DeleteBehavior.SetNull);
+
+
+            builder.HasOne<Admin>()
+                    .WithMany(a => a.Drivers)
+                    .HasForeignKey(d => d.AdminId)
+                    .IsRequired(false);
         }
     }
 }

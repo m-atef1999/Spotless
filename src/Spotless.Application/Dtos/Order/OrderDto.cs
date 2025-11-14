@@ -5,14 +5,21 @@ namespace Spotless.Application.Dtos.Order
     public record OrderDto(
         Guid Id,
         Guid CustomerId,
-        Guid ServiceId,
         Guid? DriverId,
+
+        Guid TimeSlotId,
+        DateTime ScheduledDate,
+
+        decimal PickupLatitude,
+        decimal PickupLongitude,
+        decimal DeliveryLatitude,
+        decimal DeliveryLongitude,
+
         decimal TotalPrice,
         string Currency,
-        DateTime PickupTime,
-        DateTime DeliveryTime,
         OrderStatus Status,
         PaymentMethod PaymentMethod,
-        DateTime OrderDate
+        DateTime OrderDate,
+        IReadOnlyList<OrderItemDto> Items
     );
 }

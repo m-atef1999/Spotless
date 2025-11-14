@@ -6,6 +6,8 @@ namespace Spotless.Application.Interfaces
     {
 
         Task<T?> GetByIdAsync(Guid id);
+
+        Task<IReadOnlyList<T>> GetByIdsAsync(IEnumerable<Guid> ids);
         Task<IReadOnlyList<T>> GetAllAsync();
         Task<IReadOnlyList<T>> GetAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
 

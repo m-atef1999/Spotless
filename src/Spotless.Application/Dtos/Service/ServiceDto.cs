@@ -4,6 +4,9 @@
         Guid Id,
         Guid CategoryId,
         string Name,
-        string Description
+        string Description,
+        decimal PricePerUnitAmount,
+        string PricePerUnitCurrency,
+        decimal EstimatedDurationHours
     );
 }

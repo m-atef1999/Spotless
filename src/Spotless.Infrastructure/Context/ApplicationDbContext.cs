@@ -25,8 +25,19 @@ namespace Spotless.Infrastructure.Context
 
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<Customer>(b =>
+            {
+                b.OwnsOne(c => c.Address, a =>
+                {
+                    a.Property(p => p.Street).HasColumnName("Street");
+                    a.Property(p => p.City).HasColumnName("City");
+                    a.Property(p => p.Country).HasColumnName("Country");
+                    a.Property(p => p.ZipCode).HasColumnName("ZipCode");
+                });
+            });
+
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

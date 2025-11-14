@@ -1,4 +1,5 @@
 using Spotless.API.Extensions;
+using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
 using Spotless.Infrastructure.Configurations;
 using Spotless.Infrastructure.Services;
@@ -21,7 +22,8 @@ builder.Services.Configure<DatabaseSettings>(
 builder.Services.Configure<PaymentGatewaySettings>(
     builder.Configuration.GetSection(PaymentGatewaySettings.SettingsKey));
 builder.Services.AddSingleton<IPaymentGatewayService, PaymentGatewayService>();
-
+builder.Services.Configure<ReviewSettings>(
+    builder.Configuration.GetSection(ReviewSettings.SectionName));
 var app = builder.Build();
 
 
