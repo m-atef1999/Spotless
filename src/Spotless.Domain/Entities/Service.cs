@@ -1,4 +1,6 @@
-﻿namespace Spotless.Domain.Entities
+﻿using Spotless.Domain.ValueObjects;
+
+namespace Spotless.Domain.Entities
 {
     public class Service : BaseEntity
     {
@@ -7,15 +9,18 @@
         public string Name { get; private set; } = string.Empty;
         public string Description { get; private set; } = string.Empty;
 
+        public Money PricePerUnit { get; private set; } = Money.Zero;
+
         public virtual Category Category { get; private set; } = null!;
 
         protected Service() { }
 
-        public Service(Guid categoryId, string name, string description) : base()
+        public Service(Guid categoryId, string name, string description, Money price) : base()
         {
             CategoryId = categoryId;
             Name = name;
             Description = description;
+            PricePerUnit = price;
         }
     }
 }

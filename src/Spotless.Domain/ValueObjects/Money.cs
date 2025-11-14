@@ -6,6 +6,7 @@ public sealed record Money
 
     public decimal Amount { get; init; }
     public string Currency { get; init; }
+    public static Money Zero => new Money(0m);
 
     public Money(decimal amount, string currency = "EGP")
     {
