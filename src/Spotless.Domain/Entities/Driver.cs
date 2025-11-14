@@ -31,5 +31,17 @@ namespace Spotless.Domain.Entities
         {
             Status = newStatus;
         }
+
+        public void UpdateProfile(string name, string? phone, string vehicleInfo)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentException("Driver name cannot be empty.");
+            if (string.IsNullOrWhiteSpace(vehicleInfo))
+                throw new ArgumentException("Vehicle information is required.");
+
+            Name = name;
+            Phone = phone;
+            VehicleInfo = vehicleInfo;
+        }
     }
 }

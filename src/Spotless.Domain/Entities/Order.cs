@@ -54,5 +54,22 @@ namespace Spotless.Domain.Entities
 
             this.Status = newStatus;
         }
+
+        public void UpdateDetails(Guid serviceId, DateTime pickupTime, DateTime deliveryTime)
+        {
+            if (this.Status != OrderStatus.Requested || this.DriverId.HasValue)
+            {
+                throw new InvalidOperationException($"Cannot update order details. Status is {this.Status} or a driver is assigned.");
+            }
+
+            if (pickupTime >= deliveryTime)
+            {
+                throw new InvalidOperationException("Pickup time must be before delivery time.");
+            }
+
+            this.ServiceId = serviceId;
+            this.PickupTime = pickupTime;
+            this.DeliveryTime = deliveryTime;
+        }
     }
 }

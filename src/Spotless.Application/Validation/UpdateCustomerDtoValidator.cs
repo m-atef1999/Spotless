@@ -15,7 +15,7 @@ namespace Spotless.Application.Validation
                 .Length(10, 15).When(x => !string.IsNullOrWhiteSpace(x.Phone))
                 .WithMessage("Phone number must be between 10 and 15 digits.");
 
-            RuleFor(x => x.Address.City).NotEmpty().WithMessage("City is required for update.");
+            RuleFor(x => x.City).NotEmpty().WithMessage("City is required for update.");
         }
     }
 }

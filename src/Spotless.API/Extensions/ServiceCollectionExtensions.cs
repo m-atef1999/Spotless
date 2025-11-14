@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Spotless.Application.Behaviors;
 using Spotless.Application.Dtos.Order;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Validation;
@@ -98,6 +100,12 @@ namespace Spotless.API.Extensions
                     typeof(OrderDto).Assembly
                 )
             );
+            services.AddMediatR(cfg =>
+        cfg.RegisterServicesFromAssembly(typeof(Spotless.Application.AssemblyMarker).Assembly));
+
+            services.AddValidatorsFromAssembly(typeof(Spotless.Application.AssemblyMarker).Assembly);
+
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
             services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
             services.AddScoped<IPricingService, PricingService>();

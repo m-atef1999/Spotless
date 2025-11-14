@@ -3,8 +3,7 @@
     public record ServiceDto(
         Guid Id,
         Guid CategoryId,
-        string CategoryName,
         string Name,
-        string Description,
-        string CategoryPrice);
+        string Description
+    );
 }

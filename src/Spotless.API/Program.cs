@@ -1,4 +1,7 @@
 using Spotless.API.Extensions;
+using Spotless.Application.Interfaces;
+using Spotless.Infrastructure.Configurations;
+using Spotless.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +16,11 @@ builder.Services
     .AddRepositories()
     .AddIdentityAndAuthentication(builder.Configuration)
     .AddApplicationServices();
-
+builder.Services.Configure<DatabaseSettings>(
+    builder.Configuration.GetSection(DatabaseSettings.SettingsKey));
+builder.Services.Configure<PaymentGatewaySettings>(
+    builder.Configuration.GetSection(PaymentGatewaySettings.SettingsKey));
+builder.Services.AddSingleton<IPaymentGatewayService, PaymentGatewayService>();
 
 var app = builder.Build();
 
