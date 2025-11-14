@@ -7,20 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Features\a\**" />
+    <Compile Remove="Features\Customers\Commands\UpdateOrder\**" />
+    <EmbeddedResource Remove="Features\a\**" />
+    <EmbeddedResource Remove="Features\Customers\Commands\UpdateOrder\**" />
+    <None Remove="Features\a\**" />
+    <None Remove="Features\Customers\Commands\UpdateOrder\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentValidation" Version="12.1.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
     <PackageReference Include="MediatR" Version="13.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Spotless.Domain\Spotless.Domain.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Features\Customers\Commands\UpdateOrder\" />
-    <Folder Include="Features\Customers\Queries\ListCustomerOrders\" />
-    <Folder Include="Features\a\Commands\" />
-    <Folder Include="Features\a\Queries\GetCustomerProfile\" />
   </ItemGroup>
 
 </Project>

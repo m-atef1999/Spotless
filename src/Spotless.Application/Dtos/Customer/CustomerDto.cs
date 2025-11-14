@@ -1,5 +1,4 @@
 ﻿using Spotless.Domain.Enums;
-using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Dtos.Customer
 {
@@ -8,7 +7,12 @@ namespace Spotless.Application.Dtos.Customer
         string Name,
         string? Phone,
         string Email,
-        Address Address,
+        string Street,
+        string City,
+        string Country,
+        string? ZipCode,
         decimal WalletBalance,
-        CustomerType Type);
+        string WalletCurrency,
+        CustomerType Type
+    );
 }

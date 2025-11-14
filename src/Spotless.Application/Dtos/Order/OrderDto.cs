@@ -1,12 +1,18 @@
-﻿namespace Spotless.Application.Dtos.Order
+﻿using Spotless.Domain.Enums;
+
+namespace Spotless.Application.Dtos.Order
 {
     public record OrderDto(
         Guid Id,
         Guid CustomerId,
         Guid ServiceId,
-        string ServiceName,
-        string TotalPrice,
-        string Status,
-        DateTime OrderDate,
-        DateTime DeliveryTime);
+        Guid? DriverId,
+        decimal TotalPrice,
+        string Currency,
+        DateTime PickupTime,
+        DateTime DeliveryTime,
+        OrderStatus Status,
+        PaymentMethod PaymentMethod,
+        DateTime OrderDate
+    );
 }

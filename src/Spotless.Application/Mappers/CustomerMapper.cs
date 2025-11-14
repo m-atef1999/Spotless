@@ -7,20 +7,25 @@ namespace Spotless.Application.Mappers
     {
         public static CustomerDto ToDto(this Customer customer)
         {
+
+            var address = customer.Address;
+
             return new CustomerDto(
                 Id: customer.Id,
                 Name: customer.Name,
                 Phone: customer.Phone,
                 Email: customer.Email,
-                Address: customer.Address,
+
+                Street: address.Street,
+                City: address.City,
+                Country: address.Country,
+                ZipCode: address.ZipCode,
+
                 WalletBalance: customer.WalletBalance.Amount,
-                Type: customer.Type);
+                WalletCurrency: customer.WalletBalance.Currency,
+                Type: customer.Type
+            );
         }
 
-
-        public static void UpdateFromDto(this Customer customer, UpdateCustomerDto dto)
-        {
-            customer.UpdateProfile(dto.Name, dto.Phone, dto.Address);
-        }
     }
 }
