@@ -1,39 +1,35 @@
 using Spotless.API.Extensions;
 
-namespace Spotless.API
+var builder = WebApplication.CreateBuilder(args);
+
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
+builder.Services
+    .AddDatabaseConfiguration(builder.Configuration)
+    .AddRepositories()
+    .AddIdentityAndAuthentication(builder.Configuration)
+    .AddApplicationServices();
+
+
+var app = builder.Build();
+
+
+if (app.Environment.IsDevelopment())
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            var builder = WebApplication.CreateBuilder(args);
-
-
-            builder.Services.AddControllers();
-
-
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-
-            builder.Services.AddDatabaseConfiguration(builder.Configuration);
-            builder.Services.AddApplicationServices();
-            builder.Services.AddRepositories();
-
-            var app = builder.Build();
-
-
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseAuthorization();
-            app.MapControllers();
-
-            app.Run();
-        }
-    }
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

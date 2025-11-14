@@ -14,13 +14,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="12.0.0" />
+    <PackageReference Include="AutoMapper" Version="15.1.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
+    <PackageReference Include="MediatR" Version="13.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.22" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
   </ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Spotless.Application\Spotless.Application.csproj" />
 		<ProjectReference Include="..\Spotless.Domain\Spotless.Domain.csproj" />
-		<ProjectReference Include="..\Spotless.Data\Spotless.Data.csproj" />
+		<ProjectReference Include="..\Spotless.Infrastructure\Spotless.Infrastructure.csproj" />
 	</ItemGroup>
 
 </Project>

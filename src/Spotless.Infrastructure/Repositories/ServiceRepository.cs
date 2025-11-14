@@ -1,0 +1,19 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Spotless.Application.Interfaces;
+using Spotless.Domain.Entities;
+using Spotless.Infrastructure.Context;
+
+namespace Spotless.Infrastructure.Repositories
+{
+    public class ServiceRepository : BaseRepository<Service>, IServiceRepository
+    {
+        public ServiceRepository(ApplicationDbContext dbContext) : base(dbContext) { }
+
+        public async Task<IReadOnlyList<Service>> GetServicesByCategoryId(Guid categoryId)
+        {
+            return await _dbContext.Services
+                                   .Where(s => s.CategoryId == categoryId)
+                                   .ToListAsync();
+        }
+    }
+}

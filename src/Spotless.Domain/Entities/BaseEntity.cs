@@ -2,8 +2,20 @@
 {
     public abstract class BaseEntity
     {
-        public int Id { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
+        public Guid Id { get; protected set; }
+
+        public DateTime CreatedAt { get; private set; }
+        public DateTime? UpdatedAt { get; private set; }
+
+        protected BaseEntity()
+        {
+            Id = Guid.NewGuid();
+            CreatedAt = DateTime.UtcNow;
+        }
+
+        public void MarkAsUpdated()
+        {
+            UpdatedAt = DateTime.UtcNow;
+        }
     }
 }
