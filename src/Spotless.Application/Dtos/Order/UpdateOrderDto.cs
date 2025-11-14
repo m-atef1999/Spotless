@@ -2,7 +2,11 @@
 {
     public record UpdateOrderDto(
         Guid ServiceId,
-        DateTime PickupTime,
-        DateTime DeliveryTime
+        Guid TimeSlotId,
+        DateTime ScheduledDate,
+        decimal PickupLatitude,
+        decimal PickupLongitude,
+        decimal DeliveryLatitude,
+        decimal DeliveryLongitude
     );
 }

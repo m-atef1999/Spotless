@@ -3,7 +3,7 @@ using Spotless.Application.Dtos.Order;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
 
-namespace Spotless.Application.Features.Customers.Queries.GetOrderDetails
+namespace Spotless.Application.Features.Orders.Queries.GetOrderDetails
 {
     public class GetOrderDetailsQueryHandler : IRequestHandler<GetOrderDetailsQuery, OrderDto>
     {

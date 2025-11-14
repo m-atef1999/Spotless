@@ -8,7 +8,7 @@ namespace Spotless.Domain.Entities
 
         public Guid CustomerId { get; private set; }
         public Guid? AdminId { get; private set; }
-        public Guid OrderId { get; private set; }
+        public Guid? OrderId { get; private set; }
 
 
         public Money Amount { get; private set; } = null!;
@@ -20,6 +20,7 @@ namespace Spotless.Domain.Entities
         public virtual Customer Customer { get; private set; } = null!;
         public virtual Admin? Admin { get; private set; }
 
+        public virtual Order? Order { get; private set; }
         protected Payment() { }
 
         public Payment(Guid customerId, Guid orderId, Money amount, PaymentMethod method, Guid? adminId = null) : base()

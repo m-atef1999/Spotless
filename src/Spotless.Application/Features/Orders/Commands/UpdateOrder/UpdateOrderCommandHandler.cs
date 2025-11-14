@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Spotless.Application.Interfaces;
+using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Features.Orders.Commands.UpdateOrder
 {
@@ -26,10 +27,14 @@ namespace Spotless.Application.Features.Orders.Commands.UpdateOrder
                 throw new UnauthorizedAccessException("You do not have permission to update this order.");
             }
 
+            var newPickupLocation = new Location(request.Dto.PickupLatitude, request.Dto.PickupLongitude);
+            var newDeliveryLocation = new Location(request.Dto.DeliveryLatitude, request.Dto.DeliveryLongitude);
+
             order.UpdateDetails(
-                request.Dto.ServiceId,
-                request.Dto.PickupTime,
-                request.Dto.DeliveryTime
+                request.Dto.TimeSlotId,
+                request.Dto.ScheduledDate,
+                newPickupLocation,
+                newDeliveryLocation
             );
 
             await _unitOfWork.Orders.UpdateAsync(order);

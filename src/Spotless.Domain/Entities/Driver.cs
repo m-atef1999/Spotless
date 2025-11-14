@@ -1,4 +1,5 @@
 ﻿using Spotless.Domain.Enums;
+using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Domain.Entities
 {
@@ -11,9 +12,12 @@ namespace Spotless.Domain.Entities
         public string? Phone { get; private set; }
         public string VehicleInfo { get; private set; } = string.Empty;
         public DriverStatus Status { get; private set; } = DriverStatus.Offline;
+        public Location CurrentLocation { get; private set; } = null!;
 
         private readonly List<Order> _orders = new();
         public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
+
+        public UserRole Role { get; private set; } = UserRole.Driver;
 
         protected Driver() { }
 
@@ -25,6 +29,7 @@ namespace Spotless.Domain.Entities
             Phone = phone;
             VehicleInfo = vehicleInfo;
             Status = DriverStatus.Offline;
+            this.Role = UserRole.Driver;
         }
 
         public void UpdateStatus(DriverStatus newStatus)
@@ -42,6 +47,11 @@ namespace Spotless.Domain.Entities
             Name = name;
             Phone = phone;
             VehicleInfo = vehicleInfo;
+        }
+
+        public void UpdateLocation(decimal lat, decimal lon)
+        {
+            CurrentLocation = new Location(lat, lon);
         }
     }
 }

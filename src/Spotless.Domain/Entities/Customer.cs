@@ -10,16 +10,15 @@ namespace Spotless.Domain.Entities
         public string? Phone { get; private set; }
         public string Email { get; private set; } = string.Empty;
         public Address Address { get; private set; } = null!;
+        public Location DefaultLocation { get; private set; } = null!;
         public Money WalletBalance { get; private set; } = new Money(0, "EGP");
         public CustomerType Type { get; private set; }
+        public UserRole Role { get; private set; } = UserRole.Customer;
 
-
-        private readonly List<Order> _orders = new();
-        public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
-
+        public virtual ICollection<Order> Orders { get; private set; } = new List<Order>();
+        public virtual ICollection<Payment> Payments { get; private set; } = new List<Payment>();
 
         protected Customer() { }
-
 
         public Customer(Guid? adminId, string name, string? phone, string email, Address address, CustomerType type) : base()
         {
@@ -29,6 +28,7 @@ namespace Spotless.Domain.Entities
             Email = email;
             Address = address;
             Type = type;
+            Role = UserRole.Customer;
         }
 
         public void UpdateProfile(string name, string? phone, Address address)

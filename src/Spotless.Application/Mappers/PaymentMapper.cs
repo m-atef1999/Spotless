@@ -9,7 +9,7 @@ namespace Spotless.Application.Mappers
         {
             return new PaymentDto(
                 Id: payment.Id,
-                OrderId: payment.OrderId,
+                OrderId: payment.OrderId ?? Guid.Empty,
                 Amount: payment.Amount.Amount,
                 Currency: payment.Amount.Currency,
                 PaymentDate: payment.PaymentDate,
