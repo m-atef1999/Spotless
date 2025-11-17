@@ -2,7 +2,7 @@
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Enums;
 
-namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
+namespace Spotless.Application.Features.Payments
 {
     public class ProcessWebhookCommandHandler : IRequestHandler<ProcessWebhookCommand, Unit>
     {

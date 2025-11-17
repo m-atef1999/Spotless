@@ -3,7 +3,7 @@ using Spotless.Application.Dtos.Service;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
 
-namespace Spotless.Application.Features.Services.Queries.GetFeaturedServices
+namespace Spotless.Application.Features.Services
 {
     public class GetFeaturedServicesQueryHandler : IRequestHandler<GetFeaturedServicesQuery, IReadOnlyList<ServiceDto>>
     {

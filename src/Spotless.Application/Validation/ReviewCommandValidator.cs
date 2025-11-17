@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.Options;
 using Spotless.Application.Configurations;
-using Spotless.Application.Features.Reviews.Commands.CreateReview;
+using Spotless.Application.Features.Reviews;
 
 namespace Spotless.Application.Validation
 {

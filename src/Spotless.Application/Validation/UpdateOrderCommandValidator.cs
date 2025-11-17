@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Spotless.Application.Features.Orders.Commands.UpdateOrder;
+using Spotless.Application.Features.Orders;
 
 namespace Spotless.Application.Validation
 {

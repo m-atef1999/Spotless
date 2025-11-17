@@ -5,7 +5,7 @@ using Spotless.Application.Mappers;
 using Spotless.Domain.Enums;
 
 
-namespace Spotless.Application.Features.Orders.Commands.CreateOrder
+namespace Spotless.Application.Features.Orders
 {
     public class CreateOrderCommandHandler : IRequestHandler<CreateOrderCommand, OrderDto>
     {

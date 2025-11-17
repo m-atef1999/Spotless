@@ -102,7 +102,7 @@ namespace Spotless.API.Extensions
                 )
             );
             services.AddMediatR(cfg =>
-        cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
+                cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
 
             services.AddValidatorsFromAssembly(typeof(AssemblyMarker).Assembly);
 
@@ -110,7 +110,7 @@ namespace Spotless.API.Extensions
 
             services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
             services.AddScoped<IPricingService, PricingService>();
-
+            services.AddScoped<IEmailService, EmailService>();
 
             return services;
         }

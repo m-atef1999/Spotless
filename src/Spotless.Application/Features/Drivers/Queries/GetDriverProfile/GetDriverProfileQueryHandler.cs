@@ -3,7 +3,7 @@ using Spotless.Application.Dtos.Driver;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
 
-namespace Spotless.Application.Features.Drivers.Queries.GetDriverProfile
+namespace Spotless.Application.Features.Drivers
 {
     public class GetDriverProfileQueryHandler : IRequestHandler<GetDriverProfileQuery, DriverProfileDto>
     {

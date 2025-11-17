@@ -4,12 +4,14 @@ using Spotless.Application.Interfaces;
 using Spotless.Infrastructure.Configurations;
 using Spotless.Infrastructure.Services;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 
 
 builder.Services
@@ -26,6 +28,18 @@ builder.Services.Configure<ReviewSettings>(
     builder.Configuration.GetSection(ReviewSettings.SectionName));
 var app = builder.Build();
 
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Attempting to seed database...");
+
+try
+{
+    await Spotless.Infrastructure.Data.DbInitializer.SeedAsync(app.Services);
+    logger.LogInformation("Database seeding completed successfully.");
+}
+catch (Exception ex)
+{
+    logger.LogError(ex, "An error occurred during database seeding.");
+}
 
 if (app.Environment.IsDevelopment())
 {

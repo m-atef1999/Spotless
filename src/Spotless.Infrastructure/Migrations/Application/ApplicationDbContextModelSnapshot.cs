@@ -420,7 +420,7 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                     b.HasKey("Id");
 
-                    b.ToTable("TimeSlot");
+                    b.ToTable("TimeSlots");
                 });
 
             modelBuilder.Entity("Spotless.Domain.Entities.Category", b =>
@@ -432,13 +432,13 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
-                                .HasColumnName("PriceAmount");
+                                .HasColumnName("Price_Amount");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
-                                .HasMaxLength(5)
-                                .HasColumnType("nvarchar(5)")
-                                .HasColumnName("PriceCurrency");
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasColumnName("Price_Currency");
 
                             b1.HasKey("CategoryId");
 
@@ -821,13 +821,13 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
-                                .HasColumnName("BasePriceAmount");
+                                .HasColumnName("BasePrice_Amount");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
-                                .HasMaxLength(5)
-                                .HasColumnType("nvarchar(5)")
-                                .HasColumnName("BasePriceCurrency");
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasColumnName("BasePrice_Currency");
 
                             b1.HasKey("ServiceId");
 
@@ -844,13 +844,13 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                             b1.Property<decimal>("Amount")
                                 .HasColumnType("decimal(18,2)")
-                                .HasColumnName("PricePerUnitAmount");
+                                .HasColumnName("PricePerUnit_Amount");
 
                             b1.Property<string>("Currency")
                                 .IsRequired()
-                                .HasMaxLength(5)
-                                .HasColumnType("nvarchar(5)")
-                                .HasColumnName("PricePerUnitCurrency");
+                                .HasMaxLength(3)
+                                .HasColumnType("nvarchar(3)")
+                                .HasColumnName("PricePerUnit_Currency");
 
                             b1.HasKey("ServiceId");
 

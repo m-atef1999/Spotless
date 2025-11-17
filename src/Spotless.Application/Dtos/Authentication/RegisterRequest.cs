@@ -1,8 +1,16 @@
-﻿namespace Spotless.Application.Dtos.Authentication
+﻿using Spotless.Domain.Enums;
+
+namespace Spotless.Application.Dtos.Authentication
 {
     public record RegisterRequest(
-        string Name,
         string Email,
         string Password,
-        string? Phone);
+        string Name,
+        string? Phone,
+        CustomerType Type,
+        string Street,
+        string City,
+        string Country,
+        string? ZipCode
+    );
 }

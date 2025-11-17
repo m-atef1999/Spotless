@@ -3,7 +3,7 @@ using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.Enums;
 
-namespace Spotless.Application.Features.Payments.Commands.InitiatePayment
+namespace Spotless.Application.Features.Payments
 {
     public class InitiatePaymentCommandHandler : IRequestHandler<InitiatePaymentCommand, string>
     {

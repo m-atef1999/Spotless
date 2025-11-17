@@ -2,7 +2,7 @@
 using Spotless.Application.Interfaces;
 using Spotless.Domain.ValueObjects;
 
-namespace Spotless.Application.Features.Orders.Commands.UpdateOrder
+namespace Spotless.Application.Features.Orders
 {
     public class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderCommand, Unit>
     {

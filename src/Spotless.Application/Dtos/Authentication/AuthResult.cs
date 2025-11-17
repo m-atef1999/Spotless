@@ -3,6 +3,9 @@
     public record AuthResult(
         Guid UserId,
         string Email,
-        string Token,
-        DateTime ExpiresOn);
+        string AccessToken,
+        DateTime AccessTokenExpiration,
+        string RefreshToken,
+        DateTime RefreshTokenExpiration
+        );
 }

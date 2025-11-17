@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using Spotless.Application.Features.Drivers.Commands.UpdateDriverProfile;
+using Spotless.Application.Features.Drivers;
 
 namespace Spotless.Application.Validation
 {
