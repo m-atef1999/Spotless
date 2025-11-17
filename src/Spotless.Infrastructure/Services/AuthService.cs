@@ -14,13 +14,15 @@ namespace Spotless.Infrastructure.Services
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IEmailService _emailService;
+        private readonly ISmsService _smsService;
 
-        public AuthService(UserManager<ApplicationUser> userManager, IJwtTokenGenerator jwtTokenGenerator, IUnitOfWork unitOfWork, IEmailService emailService)
+        public AuthService(UserManager<ApplicationUser> userManager, IJwtTokenGenerator jwtTokenGenerator, IUnitOfWork unitOfWork, IEmailService emailService, ISmsService smsService)
         {
             _userManager = userManager;
             _jwtTokenGenerator = jwtTokenGenerator;
             _unitOfWork = unitOfWork;
             _emailService = emailService;
+            _smsService = smsService;
         }
 
         public async Task<AuthResult> RegisterAsync(RegisterRequest request, string role)
@@ -224,6 +226,52 @@ namespace Spotless.Infrastructure.Services
             );
 
             return true;
+        }
+        public async Task<bool> SendPhoneVerificationOtpAsync(string phoneNumber)
+        {
+
+            var user = await _userManager.Users.SingleOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+
+            if (user == null)
+            {
+
+                return true;
+            }
+
+
+            if (user.PhoneNumberConfirmed)
+            {
+
+                return true;
+            }
+
+            return await _smsService.SendOtpAsync(phoneNumber);
+        }
+        public async Task<bool> VerifyPhoneOtpAsync(string phoneNumber, string code)
+        {
+
+            var isCodeValid = await _smsService.VerifyOtpAsync(phoneNumber, code);
+
+            if (!isCodeValid)
+            {
+                return false;
+            }
+
+
+            var user = await _userManager.Users
+                                         .SingleOrDefaultAsync(u => u.PhoneNumber == phoneNumber);
+
+            if (user == null)
+            {
+
+                return false;
+            }
+
+
+            user.PhoneNumberConfirmed = true;
+            var updateResult = await _userManager.UpdateAsync(user);
+
+            return updateResult.Succeeded;
         }
     }
 

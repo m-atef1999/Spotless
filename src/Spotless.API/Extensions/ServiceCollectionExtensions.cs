@@ -111,6 +111,7 @@ namespace Spotless.API.Extensions
             services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
             services.AddScoped<IPricingService, PricingService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ISmsService, DummySmsService>();
 
             return services;
         }

@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Spotless.Application.Commands.Authentication;
 using Spotless.Application.Dtos.Authentication;
-using Spotless.Application.Features.Authentication.Commands.ForgotPassword;
+using Spotless.Application.Features.Authentication;
+using Spotless.Application.Features.Customers;
 using System.Security.Claims;
 
 
@@ -148,6 +148,39 @@ namespace Spotless.API.Controllers
 
             return Ok("Email successfully confirmed. You can now log in.");
 
+        }
+
+
+        [HttpPost("verify-phone/send-otp")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SendPhoneVerification([FromBody] SendOtpCommand command)
+        {
+            var success = await _mediator.Send(command);
+
+
+            if (!success)
+            {
+                return BadRequest(new { Message = "Service failed to initiate OTP sending. Please try again." });
+            }
+
+            return Ok("Verification code sent successfully (or request processed).");
+        }
+
+
+        [HttpPost("verify-phone/confirm-otp")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ConfirmPhoneVerification([FromBody] VerifyOtpCommand command)
+        {
+            var success = await _mediator.Send(command);
+
+            if (!success)
+            {
+                return BadRequest(new { Message = "Verification failed. Invalid code, invalid phone number, or user not found." });
+            }
+
+            return Ok("Phone number successfully verified.");
         }
     }
 }
