@@ -7,10 +7,12 @@ using Microsoft.IdentityModel.Tokens;
 using Spotless.Application.Behaviors;
 using Spotless.Application.Dtos.Order;
 using Spotless.Application.Interfaces;
+using Spotless.Application.Mappers;
 using Spotless.Application.Markers;
 using Spotless.Application.Validation;
 using Spotless.Infrastructure.Context;
 using Spotless.Infrastructure.Identity;
+using Spotless.Infrastructure.Mappers;
 using Spotless.Infrastructure.Repositories;
 using Spotless.Infrastructure.Services;
 using System.Text;
@@ -112,6 +114,8 @@ namespace Spotless.API.Extensions
             services.AddScoped<IPricingService, PricingService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISmsService, DummySmsService>();
+            services.AddScoped<IOrderMapper, OrderMapper>();
+            services.AddScoped<ICustomerMapper, CustomerMapper>();
 
             return services;
         }

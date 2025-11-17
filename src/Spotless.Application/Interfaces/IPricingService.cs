@@ -5,12 +5,15 @@ namespace Spotless.Application.Interfaces
 {
     public interface IPricingService
     {
-        Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<OrderItemDto> items);
+
+        Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<CreateOrderItemDto> items);
+
         Money CalculateTotal(IReadOnlyList<PriceCalculationResult> itemPrices);
 
     }
+
     public record PriceCalculationResult(
-    Guid ServiceId,
-    Money Price
-);
+        Guid ServiceId,
+        Money Price
+    );
 }

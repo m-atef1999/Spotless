@@ -4,14 +4,11 @@ namespace Spotless.Domain.Entities
 {
     public class OrderItem : BaseEntity
     {
-
         public Guid OrderId { get; private set; }
         public Guid ServiceId { get; private set; }
 
-
         public Money Price { get; private set; } = null!;
         public int Quantity { get; private set; }
-
 
         public virtual Order Order { get; private set; } = null!;
         public virtual Service Service { get; private set; } = null!;
@@ -31,7 +28,6 @@ namespace Spotless.Domain.Entities
             Quantity = quantity;
         }
 
-
         public void UpdateQuantity(int newQuantity)
         {
             if (newQuantity <= 0)
@@ -39,6 +35,17 @@ namespace Spotless.Domain.Entities
                 throw new ArgumentOutOfRangeException(nameof(newQuantity), "Quantity must be greater than zero.");
             }
             Quantity = newQuantity;
+        }
+
+
+        public void UpdateServiceId(Guid newServiceId)
+        {
+            if (newServiceId == Guid.Empty)
+            {
+                throw new ArgumentException("Service ID cannot be empty.", nameof(newServiceId));
+            }
+
+            ServiceId = newServiceId;
         }
     }
 }

@@ -13,7 +13,8 @@ namespace Spotless.Infrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<OrderItemDto> items)
+
+        public async Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<CreateOrderItemDto> items)
         {
             var results = new List<PriceCalculationResult>();
 
@@ -23,18 +24,15 @@ namespace Spotless.Infrastructure.Services
 
             var services = await _unitOfWork.Services.GetByIdsAsync(serviceIds);
 
-
-
             foreach (var itemDto in items)
             {
-
                 var service = services.FirstOrDefault(s => s.Id == itemDto.ServiceId);
-
 
                 if (service == null)
                 {
                     throw new KeyNotFoundException($"Service with ID {itemDto.ServiceId} not found.");
                 }
+
 
                 var itemPrice = service.PricePerUnit.Multiply(itemDto.Quantity);
 
@@ -46,7 +44,6 @@ namespace Spotless.Infrastructure.Services
 
         public Money CalculateTotal(IReadOnlyList<PriceCalculationResult> itemPrices)
         {
-
             if (itemPrices == null || !itemPrices.Any())
             {
                 return Money.Zero;

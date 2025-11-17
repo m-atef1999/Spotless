@@ -8,28 +8,31 @@ namespace Spotless.Application.Features.Services
     public class GetFeaturedServicesQueryHandler : IRequestHandler<GetFeaturedServicesQuery, IReadOnlyList<ServiceDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IServiceMapper _serviceMapper;
 
-        public GetFeaturedServicesQueryHandler(IUnitOfWork unitOfWork)
+        public GetFeaturedServicesQueryHandler(IUnitOfWork unitOfWork, IServiceMapper serviceMapper)
         {
             _unitOfWork = unitOfWork;
+            _serviceMapper = serviceMapper;
         }
 
         public async Task<IReadOnlyList<ServiceDto>> Handle(GetFeaturedServicesQuery request, CancellationToken cancellationToken)
         {
+            var featuredServices = await _unitOfWork.Services.GetPagedAsync(
+                filter: s => true,
+                skip: 0,
+                take: request.Count,
+                include: null,
+                orderBy: q => q.OrderBy(s => s.Name)
+            );
 
-            var allServices = await _unitOfWork.Services.GetAllAsync();
-
-            if (allServices == null || !allServices.Any())
+            if (!featuredServices.Any())
             {
                 return new List<ServiceDto>();
             }
 
 
-            var featuredServices = allServices
-                .Take(request.Count)
-                .ToList();
-
-            return featuredServices.Select(s => s.ToDto()).ToList();
+            return _serviceMapper.MapToDto(featuredServices).ToList();
         }
     }
 }

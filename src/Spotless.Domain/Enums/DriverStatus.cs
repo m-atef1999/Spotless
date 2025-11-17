@@ -4,6 +4,7 @@
     {
         Available,
         Busy,
-        Offline
+        Offline,
+        PendingApproval
     }
 }

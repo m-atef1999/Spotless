@@ -3,9 +3,6 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Drivers
 {
-
-
-
     public class UpdateDriverProfileCommandHandler : IRequestHandler<UpdateDriverProfileCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -26,10 +23,18 @@ namespace Spotless.Application.Features.Drivers
                 throw new KeyNotFoundException($"Driver profile not found for ID: {request.DriverId}");
             }
 
+
+
+            string newName = dto.Name ?? driver.Name;
+            string? newPhone = dto.Phone ?? driver.Phone;
+            string newVehicleInfo = dto.VehicleInfo ?? driver.VehicleInfo;
+
+
+
             driver.UpdateProfile(
-                dto.Name,
-                dto.Phone,
-                dto.VehicleInfo
+                newName,
+                newPhone,
+                newVehicleInfo
             );
 
             await _unitOfWork.Drivers.UpdateAsync(driver);

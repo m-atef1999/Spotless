@@ -1,30 +1,67 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Spotless.Application.Dtos.Order;
+using Spotless.Application.Dtos.Responses;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
+using Spotless.Domain.Entities;
+using System.Linq.Expressions;
 
 namespace Spotless.Application.Features.Orders
 {
-    public class ListCustomerOrdersQueryHandler : IRequestHandler<ListCustomerOrdersQuery, IReadOnlyList<OrderDto>>
+    public class ListCustomerOrdersQueryHandler : IRequestHandler<ListCustomerOrdersQuery, PagedResponse<OrderDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IOrderMapper _orderMapper;
 
-        public ListCustomerOrdersQueryHandler(IUnitOfWork unitOfWork)
+        public ListCustomerOrdersQueryHandler(IUnitOfWork unitOfWork, IOrderMapper orderMapper)
         {
             _unitOfWork = unitOfWork;
+            _orderMapper = orderMapper;
         }
 
-        public async Task<IReadOnlyList<OrderDto>> Handle(ListCustomerOrdersQuery request, CancellationToken cancellationToken)
+
+        public async Task<PagedResponse<OrderDto>> Handle(ListCustomerOrdersQuery request, CancellationToken cancellationToken)
         {
 
-            var orders = await _unitOfWork.Orders.GetAsync(o => o.CustomerId == request.CustomerId);
+            var filterExpression = BuildFilterExpression(request);
 
-            if (orders == null || !orders.Any())
-            {
-                return new List<OrderDto>();
-            }
 
-            return orders.Select(o => o.ToDto()).ToList();
+            var totalRecords = await _unitOfWork.Orders.CountAsync(filterExpression);
+
+            var orders = await _unitOfWork.Orders.GetPagedAsync(
+                filterExpression,
+                request.Skip,
+                request.PageSize,
+
+
+                include: query => query.Include(o => o.Customer).Include(o => o.Items),
+
+
+                orderBy: q => q.OrderByDescending(o => o.OrderDate)
+            );
+
+
+            var orderDtos = _orderMapper.MapToDto(orders).ToList();
+
+
+            return new PagedResponse<OrderDto>(
+                orderDtos,
+                totalRecords,
+                request.PageNumber,
+                request.PageSize
+            );
+        }
+
+
+        private Expression<Func<Order, bool>> BuildFilterExpression(ListCustomerOrdersQuery request)
+        {
+            return order =>
+
+                order.CustomerId == request.CustomerId &&
+
+
+                (!request.StatusFilter.HasValue || order.Status == request.StatusFilter.Value);
         }
     }
 }

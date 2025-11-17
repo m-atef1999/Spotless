@@ -8,44 +8,44 @@ namespace Spotless.Application.Validation
         public CreateOrderDtoValidator()
         {
 
-            RuleFor(x => x.Items)
-                .NotEmpty().WithMessage("The order must contain at least one service item.")
-                .Must(items => items != null && items.All(item => item.Quantity > 0))
-                    .WithMessage("All order items must have a positive quantity.");
-
-
-            RuleFor(x => x.TimeSlotId)
-                .NotEmpty().WithMessage("A time slot ID is required.")
-                .Must(BeAValidGuid).WithMessage("Time Slot ID must be a valid GUID.");
-
             RuleFor(x => x.ScheduledDate)
                 .NotEmpty().WithMessage("Scheduled date is required.")
-                .GreaterThan(DateTime.Today)
-                    .WithMessage("Scheduled date must be today or in the future.");
+                .Must(date => date.Date >= DateTime.UtcNow.Date)
+                .WithMessage("Scheduled date cannot be in the past.");
+
+            RuleFor(x => x.TimeSlotId)
+                .NotEmpty().WithMessage("Time slot selection is required.");
 
 
             RuleFor(x => x.PaymentMethod)
-                .IsInEnum().WithMessage("Invalid payment method.");
+                .IsInEnum().WithMessage("Invalid payment method specified.");
+
 
 
             RuleFor(x => x.PickupLatitude)
-                .InclusiveBetween(-90, 90).WithMessage("Pickup latitude must be between -90 and 90 degrees.");
+                .InclusiveBetween(-90.0M, 90.0M).WithMessage("Pickup latitude must be between -90 and 90.");
 
 
             RuleFor(x => x.PickupLongitude)
-                .InclusiveBetween(-180, 180).WithMessage("Pickup longitude must be between -180 and 180 degrees.");
+                .InclusiveBetween(-180.0M, 180.0M).WithMessage("Pickup longitude must be between -180 and 180.");
 
 
             RuleFor(x => x.DeliveryLatitude)
-                .InclusiveBetween(-90, 90).WithMessage("Delivery latitude must be between -90 and 90 degrees.");
+                .InclusiveBetween(-90.0M, 90.0M).WithMessage("Delivery latitude must be between -90 and 90.");
 
 
             RuleFor(x => x.DeliveryLongitude)
-                .InclusiveBetween(-180, 180).WithMessage("Delivery longitude must be between -180 and 180 degrees.");
+                .InclusiveBetween(-180.0M, 180.0M).WithMessage("Delivery longitude must be between -180 and 180.");
 
 
+
+            RuleFor(x => x.Items)
+                .NotEmpty().WithMessage("The order must contain at least one item.")
+                .Must(items => items != null && items.Any())
+                .WithMessage("The items list cannot be empty.");
+
+
+            RuleForEach(x => x.Items).SetValidator(new CreateOrderItemDtoValidator());
         }
-
-        private bool BeAValidGuid(Guid id) => id != Guid.Empty;
     }
 }

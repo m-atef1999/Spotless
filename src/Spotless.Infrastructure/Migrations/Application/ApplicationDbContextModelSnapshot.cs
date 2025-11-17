@@ -373,9 +373,6 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<Guid?>("ServiceId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -383,8 +380,6 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                     b.HasIndex("CategoryId")
                         .HasDatabaseName("IX_Service_CategoryId");
-
-                    b.HasIndex("ServiceId");
 
                     b.ToTable("Services", (string)null);
                 });
@@ -810,10 +805,6 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Spotless.Domain.Entities.Service", null)
-                        .WithMany("Services")
-                        .HasForeignKey("ServiceId");
-
                     b.OwnsOne("Spotless.Domain.ValueObjects.Money", "BasePrice", b1 =>
                         {
                             b1.Property<Guid>("ServiceId")
@@ -900,11 +891,6 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.Navigation("Items");
 
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("Spotless.Domain.Entities.Service", b =>
-                {
-                    b.Navigation("Services");
                 });
 
             modelBuilder.Entity("Spotless.Domain.Entities.TimeSlot", b =>

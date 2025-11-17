@@ -80,5 +80,30 @@ namespace Spotless.Domain.Entities
             _items.Add(item);
 
         }
+        public void UpdatePaymentMethod(PaymentMethod newPaymentMethod)
+        {
+
+            PaymentMethod = newPaymentMethod;
+        }
+        public void UpdateService(Guid newServiceId)
+        {
+            if (this.Status != OrderStatus.Requested)
+            {
+                throw new InvalidOperationException($"Cannot change service. Status is {this.Status}.");
+            }
+
+
+            var firstItem = _items.FirstOrDefault();
+
+            if (firstItem == null)
+            {
+
+                throw new InvalidOperationException("Cannot update service: Order contains no items.");
+            }
+
+
+            firstItem.UpdateServiceId(newServiceId);
+
+        }
     }
 }
