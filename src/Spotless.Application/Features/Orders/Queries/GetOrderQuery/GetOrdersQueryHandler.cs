@@ -5,9 +5,9 @@ using Spotless.Application.Dtos.Responses;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
+using System.Linq.Expressions;
 
-
-namespace Spotless.Application.Features.Orders.Queries
+namespace Spotless.Application.Features.Orders.Queries.GetOrderQuery
 {
     public class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, PagedResponse<OrderDto>>
     {
@@ -36,7 +36,8 @@ namespace Spotless.Application.Features.Orders.Queries
                 orderBy: q => q.OrderByDescending(o => o.OrderDate)
             );
 
-            var orderDtos = _orderMapper.MapToDto(orders);
+
+            var orderDtos = _orderMapper.MapToDto(orders).ToList();
 
             return new PagedResponse<OrderDto>(
                 orderDtos,
@@ -46,7 +47,7 @@ namespace Spotless.Application.Features.Orders.Queries
             );
         }
 
-        private System.Linq.Expressions.Expression<Func<Order, bool>> BuildFilterExpression(GetOrdersQuery request)
+        private Expression<Func<Order, bool>> BuildFilterExpression(GetOrdersQuery request)
         {
             return order =>
                 (string.IsNullOrEmpty(request.CustomerEmail) || order.Customer.Email.Contains(request.CustomerEmail!)) &&

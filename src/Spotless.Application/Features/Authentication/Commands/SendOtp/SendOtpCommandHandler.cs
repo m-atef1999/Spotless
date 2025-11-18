@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Spotless.Application.Interfaces;
 
-namespace Spotless.Application.Features.Authentication
+namespace Spotless.Application.Features.Authentication.Commands.SendOtp
 {
     public class SendOtpCommandHandler : IRequestHandler<SendOtpCommand, bool>
     {

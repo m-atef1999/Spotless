@@ -2,7 +2,7 @@
 using Spotless.Application.Dtos.Authentication;
 using Spotless.Application.Interfaces;
 
-namespace Spotless.Application.Features.Customers
+namespace Spotless.Application.Features.Customers.Commands.RegisterCustomer
 {
     public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCommand, AuthResult>
     {

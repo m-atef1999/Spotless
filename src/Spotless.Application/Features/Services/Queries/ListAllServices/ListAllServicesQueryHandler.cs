@@ -6,7 +6,7 @@ using Spotless.Application.Mappers; // Needed for IServiceMapper
 using Spotless.Domain.Entities;
 using System.Linq.Expressions;
 
-namespace Spotless.Application.Features.Services
+namespace Spotless.Application.Features.Services.Queries.ListAllServices
 {
 
     public class ListServicesQueryHandler : IRequestHandler<ListServicesQuery, PagedResponse<ServiceDto>>

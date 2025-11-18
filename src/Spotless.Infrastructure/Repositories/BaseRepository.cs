@@ -15,10 +15,12 @@ namespace Spotless.Infrastructure.Repositories
         {
             _dbContext = dbContext;
         }
+
         public async Task<T?> GetByIdAsync(Guid id)
         {
             return await _dbContext.Set<T>().FindAsync(id);
         }
+
         public async Task<IReadOnlyList<T>> GetByIdsAsync(IEnumerable<Guid> ids)
         {
             return await _dbContext.Set<T>()
@@ -28,11 +30,15 @@ namespace Spotless.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<T>> GetAllAsync()
         {
+
             return await _dbContext.Set<T>().ToListAsync();
         }
 
+
+
         public async Task<IReadOnlyList<T>> GetAsync(Expression<Func<T, bool>> predicate)
         {
+
             return await _dbContext.Set<T>().Where(predicate).ToListAsync();
         }
 
@@ -44,7 +50,6 @@ namespace Spotless.Infrastructure.Repositories
 
         public Task UpdateAsync(T entity)
         {
-
             _dbContext.Entry(entity).State = EntityState.Modified;
             return Task.CompletedTask;
         }
@@ -54,16 +59,19 @@ namespace Spotless.Infrastructure.Repositories
             _dbContext.Set<T>().Remove(entity);
             return Task.CompletedTask;
         }
+
         public async Task<bool> ExistsAsync(Guid id)
         {
             return await _dbContext.Set<T>().AnyAsync(e => e.Id == id);
         }
+
         public async Task<int> CountAsync(Expression<Func<T, bool>> filter)
         {
             return await _dbContext.Set<T>()
                                    .Where(filter)
                                    .CountAsync();
         }
+
         public async Task<IReadOnlyList<T>> GetPagedAsync(
             Expression<Func<T, bool>> filter,
             int skip,
@@ -86,7 +94,6 @@ namespace Spotless.Infrastructure.Repositories
             }
             else
             {
-
                 query = query.OrderBy(e => e.Id);
             }
 
@@ -97,6 +104,7 @@ namespace Spotless.Infrastructure.Repositories
 
             return await query.ToListAsync();
         }
+
         public async Task<T?> GetSingleAsync(
             Expression<Func<T, bool>> filter,
             Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)

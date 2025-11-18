@@ -6,7 +6,7 @@ using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
 using System.Linq.Expressions;
 
-namespace Spotless.Application.Features.Customers
+namespace Spotless.Application.Features.Customers.Queries.GetAllCustomers
 {
     public class ListCustomersQueryHandler : IRequestHandler<ListCustomersQuery, PagedResponse<CustomerDto>>
     {
@@ -24,9 +24,7 @@ namespace Spotless.Application.Features.Customers
 
             var filterExpression = BuildFilterExpression(request);
 
-
             var totalRecords = await _unitOfWork.Customers.CountAsync(filterExpression);
-
 
             var customers = await _unitOfWork.Customers.GetPagedAsync(
                 filterExpression,
@@ -37,7 +35,7 @@ namespace Spotless.Application.Features.Customers
             );
 
 
-            var customerDtos = _customerMapper.MapToDto(customers);
+            var customerDtos = _customerMapper.MapToDto(customers).ToList();
 
 
             return new PagedResponse<CustomerDto>(

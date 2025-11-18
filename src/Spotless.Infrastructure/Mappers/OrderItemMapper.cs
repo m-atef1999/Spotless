@@ -1,7 +1,7 @@
 ﻿using Spotless.Application.Dtos.Order;
 using Spotless.Domain.Entities;
 
-namespace Spotless.Application.Mappers
+namespace Spotless.Infrastructure.Mappers
 {
     public static class OrderItemMapper
     {

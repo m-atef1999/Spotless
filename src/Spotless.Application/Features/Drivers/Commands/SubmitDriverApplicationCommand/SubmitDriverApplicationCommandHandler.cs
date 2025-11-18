@@ -3,7 +3,7 @@ using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.Enums;
 
-namespace Spotless.Application.Features.Drivers.Commands
+namespace Spotless.Application.Features.Drivers.Commands.SubmitDriverApplicationCommand
 {
     public class SubmitDriverApplicationCommandHandler : IRequestHandler<SubmitDriverApplicationCommand, Guid>
     {

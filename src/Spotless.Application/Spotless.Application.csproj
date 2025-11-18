@@ -29,8 +29,4 @@
     <ProjectReference Include="..\Spotless.Domain\Spotless.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Features\Reviews\Queries\" />
-  </ItemGroup>
-
 </Project>

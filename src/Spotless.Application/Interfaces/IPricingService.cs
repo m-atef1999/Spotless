@@ -1,19 +1,19 @@
-﻿using Spotless.Application.Dtos.Order;
-using Spotless.Domain.ValueObjects;
+﻿using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Interfaces
 {
-    public interface IPricingService
-    {
-
-        Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<CreateOrderItemDto> items);
-
-        Money CalculateTotal(IReadOnlyList<PriceCalculationResult> itemPrices);
-
-    }
 
     public record PriceCalculationResult(
         Guid ServiceId,
         Money Price
     );
+
+    public interface IPricingService
+    {
+
+        Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<PricingItemDto> items);
+
+
+        PriceEstimateDto CalculateTotal(IReadOnlyList<PriceCalculationResult> itemPrices);
+    }
 }

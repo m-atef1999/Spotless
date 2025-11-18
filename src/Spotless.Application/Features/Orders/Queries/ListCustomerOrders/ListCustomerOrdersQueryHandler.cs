@@ -7,7 +7,7 @@ using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
 using System.Linq.Expressions;
 
-namespace Spotless.Application.Features.Orders
+namespace Spotless.Application.Features.Orders.Queries.ListCustomerOrders
 {
     public class ListCustomerOrdersQueryHandler : IRequestHandler<ListCustomerOrdersQuery, PagedResponse<OrderDto>>
     {

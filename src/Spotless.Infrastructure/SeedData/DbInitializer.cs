@@ -7,7 +7,7 @@ using Spotless.Infrastructure.Context;
 using Spotless.Infrastructure.Identity;
 
 
-namespace Spotless.Infrastructure.Data
+namespace Spotless.Infrastructure.SeedData
 {
     public static class DbInitializer
     {

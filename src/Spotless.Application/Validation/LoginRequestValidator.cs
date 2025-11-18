@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Spotless.Application.Dtos.Authentication;
 
-namespace Spotless.Application.Validation.Authentication
+namespace Spotless.Application.Validation
 {
     public class LoginRequestValidator : AbstractValidator<LoginRequest>
     {

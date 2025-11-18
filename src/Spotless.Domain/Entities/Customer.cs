@@ -40,5 +40,36 @@ namespace Spotless.Domain.Entities
             Phone = phone;
             Address = address;
         }
+        public void DepositFunds(Money amount, PaymentMethod method)
+        {
+            if (amount.Amount <= 0)
+            {
+                throw new ArgumentException("Deposit amount must be positive.", nameof(amount));
+            }
+
+            if (amount.Currency != WalletBalance.Currency)
+            {
+
+                throw new InvalidOperationException($"Cannot deposit {amount.Currency}. Wallet currency is {WalletBalance.Currency}.");
+            }
+
+
+            WalletBalance = WalletBalance.Add(amount);
+
+
+            var payment = new Payment(
+                customerId: this.Id,
+                amount: amount,
+                method: method,
+                orderId: null,
+                adminId: null
+            );
+
+
+            payment.CompletePayment();
+
+
+            this.Payments.Add(payment);
+        }
     }
 }

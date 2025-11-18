@@ -6,7 +6,7 @@ using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
 using System.Linq.Expressions;
 
-namespace Spotless.Application.Features.Services.Queries
+namespace Spotless.Application.Features.Services.Queries.GetServicesByCategory
 {
 
     public class ListServicesByCategoryQueryHandler : IRequestHandler<ListServicesByCategoryQuery, PagedResponse<ServiceDto>>

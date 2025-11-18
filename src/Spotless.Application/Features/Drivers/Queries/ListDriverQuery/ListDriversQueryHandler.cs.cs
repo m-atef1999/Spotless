@@ -6,9 +6,10 @@ using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
 using System.Linq.Expressions;
 
-namespace Spotless.Application.Features.Drivers.Queries
+namespace Spotless.Application.Features.Drivers.Queries.ListDriverQuery
 {
-    public class ListDriversQueryHandler : IRequestHandler<ListDriversQuery, PagedResponse<DriverProfileDto>>
+
+    public class ListDriversQueryHandler : IRequestHandler<ListDriversQuery, PagedResponse<DriverDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDriverMapper _driverMapper;
@@ -19,7 +20,7 @@ namespace Spotless.Application.Features.Drivers.Queries
             _driverMapper = driverMapper;
         }
 
-        public async Task<PagedResponse<DriverProfileDto>> Handle(ListDriversQuery request, CancellationToken cancellationToken)
+        public async Task<PagedResponse<DriverDto>> Handle(ListDriversQuery request, CancellationToken cancellationToken)
         {
 
             var filterExpression = BuildFilterExpression(request);
@@ -33,6 +34,7 @@ namespace Spotless.Application.Features.Drivers.Queries
                 request.Skip,
                 request.PageSize,
 
+
                 orderBy: q => q.OrderBy(d => d.Name)
             );
 
@@ -40,7 +42,7 @@ namespace Spotless.Application.Features.Drivers.Queries
             var driverDtos = _driverMapper.MapToProfileDto(drivers).ToList();
 
 
-            return new PagedResponse<DriverProfileDto>(
+            return new PagedResponse<DriverDto>(
                 driverDtos,
                 totalRecords,
                 request.PageNumber,
@@ -50,9 +52,12 @@ namespace Spotless.Application.Features.Drivers.Queries
 
         private Expression<Func<Driver, bool>> BuildFilterExpression(ListDriversQuery request)
         {
+
             return driver =>
 
+
                 (!request.StatusFilter.HasValue || driver.Status == request.StatusFilter.Value) &&
+
 
                 (string.IsNullOrEmpty(request.NameSearchTerm) || driver.Name.Contains(request.NameSearchTerm!));
         }

@@ -4,7 +4,7 @@ using Spotless.Application.Dtos.Requests;
 using Spotless.Application.Dtos.Responses;
 using Spotless.Domain.Enums;
 
-namespace Spotless.Application.Features.Orders.Queries
+namespace Spotless.Application.Features.Orders.Queries.GetOrderQuery
 {
 
     public record GetOrdersQuery(

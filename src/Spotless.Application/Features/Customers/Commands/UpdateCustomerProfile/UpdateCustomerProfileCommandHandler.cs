@@ -2,7 +2,7 @@
 using Spotless.Application.Interfaces;
 using Spotless.Domain.ValueObjects;
 
-namespace Spotless.Application.Features.Customers
+namespace Spotless.Application.Features.Customers.Commands.UpdateCustomerProfile
 {
     public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustomerProfileCommand, Unit>
     {

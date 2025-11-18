@@ -2,7 +2,7 @@
 using Spotless.Application.Dtos.Customer;
 using Spotless.Application.Dtos.Requests;
 using Spotless.Application.Dtos.Responses;
-namespace Spotless.Application.Features.Customers
+namespace Spotless.Application.Features.Customers.Queries.GetAllCustomers
 {
 
     public record ListCustomersQuery(

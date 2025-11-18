@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Spotless.Application.Features.Authentication
+namespace Spotless.Application.Features.Authentication.Commands.ResetPassword
 {
     public record ResetPasswordCommand(
         string UserId,

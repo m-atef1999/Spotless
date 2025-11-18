@@ -61,6 +61,7 @@ namespace Spotless.Infrastructure.Services
             await _unitOfWork.CommitAsync();
 
 
+
             var refreshToken = _jwtTokenGenerator.GenerateRefreshToken();
 
 
@@ -272,6 +273,28 @@ namespace Spotless.Infrastructure.Services
             var updateResult = await _userManager.UpdateAsync(user);
 
             return updateResult.Succeeded;
+        }
+
+        public async Task<Guid> CreateUserAsync(string email, string password, string role)
+        {
+            var user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                IsActive = true,
+                EmailConfirmed = true
+            };
+
+            var result = await _userManager.CreateAsync(user, password);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception("Identity creation failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+
+            await _userManager.AddToRoleAsync(user, role);
+
+            return user.Id;
         }
     }
 

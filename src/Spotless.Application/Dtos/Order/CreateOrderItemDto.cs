@@ -2,6 +2,7 @@
 {
     public record CreateOrderItemDto(
             Guid ServiceId,
+            string ItemName,
             int Quantity
         );
 }

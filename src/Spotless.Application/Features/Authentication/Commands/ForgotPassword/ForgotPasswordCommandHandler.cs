@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Spotless.Application.Interfaces;
 
-namespace Spotless.Application.Features.Authentication
+namespace Spotless.Application.Features.Authentication.Commands.ForgotPassword
 {
     public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, bool>
     {

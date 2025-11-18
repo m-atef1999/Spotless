@@ -2,7 +2,10 @@
 {
     public enum OrderStatus
     {
+        PaymentFailed,
         Requested,
+        Confirmed,
+        DriverAssigned,
         PickedUp,
         InCleaning,
         OutForDelivery,

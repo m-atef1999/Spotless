@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Spotless.Application.Interfaces;
-namespace Spotless.Application.Features.Authentication
+namespace Spotless.Application.Features.Authentication.Commands.ResetPassword
 {
     public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, bool>
     {

@@ -59,8 +59,8 @@ namespace Spotless.API.Extensions
             .AddDefaultTokenProviders();
 
 
-            var jwtSettings = configuration.GetSection("JwtSettings");
-            var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"]!);
+            services.Configure<Infrastructure.Configurations.JwtSettings>(
+                configuration.GetSection(Infrastructure.Configurations.JwtSettings.SettingsKey));
 
             services.AddAuthentication(options =>
             {
@@ -69,6 +69,13 @@ namespace Spotless.API.Extensions
             })
             .AddJwtBearer(options =>
             {
+                var jwtSettings = configuration.GetSection(Infrastructure.Configurations.JwtSettings.SettingsKey).Get<Infrastructure.Configurations.JwtSettings>();
+
+                if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Secret))
+                    throw new InvalidOperationException("JwtSettings.Secret is not configured.");
+
+                var key = Encoding.ASCII.GetBytes(jwtSettings.Secret);
+
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
@@ -78,8 +85,8 @@ namespace Spotless.API.Extensions
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
 
-                    ValidIssuer = jwtSettings["Issuer"],
-                    ValidAudience = jwtSettings["Audience"],
+                    ValidIssuer = jwtSettings.Issuer,
+                    ValidAudience = jwtSettings.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ClockSkew = TimeSpan.Zero
                 };
@@ -116,6 +123,8 @@ namespace Spotless.API.Extensions
             services.AddScoped<ISmsService, DummySmsService>();
             services.AddScoped<IOrderMapper, OrderMapper>();
             services.AddScoped<ICustomerMapper, CustomerMapper>();
+            services.AddScoped<IServiceMapper, ServiceMapper>();
+            services.AddScoped<IDriverMapper, DriverMapper>();
 
             return services;
         }

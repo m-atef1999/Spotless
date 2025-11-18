@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Spotless.Application.Features.Authentication
+namespace Spotless.Application.Features.Authentication.Commands.SendVerificationEmail
 {
     public record SendVerificationEmailCommand() : IRequest<bool>
     {

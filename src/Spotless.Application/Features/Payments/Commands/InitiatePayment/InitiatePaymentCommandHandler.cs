@@ -3,7 +3,7 @@ using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.Enums;
 
-namespace Spotless.Application.Features.Payments
+namespace Spotless.Application.Features.Payments.Commands.InitiatePayment
 {
     public class InitiatePaymentCommandHandler : IRequestHandler<InitiatePaymentCommand, string>
     {
@@ -18,12 +18,15 @@ namespace Spotless.Application.Features.Payments
 
         public async Task<string> Handle(InitiatePaymentCommand request, CancellationToken cancellationToken)
         {
-
             var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId);
             var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId);
 
             if (order == null || customer == null)
                 throw new KeyNotFoundException("Order or Customer not found.");
+
+
+            if (order.CustomerId != request.CustomerId)
+                throw new UnauthorizedAccessException("Customer is not authorized to initiate payment for this order.");
 
             if (order.Status != OrderStatus.Requested)
             {
@@ -32,21 +35,25 @@ namespace Spotless.Application.Features.Payments
 
 
             var payment = new Payment(
-                request.CustomerId,
-                request.OrderId,
-                order.TotalPrice,
-                order.PaymentMethod
+                customerId: request.CustomerId,
+                amount: order.TotalPrice,
+                method: order.PaymentMethod,
+                orderId: order.Id
             );
 
             await _unitOfWork.Payments.AddAsync(payment);
 
+            await _unitOfWork.CommitAsync();
+
 
             string paymentUrl = await _paymentGatewayService.InitiatePaymentAsync(
-                order.Id,
+                payment.Id,
                 order.TotalPrice,
                 customer.Email,
                 cancellationToken
             );
+
+            // Optional: You might want to update the Payment entity with the gateway's transaction reference here.
 
             await _unitOfWork.CommitAsync();
 

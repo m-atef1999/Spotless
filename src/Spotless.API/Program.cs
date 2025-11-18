@@ -2,6 +2,7 @@ using Spotless.API.Extensions;
 using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
 using Spotless.Infrastructure.Configurations;
+using Spotless.Infrastructure.SeedData;
 using Spotless.Infrastructure.Services;
 
 
@@ -19,13 +20,24 @@ builder.Services
     .AddRepositories()
     .AddIdentityAndAuthentication(builder.Configuration)
     .AddApplicationServices();
+
+// Configure settings using IOptions pattern
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection(DatabaseSettings.SettingsKey));
 builder.Services.Configure<PaymentGatewaySettings>(
     builder.Configuration.GetSection(PaymentGatewaySettings.SettingsKey));
-builder.Services.AddSingleton<IPaymentGatewayService, PaymentGatewayService>();
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection(JwtSettings.SettingsKey));
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection(EmailSettings.SettingsKey));
+builder.Services.Configure<PaginationSettings>(
+    builder.Configuration.GetSection(PaginationSettings.SettingsKey));
+builder.Services.Configure<NotificationSettings>(
+    builder.Configuration.GetSection(NotificationSettings.SettingsKey));
 builder.Services.Configure<ReviewSettings>(
     builder.Configuration.GetSection(ReviewSettings.SectionName));
+
+builder.Services.AddSingleton<IPaymentGatewayService, PaymentGatewayService>();
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
@@ -33,7 +45,7 @@ logger.LogInformation("Attempting to seed database...");
 
 try
 {
-    await Spotless.Infrastructure.Data.DbInitializer.SeedAsync(app.Services);
+    await DbInitializer.SeedAsync(app.Services);
     logger.LogInformation("Database seeding completed successfully.");
 }
 catch (Exception ex)

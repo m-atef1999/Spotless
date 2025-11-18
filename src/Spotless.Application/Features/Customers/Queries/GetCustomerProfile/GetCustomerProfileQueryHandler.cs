@@ -3,7 +3,7 @@ using Spotless.Application.Dtos.Customer;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
 
-namespace Spotless.Application.Features.Customers
+namespace Spotless.Application.Features.Customers.Queries.GetCustomerProfile
 {
     public class GetCustomerProfileQueryHandler : IRequestHandler<GetCustomerProfileQuery, CustomerDto>
     {

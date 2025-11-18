@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Spotless.Application.Interfaces;
 
-namespace Spotless.Application.Features.Drivers
+namespace Spotless.Application.Features.Drivers.Commands.UpdateDriverProfile
 {
     public class UpdateDriverProfileCommandHandler : IRequestHandler<UpdateDriverProfileCommand, Unit>
     {
@@ -25,10 +25,12 @@ namespace Spotless.Application.Features.Drivers
 
 
 
-            string newName = dto.Name ?? driver.Name;
-            string? newPhone = dto.Phone ?? driver.Phone;
-            string newVehicleInfo = dto.VehicleInfo ?? driver.VehicleInfo;
+            string newName = string.IsNullOrWhiteSpace(dto.Name) ? driver.Name : dto.Name;
 
+
+            string? newPhone = string.IsNullOrWhiteSpace(dto.Phone) ? driver.Phone : dto.Phone;
+
+            string newVehicleInfo = string.IsNullOrWhiteSpace(dto.VehicleInfo) ? driver.VehicleInfo : dto.VehicleInfo;
 
 
             driver.UpdateProfile(

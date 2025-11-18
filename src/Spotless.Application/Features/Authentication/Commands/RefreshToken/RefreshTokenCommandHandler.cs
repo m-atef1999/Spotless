@@ -2,7 +2,7 @@
 using Spotless.Application.Dtos.Authentication;
 using Spotless.Application.Interfaces;
 
-namespace Spotless.Application.Features.Authentication
+namespace Spotless.Application.Features.Authentication.Commands.RefreshToken
 {
     public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, AuthResult>
     {

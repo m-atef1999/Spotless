@@ -34,5 +34,36 @@ namespace Spotless.Domain.Entities
             EstimatedDurationHours = estimatedDurationHours;
         }
 
+        public void Update(
+            string? name,
+            string? description,
+            Money? pricePerUnit,
+            decimal? estimatedDurationHours,
+            Guid? categoryId)
+        {
+            if (name != null)
+            {
+                if (string.IsNullOrWhiteSpace(name))
+                    throw new ArgumentException("Name cannot be empty.", nameof(name));
+                Name = name;
+            }
+
+            if (description != null)
+                Description = description;
+
+            if (pricePerUnit != null)
+                PricePerUnit = pricePerUnit;
+
+            if (estimatedDurationHours.HasValue)
+            {
+                if (estimatedDurationHours.Value <= 0)
+                    throw new ArgumentException("Duration must be positive.", nameof(estimatedDurationHours));
+                EstimatedDurationHours = estimatedDurationHours.Value;
+            }
+
+            if (categoryId.HasValue)
+                CategoryId = categoryId.Value;
+        }
+
     }
 }

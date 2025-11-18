@@ -1,7 +1,7 @@
 ﻿using Spotless.Application.Dtos.Payment;
 using Spotless.Domain.Entities;
 
-namespace Spotless.Application.Mappers
+namespace Spotless.Infrastructure.Mappers
 {
     public static class PaymentMapper
     {

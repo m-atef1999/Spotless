@@ -6,12 +6,11 @@
         IOrderRepository Orders { get; }
         IAdminRepository Admins { get; }
         IDriverRepository Drivers { get; }
+
         IPaymentRepository Payments { get; }
         IServiceRepository Services { get; }
         IReviewRepository Reviews { get; }
-
         ICategoryRepository Categories { get; }
-
 
         Task<int> CommitAsync();
         Task RollbackAsync();

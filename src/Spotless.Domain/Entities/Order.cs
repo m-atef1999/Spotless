@@ -53,9 +53,9 @@ namespace Spotless.Domain.Entities
 
 
 
-        public void AssignDriver(Guid driverId) { /* ... */ }
 
-        public void SetStatus(OrderStatus newStatus) { /* ... */ }
+
+        public void SetStatus(OrderStatus newStatus) { this.Status = newStatus; }
 
 
         public void UpdateDetails(Guid newTimeSlotId, DateTime newScheduledDate, Location newPickupLocation, Location newDeliveryLocation)
@@ -103,6 +103,20 @@ namespace Spotless.Domain.Entities
 
 
             firstItem.UpdateServiceId(newServiceId);
+
+        }
+        public void AssignDriver(Guid driverId)
+        {
+            if (this.Status != OrderStatus.Confirmed && this.Status != OrderStatus.DriverAssigned)
+            {
+                throw new InvalidOperationException($"Cannot assign driver to order with status {this.Status}. Order must be Confirmed or DriverAssigned.");
+            }
+            if (driverId == Guid.Empty)
+            {
+                throw new ArgumentException("Driver ID cannot be empty.", nameof(driverId));
+            }
+
+            this.DriverId = driverId;
 
         }
     }

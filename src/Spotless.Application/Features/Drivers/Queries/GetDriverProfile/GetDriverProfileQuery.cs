@@ -1,7 +1,16 @@
 ﻿using MediatR;
 using Spotless.Application.Dtos.Driver;
 
-namespace Spotless.Application.Features.Drivers.Queries
+namespace Spotless.Application.Features.Drivers.Queries.GetDriverProfile
 {
-    public record GetDriverProfileQuery(Guid DriverId) : IRequest<DriverProfileDto>;
+
+    public class GetDriverProfileQuery : IRequest<DriverDto>
+    {
+        public Guid DriverId { get; init; }
+
+        public GetDriverProfileQuery(Guid driverId)
+        {
+            DriverId = driverId;
+        }
+    }
 }

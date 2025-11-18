@@ -1,34 +1,25 @@
 ﻿namespace Spotless.Application.Dtos.Responses
 {
 
-    public record PagedResponse<T>
+    public class PagedResponse<T>
     {
-
-        public IReadOnlyList<T> Items { get; init; } = new List<T>();
-
-
-        public int PageNumber { get; init; }
-
-        public int PageSize { get; init; }
-
-        public long TotalRecords { get; init; }
-
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
 
         public int TotalPages => (int)Math.Ceiling((double)TotalRecords / PageSize);
-
-
-        public bool HasNextPage => PageNumber < TotalPages;
-
+        public int TotalRecords { get; set; }
         public bool HasPreviousPage => PageNumber > 1;
+        public bool HasNextPage => PageNumber < TotalPages;
+        public List<T> Data { get; set; } = new List<T>();
 
-        public PagedResponse() { }
-
-        public PagedResponse(IEnumerable<T> items, long totalRecords, int pageNumber, int pageSize)
+        public PagedResponse(List<T> data, int totalRecords, int pageNumber, int pageSize)
         {
-            Items = items?.ToList() ?? new List<T>();
+            Data = data;
             TotalRecords = totalRecords;
             PageNumber = pageNumber;
             PageSize = pageSize;
         }
+
+        public PagedResponse() { }
     }
 }

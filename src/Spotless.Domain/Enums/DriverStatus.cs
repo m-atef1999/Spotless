@@ -3,6 +3,8 @@
     public enum DriverStatus
     {
         Available,
+        DriverAssigned,
+        OnRoute,
         Busy,
         Offline,
         PendingApproval

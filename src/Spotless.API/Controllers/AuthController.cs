@@ -2,8 +2,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Authentication;
-using Spotless.Application.Features.Authentication;
-using Spotless.Application.Features.Customers;
+using Spotless.Application.Features.Authentication.Commands.ChangePassword;
+using Spotless.Application.Features.Authentication.Commands.ConfirmEmail;
+using Spotless.Application.Features.Authentication.Commands.ForgotPassword;
+using Spotless.Application.Features.Authentication.Commands.LoginCommand;
+using Spotless.Application.Features.Authentication.Commands.RefreshToken;
+using Spotless.Application.Features.Authentication.Commands.ResetPassword;
+using Spotless.Application.Features.Authentication.Commands.SendOtp;
+using Spotless.Application.Features.Authentication.Commands.SendVerificationEmail;
+using Spotless.Application.Features.Authentication.Commands.VerifyOtp;
+using Spotless.Application.Features.Customers.Commands.RegisterCustomer;
 using System.Security.Claims;
 
 

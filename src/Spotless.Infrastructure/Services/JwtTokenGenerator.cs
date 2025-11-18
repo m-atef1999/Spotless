@@ -1,7 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Spotless.Application.Dtos.Authentication;
 using Spotless.Application.Interfaces;
+using Spotless.Infrastructure.Configurations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -12,17 +13,16 @@ namespace Spotless.Infrastructure.Services
 {
     public class JwtTokenGenerator : IJwtTokenGenerator
     {
-        private readonly IConfiguration _configuration;
+        private readonly JwtSettings _jwtSettings;
 
-        public JwtTokenGenerator(IConfiguration configuration)
+        public JwtTokenGenerator(IOptions<JwtSettings> jwtSettings)
         {
-            _configuration = configuration;
+            _jwtSettings = jwtSettings.Value;
         }
 
         public string GenerateToken(IAuthUser user, string role)
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-            var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"]!);
+            var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var tokenDescriptor = new SecurityTokenDescriptor
@@ -33,9 +33,9 @@ namespace Spotless.Infrastructure.Services
                 new Claim(ClaimTypes.Email, user.Email!),
                 new Claim(ClaimTypes.Role, role)
             }),
-                Expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"]!)),
-                Issuer = jwtSettings["Issuer"],
-                Audience = jwtSettings["Audience"],
+                Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+                Issuer = _jwtSettings.Issuer,
+                Audience = _jwtSettings.Audience,
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -54,15 +54,14 @@ namespace Spotless.Infrastructure.Services
         public AuthResult GenerateAuthResult(IAuthUser user, string role, string refreshToken)
         {
             var accessToken = GenerateToken(user, role);
-            var jwtSettings = _configuration.GetSection("JwtSettings");
 
             return new AuthResult(
                 UserId: user.Id,
                 Email: user.Email!,
                 AccessToken: accessToken,
-                AccessTokenExpiration: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpiryMinutes"]!)),
+                AccessTokenExpiration: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 RefreshToken: refreshToken,
-                RefreshTokenExpiration: DateTime.UtcNow.AddDays(double.Parse(jwtSettings["RefreshExpiryDays"]!))
+                RefreshTokenExpiration: DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiryDays)
             );
         }
 

@@ -16,5 +16,8 @@ namespace Spotless.Application.Interfaces
         Task<bool> ForgotPasswordAsync(string email, string clientBaseUrl);
         Task<bool> SendPhoneVerificationOtpAsync(string phoneNumber);
         Task<bool> VerifyPhoneOtpAsync(string phoneNumber, string code);
+
+        Task<Guid> CreateUserAsync(string email, string password, string role);
+
     }
 }

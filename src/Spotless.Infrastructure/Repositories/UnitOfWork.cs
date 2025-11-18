@@ -18,6 +18,8 @@ namespace Spotless.Infrastructure.Repositories
         public IReviewRepository Reviews { get; }
 
 
+
+
         public UnitOfWork(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -30,6 +32,7 @@ namespace Spotless.Infrastructure.Repositories
             Services = new ServiceRepository(_dbContext);
             Payments = new PaymentRepository(_dbContext);
             Reviews = new ReviewRepository(_dbContext);
+
         }
 
         public async Task<int> CommitAsync()

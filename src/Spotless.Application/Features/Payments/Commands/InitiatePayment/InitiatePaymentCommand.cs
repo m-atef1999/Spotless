@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace Spotless.Application.Features.Payments
+namespace Spotless.Application.Features.Payments.Commands.InitiatePayment
 {
     public record InitiatePaymentCommand(
         Guid OrderId,

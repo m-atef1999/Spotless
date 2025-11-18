@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Spotless.Application.Dtos.Orders
+namespace Spotless.Application.Dtos.Order
 {
 
     public record CancelOrderRequest

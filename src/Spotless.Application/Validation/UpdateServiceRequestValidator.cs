@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using Spotless.Application.Dtos.Service;
 
-namespace Spotless.Application.Validation.Service
+namespace Spotless.Application.Validation
 {
     public class UpdateServiceRequestValidator : AbstractValidator<UpdateServiceDto>
     {

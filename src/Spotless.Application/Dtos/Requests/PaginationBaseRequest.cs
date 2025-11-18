@@ -2,12 +2,19 @@
 {
     public record PaginationBaseRequest
     {
-        private const int MaxPageSize = 100;
-        private const int DefaultPageNumber = 1;
-        private const int DefaultPageSize = 25;
+        // Note: These are fallback defaults if IOptions is not available
+        // In practice, these should come from IOptions<PaginationSettings>
+        private static readonly int FallbackMaxPageSize = 100;
+        private static readonly int FallbackDefaultPageNumber = 1;
+        private static readonly int FallbackDefaultPageSize = 25;
 
-        private int _pageNumber = DefaultPageNumber;
-        private int _pageSize = DefaultPageSize;
+        private int _pageNumber = FallbackDefaultPageNumber;
+        private int _pageSize = FallbackDefaultPageSize;
+
+        // These properties can be set from IOptions<PaginationSettings> via a helper method
+        public int MaxPageSize { get; init; } = FallbackMaxPageSize;
+        public int DefaultPageNumber { get; init; } = FallbackDefaultPageNumber;
+        public int DefaultPageSize { get; init; } = FallbackDefaultPageSize;
 
         public int PageNumber
         {

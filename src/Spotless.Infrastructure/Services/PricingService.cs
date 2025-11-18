@@ -1,5 +1,4 @@
-﻿using Spotless.Application.Dtos.Order;
-using Spotless.Application.Interfaces;
+﻿using Spotless.Application.Interfaces;
 using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Infrastructure.Services
@@ -13,14 +12,11 @@ namespace Spotless.Infrastructure.Services
             _unitOfWork = unitOfWork;
         }
 
-
-        public async Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<CreateOrderItemDto> items)
+        public async Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<PricingItemDto> items)
         {
             var results = new List<PriceCalculationResult>();
 
-
             var serviceIds = items.Select(i => i.ServiceId).Distinct().ToList();
-
 
             var services = await _unitOfWork.Services.GetByIdsAsync(serviceIds);
 
@@ -33,7 +29,6 @@ namespace Spotless.Infrastructure.Services
                     throw new KeyNotFoundException($"Service with ID {itemDto.ServiceId} not found.");
                 }
 
-
                 var itemPrice = service.PricePerUnit.Multiply(itemDto.Quantity);
 
                 results.Add(new PriceCalculationResult(itemDto.ServiceId, itemPrice));
@@ -42,17 +37,19 @@ namespace Spotless.Infrastructure.Services
             return results;
         }
 
-        public Money CalculateTotal(IReadOnlyList<PriceCalculationResult> itemPrices)
+        public PriceEstimateDto CalculateTotal(IReadOnlyList<PriceCalculationResult> itemPrices)
         {
             if (itemPrices == null || !itemPrices.Any())
             {
-                return Money.Zero;
+                return new PriceEstimateDto(Money.Zero);
             }
 
             var currency = itemPrices.First().Price.Currency;
             decimal totalAmount = itemPrices.Sum(p => p.Price.Amount);
 
-            return new Money(totalAmount, currency);
+            var totalMoney = new Money(totalAmount, currency);
+
+            return new PriceEstimateDto(totalMoney);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Spotless.Application.Dtos.Admin;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.Enums;
@@ -11,6 +12,23 @@ namespace Spotless.Infrastructure.Repositories
         public OrderRepository(ApplicationDbContext dbContext) : base(dbContext)
         {
         }
+
+
+        public async Task<IReadOnlyList<MostUsedServiceDto>> GetMostUsedServicesAsync(int count)
+        {
+            return await _dbContext.OrderItems
+                .Include(oi => oi.Service)
+                .GroupBy(oi => new { oi.ServiceId, oi.Service.Name })
+                .Select(g => new MostUsedServiceDto(
+                    g.Key.ServiceId,
+                    g.Key.Name,
+                    g.Select(oi => oi.OrderId).Distinct().Count()
+                ))
+                .OrderByDescending(s => s.OrderCount)
+                .Take(count)
+                .ToListAsync();
+        }
+
 
         public async Task<IReadOnlyList<Order>> GetOrdersByCustomerIdAsync(Guid customerId, OrderStatus? statusFilter = null)
         {
@@ -26,18 +44,16 @@ namespace Spotless.Infrastructure.Repositories
 
         public async Task<Order?> GetOrderWithTrackingInfoAsync(Guid orderId)
         {
-
             return await _dbContext.Orders
-                                   .Include(o => o.Customer)
-                                   .FirstOrDefaultAsync(o => o.Id == orderId);
+                                    .Include(o => o.Customer)
+                                    .FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
         public async Task<IReadOnlyList<Order>> GetAvailableOrdersForDriverAsync(Guid driverId)
         {
-
             return await _dbContext.Orders
-                                   .Where(o => o.DriverId == driverId && o.Status == OrderStatus.PickedUp)
-                                   .ToListAsync();
+                                    .Where(o => o.DriverId == driverId && o.Status == OrderStatus.PickedUp)
+                                    .ToListAsync();
         }
     }
 }

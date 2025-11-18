@@ -3,7 +3,7 @@ using Spotless.Application.Dtos.Authentication;
 using Spotless.Domain.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Spotless.Application.Features.Customers
+namespace Spotless.Application.Features.Customers.Commands.RegisterCustomer
 {
     public record RegisterCustomerCommand(
 

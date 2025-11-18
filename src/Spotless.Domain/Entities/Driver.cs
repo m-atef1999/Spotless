@@ -53,5 +53,16 @@ namespace Spotless.Domain.Entities
         {
             CurrentLocation = new Location(lat, lon);
         }
+
+        public void SetAdminId(Guid? adminId)
+        {
+
+            AdminId = adminId;
+        }
+
+        public void SetIdentityId(Guid userId)
+        {
+            this.Id = userId;
+        }
     }
 }

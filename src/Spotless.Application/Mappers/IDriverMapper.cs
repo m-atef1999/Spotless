@@ -5,10 +5,8 @@ namespace Spotless.Application.Mappers
 {
     public interface IDriverMapper
     {
+        DriverDto MapToProfileDto(Driver driver);
 
-        DriverProfileDto MapToProfileDto(Driver entity);
-
-
-        IEnumerable<DriverProfileDto> MapToProfileDto(IEnumerable<Driver> entities);
+        IEnumerable<DriverDto> MapToProfileDto(IEnumerable<Driver> drivers);
     }
 }

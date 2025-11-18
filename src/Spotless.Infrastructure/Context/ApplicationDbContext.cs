@@ -21,6 +21,7 @@ namespace Spotless.Infrastructure.Context
 
         public DbSet<TimeSlot> TimeSlots => Set<TimeSlot>();
         public DbSet<Review> Reviews => Set<Review>();
+        public DbSet<OrderItem> OrderItems => Set<OrderItem>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
