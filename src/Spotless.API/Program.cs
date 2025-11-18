@@ -42,6 +42,8 @@ builder.Services.Configure<EncryptionSettings>(
     builder.Configuration.GetSection(EncryptionSettings.SettingsKey));
 builder.Services.Configure<SecuritySettings>(
     builder.Configuration.GetSection(SecuritySettings.SettingsKey));
+builder.Services.Configure<ApiVersioningSettings>(
+    builder.Configuration.GetSection(ApiVersioningSettings.SettingsKey));
 
 
 builder.Services.AddScoped<IEncryptionService, DataProtectionService>();
@@ -107,30 +109,42 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// 1. Request/Response Logging (first - to log all requests and responses)
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
+// 2. Global Exception Handling (catches all exceptions from downstream middleware)
+app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+
+// 3. API Versioning (to handle version routing)
+app.UseMiddleware<ApiVersioningMiddleware>();
+
+// 4. HTTPS Redirection
 app.UseHttpsRedirection();
 
-
+// 5. CORS (must come before authentication)
 if (securitySettings?.Cors?.EnableCors == true)
 {
     app.UseCors("DefaultCorsPolicy");
 }
 
-
+// 6. Rate Limiting
 var rateLimitSettings = securitySettings?.RateLimit;
 if (rateLimitSettings?.EnableRateLimit == true)
 {
     app.UseMiddleware<RateLimitingMiddleware>();
 }
 
+// 7. HTTPS Enforcement
 if (securitySettings?.EnforceHttps == true)
 {
     app.UseMiddleware<HttpsEnforcementMiddleware>();
 }
 
+// 8. Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
+// 9. Controllers
 app.MapControllers();
 
 app.Run();
