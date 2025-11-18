@@ -9,16 +9,32 @@ namespace Spotless.Infrastructure.Services
     public class PaymentGatewayService : IPaymentGatewayService
     {
         private readonly PaymentGatewaySettings _settings;
-
+        private readonly IEncryptionService _encryptionService;
         private readonly HttpClient _httpClient;
 
 
-        public PaymentGatewayService(IOptions<PaymentGatewaySettings> options)
+        public PaymentGatewayService(
+            IOptions<PaymentGatewaySettings> options,
+            IEncryptionService encryptionService)
         {
             _settings = options.Value;
+            _encryptionService = encryptionService;
 
 
-            _httpClient = new HttpClient { BaseAddress = new Uri(_settings.BaseUrl) };
+            var baseUrl = _settings.BaseUrl;
+
+            _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
+
+
+            if (!string.IsNullOrEmpty(_settings.ApiKey))
+            {
+
+                var apiKey = _encryptionService.Decrypt(_settings.ApiKey);
+                if (!string.IsNullOrEmpty(apiKey) && apiKey != _settings.ApiKey)
+                {
+                    _httpClient.DefaultRequestHeaders.Add("X-API-Key", apiKey);
+                }
+            }
         }
 
         public Task<string> InitiatePaymentAsync(
@@ -40,6 +56,7 @@ namespace Spotless.Infrastructure.Services
         public Task<PaymentStatus> VerifyPaymentAsync(string transactionReference, CancellationToken cancellationToken)
         {
 
+            var webhookSecret = _encryptionService.Decrypt(_settings.WebhookSecret);
 
             if (string.IsNullOrEmpty(transactionReference))
             {

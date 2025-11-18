@@ -1,4 +1,5 @@
 using Spotless.API.Extensions;
+using Spotless.API.Middleware;
 using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
 using Spotless.Infrastructure.Configurations;
@@ -14,6 +15,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 
+builder.Services.AddDataProtection();
 
 builder.Services
     .AddDatabaseConfiguration(builder.Configuration)
@@ -21,7 +23,7 @@ builder.Services
     .AddIdentityAndAuthentication(builder.Configuration)
     .AddApplicationServices();
 
-// Configure settings using IOptions pattern
+
 builder.Services.Configure<DatabaseSettings>(
     builder.Configuration.GetSection(DatabaseSettings.SettingsKey));
 builder.Services.Configure<PaymentGatewaySettings>(
@@ -36,8 +38,54 @@ builder.Services.Configure<NotificationSettings>(
     builder.Configuration.GetSection(NotificationSettings.SettingsKey));
 builder.Services.Configure<ReviewSettings>(
     builder.Configuration.GetSection(ReviewSettings.SectionName));
+builder.Services.Configure<EncryptionSettings>(
+    builder.Configuration.GetSection(EncryptionSettings.SettingsKey));
+builder.Services.Configure<SecuritySettings>(
+    builder.Configuration.GetSection(SecuritySettings.SettingsKey));
+
+
+builder.Services.AddScoped<IEncryptionService, DataProtectionService>();
 
 builder.Services.AddSingleton<IPaymentGatewayService, PaymentGatewayService>();
+
+
+var securitySettings = builder.Configuration.GetSection(SecuritySettings.SettingsKey).Get<SecuritySettings>();
+if (securitySettings?.Cors?.EnableCors == true)
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("DefaultCorsPolicy", policy =>
+        {
+            var corsSettings = securitySettings.Cors;
+
+            if (corsSettings.AllowedOrigins?.Length > 0)
+            {
+                policy.WithOrigins(corsSettings.AllowedOrigins);
+            }
+            else
+            {
+
+                if (builder.Environment.IsDevelopment())
+                {
+                    policy.AllowAnyOrigin();
+                }
+                else
+                {
+                    policy.WithOrigins("https://yourdomain.com");
+                }
+            }
+
+            policy.WithMethods(corsSettings.AllowedMethods ?? new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS" });
+            policy.WithHeaders(corsSettings.AllowedHeaders ?? new[] { "Content-Type", "Authorization" });
+
+            if (corsSettings.AllowCredentials && corsSettings.AllowedOrigins?.Length > 0)
+            {
+                policy.AllowCredentials();
+            }
+        });
+    });
+}
+
 var app = builder.Build();
 
 var logger = app.Services.GetRequiredService<ILogger<Program>>();
@@ -59,8 +107,26 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
 
+
+if (securitySettings?.Cors?.EnableCors == true)
+{
+    app.UseCors("DefaultCorsPolicy");
+}
+
+
+var rateLimitSettings = securitySettings?.RateLimit;
+if (rateLimitSettings?.EnableRateLimit == true)
+{
+    app.UseMiddleware<RateLimitingMiddleware>();
+}
+
+if (securitySettings?.EnforceHttps == true)
+{
+    app.UseMiddleware<HttpsEnforcementMiddleware>();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
