@@ -59,23 +59,19 @@ Graduation project for DEPI: a cleaning services platform.
 ## 📂 Project Structure
 
 ```bash
-📦 Spotless
+📦 Spotless/
 │
 ├── src/
-│   ├── Spotless.API/            → Presentation layer
-│   │                             (Controllers, endpoints, dependency injection, Swagger setup)
+│   ├── Spotless.API/              → Presentation Layer  
+│   ├── Spotless.Application/      → Application Layer (Use Cases + CQRS)
+│   ├── Spotless.Domain/           → Domain Layer (Core Business Rules)
+│   ├── Spotless.Infrastructure/   → Infrastructure Layer (EF Core, Repos, External Services)
 │   │
-│   ├── Spotless.Domain/         → Business logic layer
-│   │                             (Entities, DTOs, service interfaces, validation, domain rules)
-│   │
-│   ├── Spotless.Data/           → Data access layer
-│   │                             (EF Core DbContext, repositories, migrations, data seeding)
-│   │
-│   └── Spotless.sln             → Visual Studio solution file
+│   └── Spotless.sln               → Solution file
 │
-├── db/                          → SQL scripts or manual database exports
+├── db/                            → SQL Scripts / Data Exports
 │
-└── docs/                        → Documentation, diagrams, and API usage notes
+└── docs/                          → Documentation & Architecture Notes
 ```
 
 ---
@@ -84,9 +80,10 @@ Graduation project for DEPI: a cleaning services platform.
 
 | Layer | Folder | Description |
 |-------|---------|-------------|
-| **Presentation (API)** | `Spotless.API` | Exposes HTTP endpoints, handles requests/responses, and configures dependency injection. |
-| **Business Logic (Domain)** | `Spotless.Domain` | Contains entities, DTOs, business rules, and service interfaces. |
-| **Data Access** | `Spotless.Data` | Manages persistence with Entity Framework Core (DbContext, repositories, migrations, seeding). |
+| **Presentation (API)** | `Spotless.API` | Hosts the ASP.NET Core Web API. Handles routing, controllers, filters, middlewares, authentication pipelines, Swagger, and DI bootstrapping. |
+| **Application** | `Spotless.Application` | Application logic (CQRS with MediatR), DTOs, validators (FluentValidation), service contracts, command/query handlers, and mapping profiles. Contains all use cases, but no business rules or EF logic. |
+| **Business Logic (Domain)** | `Spotless.Domain` | Pure business layer. Contains entities, value objects, domain events, constants, enums, exceptions, and business invariants. Has no dependency on any other layer. |
+| **Infrastructure** | `Spotless.Infrastructure` | EF Core DbContext, repositories, migrations, external services (email, payment gateway, encryption), configuration providers, and integration logic. Implements interfaces from Application. |
 
 
 ---
