@@ -80,10 +80,10 @@ Graduation project for DEPI: a cleaning services platform.
 
 | Layer | Folder | Description |
 |-------|---------|-------------|
-| **Presentation (API)** | `Spotless.API` | Hosts the ASP.NET Core Web API. Handles routing, controllers, filters, middlewares, authentication pipelines, Swagger, and DI bootstrapping. |
-| **Application** | `Spotless.Application` | Application logic (CQRS with MediatR), DTOs, validators (FluentValidation), service contracts, command/query handlers, and mapping profiles. Contains all use cases, but no business rules or EF logic. |
-| **Business Logic (Domain)** | `Spotless.Domain` | Pure business layer. Contains entities, value objects, domain events, constants, enums, exceptions, and business invariants. Has no dependency on any other layer. |
-| **Infrastructure** | `Spotless.Infrastructure` | EF Core DbContext, repositories, migrations, external services (email, payment gateway, encryption), configuration providers, and integration logic. Implements interfaces from Application. |
+| **Presentation (API)** | `Spotless.API` | Hosts the ASP.NET Core Web API. Handles endpoints, middleware, authentication, Swagger, and application startup. |
+| **Application** | `Spotless.Application` | Implements use cases using CQRS + MediatR. Contains DTOs, validators, interfaces, and mapping profiles—no EF or domain rules. |
+| **Business Logic (Domain)** | `Spotless.Domain` | Core business model: entities, value objects, domain events, enums, and business rules. Completely independent and framework-free. |
+| **Data Access (Infrastructure)** | `Spotless.Infrastructure` | Handles persistence and integrations: EF Core DbContext, repositories, migrations, external services, and configuration. Implements Application layer contracts. |
 
 
 ---
