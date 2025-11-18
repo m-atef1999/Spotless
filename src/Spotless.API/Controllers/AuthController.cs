@@ -17,8 +17,11 @@ using System.Security.Claims;
 
 namespace Spotless.API.Controllers
 {
+    using Spotless.API.Attributes;
+
     [ApiController]
     [Route("api/[controller]")]
+    [Audit]
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Audit.EntityFramework;
 using Spotless.Domain.Entities;
 using System.Reflection;
 
 namespace Spotless.Infrastructure.Context
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : AuditDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -18,6 +19,8 @@ namespace Spotless.Infrastructure.Context
         public DbSet<Service> Services => Set<Service>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<Payment> Payments => Set<Payment>();
+
+        public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
         public DbSet<TimeSlot> TimeSlots => Set<TimeSlot>();
         public DbSet<Review> Reviews => Set<Review>();
@@ -65,6 +68,17 @@ namespace Spotless.Infrastructure.Context
                     p.Property(m => m.Amount).HasColumnName("PricePerUnit_Amount").HasColumnType("decimal(18,2)");
                     p.Property(m => m.Currency).HasColumnName("PricePerUnit_Currency").HasMaxLength(3);
                 });
+            });
+
+            modelBuilder.Entity<AuditLog>(b =>
+            {
+                b.ToTable("AuditLogs");
+                b.Property(a => a.EventType).HasMaxLength(200);
+                b.Property(a => a.UserName).HasMaxLength(200);
+                b.Property(a => a.IpAddress).HasMaxLength(45);
+                b.Property(a => a.CorrelationId).HasMaxLength(100);
+                b.Property(a => a.Data).HasColumnType("nvarchar(max)");
+                b.Property(a => a.OccurredAt).HasColumnType("datetime2");
             });
 
             base.OnModelCreating(modelBuilder);

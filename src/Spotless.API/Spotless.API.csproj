@@ -8,6 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="C:\Users\egysc\Downloads\Program.cs" Link="Program.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Audit.EntityFramework.Core" Version="31.0.2" />
     <PackageReference Include="AutoMapper" Version="15.1.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />
     <PackageReference Include="MediatR" Version="13.1.0" />
@@ -18,7 +23,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
     <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+    <PackageReference Include="Audit.NET" Version="31.0.2" />
+    <PackageReference Include="Audit.WebApi.Core" Version="31.0.2" />
+    <PackageReference Include="Audit.NET.SqlServer" Version="31.0.2" />
   </ItemGroup>
 
 	<ItemGroup>

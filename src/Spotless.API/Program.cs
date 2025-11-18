@@ -1,3 +1,7 @@
+using Audit.Core;
+using Audit.EntityFramework;
+using Audit.WebApi;
+using Serilog;
 using Spotless.API.Extensions;
 using Spotless.API.Middleware;
 using Spotless.Application.Configurations;
@@ -9,6 +13,72 @@ using Spotless.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(builder.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+
+
+Audit.Core.Configuration.Setup()
+    .UseSqlServer(config => config
+        .ConnectionString(builder.Configuration.GetConnectionString("DefaultConnection"))
+        .TableName("AuditEvents")
+        .IdColumnName("EventId")
+        .JsonColumnName("EventData")
+        .LastUpdatedColumnName("LastUpdatedDate")
+    );
+
+
+
+Audit.Core.Configuration.AddCustomAction(ActionType.OnEventSaving, scope =>
+{
+    try
+    {
+        var ev = scope.Event;
+
+        var ef = ev?.GetEntityFrameworkEvent();
+        if (ef?.Entries != null)
+        {
+            foreach (var entry in ef.Entries)
+            {
+                if (entry.Changes != null)
+                {
+                    foreach (var ch in entry.Changes)
+                    {
+                        var col = ch.ColumnName ?? string.Empty;
+                        var low = col.ToLowerInvariant();
+                        if (low.Contains("password") || low.Contains("card") || low.Contains("cvv") || low.Contains("ssn"))
+                        {
+                            ch.NewValue = "***REDACTED***";
+                            ch.OriginalValue = "***REDACTED***";
+                        }
+                    }
+                }
+            }
+        }
+
+
+        try
+        {
+            if (ev?.CustomFields != null && ev.CustomFields.ContainsKey("RequestBody"))
+            {
+                var rb = ev.CustomFields["RequestBody"] as string;
+                if (!string.IsNullOrEmpty(rb))
+                {
+                    ev.CustomFields["RequestBody"] = Spotless.API.Utils.AuditRedactor.RedactJson(rb);
+                }
+            }
+        }
+        catch { }
+
+    }
+    catch { }
+});
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -144,7 +214,22 @@ if (securitySettings?.EnforceHttps == true)
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Audit middleware should run after authentication so user info is available
+app.UseAuditMiddleware(config =>
+{
+    // You can add further specific configurations here, 
+    // such as ignoring certain paths or response codes.
+    // e.g., config.FilterResponse(c => c.HttpStatusCode == 200);
+});
+
 // 9. Controllers
 app.MapControllers();
 
-app.Run();
+try
+{
+    app.Run();
+}
+finally
+{
+    Log.CloseAndFlush();
+}
