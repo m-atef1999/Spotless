@@ -1,4 +1,4 @@
-namespace Spotless.Infrastructure.Configurations
+namespace Spotless.Application.Configurations
 {
     public class SecuritySettings
     {

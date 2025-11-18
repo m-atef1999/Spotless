@@ -3,14 +3,11 @@ using Spotless.Application.Dtos.Admin;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Enums;
 
-
 namespace Spotless.Application.Features.Admins.Queries.GetAdminDashboard
 {
-
     public class GetAdminDashboardQueryHandler : IRequestHandler<GetAdminDashboardQuery, AdminDashboardDto>
     {
         private readonly IUnitOfWork _unitOfWork;
-
 
         public GetAdminDashboardQueryHandler(IUnitOfWork unitOfWork)
         {
@@ -22,10 +19,8 @@ namespace Spotless.Application.Features.Admins.Queries.GetAdminDashboard
             var today = DateTime.UtcNow.Date;
             var todayEnd = today.AddDays(1);
 
-
             var totalOrdersToday = await _unitOfWork.Orders.CountAsync(o =>
                 o.OrderDate >= today && o.OrderDate < todayEnd);
-
 
             var completedPaymentsToday = await _unitOfWork.Payments
                 .GetCompletedPaymentsInDateRangeAsync(today, todayEnd);
@@ -40,11 +35,8 @@ namespace Spotless.Application.Features.Admins.Queries.GetAdminDashboard
             var revenueCurrency = revenueByCurrency?.Currency ?? "EGP";
 
 
-
             var mostUsedServices = await _unitOfWork.Orders
-                .GetMostUsedServicesAsync(10);
-
-
+                .GetMostUsedServicesAsync(request.PageNumber, request.PageSize);
 
             var activeCleaners = await _unitOfWork.Drivers.CountAsync(d =>
                 d.Status == DriverStatus.Available
@@ -52,10 +44,8 @@ namespace Spotless.Application.Features.Admins.Queries.GetAdminDashboard
                 || d.Status == DriverStatus.OnRoute
                 || d.Status == DriverStatus.Busy);
 
-
             var newRegistrationsToday = await _unitOfWork.Customers.CountAsync(c =>
                 c.CreatedAt >= today && c.CreatedAt < todayEnd);
-
 
             var pendingBookings = await _unitOfWork.Orders.CountAsync(o =>
                 o.Status == OrderStatus.Requested

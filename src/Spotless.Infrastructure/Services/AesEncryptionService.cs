@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
+using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
-using Spotless.Infrastructure.Configurations;
 using System.Security.Cryptography;
 using System.Text;
 

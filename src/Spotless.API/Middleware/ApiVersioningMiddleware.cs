@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Options;
-using Spotless.Infrastructure.Configurations;
+using Spotless.Application.Configurations;
 
 namespace Spotless.API.Middleware
 {

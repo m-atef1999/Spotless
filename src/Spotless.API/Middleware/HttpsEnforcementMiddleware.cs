@@ -1,8 +1,6 @@
 namespace Spotless.API.Middleware
 {
-    /// <summary>
-    /// Middleware to enforce HTTPS connections in production
-    /// </summary>
+
     public class HttpsEnforcementMiddleware
     {
         private readonly RequestDelegate _next;

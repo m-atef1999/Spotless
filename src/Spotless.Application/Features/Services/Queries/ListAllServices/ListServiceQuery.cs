@@ -1,7 +1,6 @@
-﻿using MediatR;
-using Spotless.Application.Dtos.Requests;
+﻿using Spotless.Application.Dtos.Requests;
 using Spotless.Application.Dtos.Responses;
-using Spotless.Application.Dtos.Service;
+using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Services.Queries.ListAllServices
 {
@@ -9,5 +8,5 @@ namespace Spotless.Application.Features.Services.Queries.ListAllServices
     public record ListServicesQuery(
         string? NameSearchTerm
 
-    ) : PaginationBaseRequest, IRequest<PagedResponse<ServiceDto>>;
+    ) : PaginationBaseRequest, IQuery<PagedResponse<ServiceDto>>;
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Spotless.Application.Behaviors;
+using Spotless.Application.Configurations;
 using Spotless.Application.Dtos.Order;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
@@ -59,8 +60,8 @@ namespace Spotless.API.Extensions
             .AddDefaultTokenProviders();
 
 
-            services.Configure<Infrastructure.Configurations.JwtSettings>(
-                configuration.GetSection(Infrastructure.Configurations.JwtSettings.SettingsKey));
+            services.Configure<JwtSettings>(
+                configuration.GetSection(JwtSettings.SettingsKey));
 
             services.AddAuthentication(options =>
             {
@@ -69,7 +70,7 @@ namespace Spotless.API.Extensions
             })
             .AddJwtBearer(options =>
             {
-                var jwtSettings = configuration.GetSection(Infrastructure.Configurations.JwtSettings.SettingsKey).Get<Infrastructure.Configurations.JwtSettings>();
+                var jwtSettings = configuration.GetSection(JwtSettings.SettingsKey).Get<JwtSettings>();
 
                 if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Secret))
                     throw new InvalidOperationException("JwtSettings.Secret is not configured.");
@@ -105,11 +106,10 @@ namespace Spotless.API.Extensions
         {
 
             services.AddMediatR(cfg =>
-                cfg.RegisterServicesFromAssembly(
-
-                    typeof(OrderDto).Assembly
-                )
-            );
+            {
+                cfg.RegisterServicesFromAssembly(typeof(OrderDto).Assembly)
+                   .AddOpenBehavior(typeof(TransactionBehavior<,>));
+            });
             services.AddMediatR(cfg =>
                 cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
 

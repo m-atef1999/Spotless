@@ -13,8 +13,7 @@ namespace Spotless.Infrastructure.Repositories
         {
         }
 
-
-        public async Task<IReadOnlyList<MostUsedServiceDto>> GetMostUsedServicesAsync(int count)
+        public async Task<IReadOnlyList<MostUsedServiceDto>> GetMostUsedServicesAsync(int pageNumber, int pageSize)
         {
             return await _dbContext.OrderItems
                 .Include(oi => oi.Service)
@@ -25,19 +24,17 @@ namespace Spotless.Infrastructure.Repositories
                     g.Select(oi => oi.OrderId).Distinct().Count()
                 ))
                 .OrderByDescending(s => s.OrderCount)
-                .Take(count)
+                .Skip((pageNumber - 1) * pageSize) // pagination
+                .Take(pageSize)
                 .ToListAsync();
         }
-
 
         public async Task<IReadOnlyList<Order>> GetOrdersByCustomerIdAsync(Guid customerId, OrderStatus? statusFilter = null)
         {
             var query = _dbContext.Orders.Where(o => o.CustomerId == customerId);
 
             if (statusFilter.HasValue)
-            {
                 query = query.Where(o => o.Status == statusFilter.Value);
-            }
 
             return await query.OrderByDescending(o => o.OrderDate).ToListAsync();
         }
@@ -45,15 +42,15 @@ namespace Spotless.Infrastructure.Repositories
         public async Task<Order?> GetOrderWithTrackingInfoAsync(Guid orderId)
         {
             return await _dbContext.Orders
-                                    .Include(o => o.Customer)
-                                    .FirstOrDefaultAsync(o => o.Id == orderId);
+                                   .Include(o => o.Customer)
+                                   .FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
         public async Task<IReadOnlyList<Order>> GetAvailableOrdersForDriverAsync(Guid driverId)
         {
             return await _dbContext.Orders
-                                    .Where(o => o.DriverId == driverId && o.Status == OrderStatus.PickedUp)
-                                    .ToListAsync();
+                                   .Where(o => o.DriverId == driverId && o.Status == OrderStatus.PickedUp)
+                                   .ToListAsync();
         }
     }
 }

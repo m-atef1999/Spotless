@@ -1,12 +1,12 @@
-﻿using MediatR;
-using Spotless.Application.Dtos.Driver;
+﻿using Spotless.Application.Dtos.Driver;
 using Spotless.Application.Dtos.Responses;
+using Spotless.Application.Interfaces;
 using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Drivers.Queries.ListDriverQuery
 {
 
-    public class ListDriversQuery : IRequest<PagedResponse<DriverDto>>
+    public class ListDriversQuery : IQuery<PagedResponse<DriverDto>>
     {
         public int PageNumber { get; init; } = 1;
         public int PageSize { get; init; } = 10;

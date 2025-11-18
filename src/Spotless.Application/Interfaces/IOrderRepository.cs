@@ -10,6 +10,6 @@ namespace Spotless.Application.Interfaces
         Task<Order?> GetOrderWithTrackingInfoAsync(Guid orderId);
         Task<IReadOnlyList<Order>> GetAvailableOrdersForDriverAsync(Guid driverId);
 
-        Task<IReadOnlyList<MostUsedServiceDto>> GetMostUsedServicesAsync(int count);
+        Task<IReadOnlyList<MostUsedServiceDto>> GetMostUsedServicesAsync(int pageNumber, int pageSize);
     }
 }

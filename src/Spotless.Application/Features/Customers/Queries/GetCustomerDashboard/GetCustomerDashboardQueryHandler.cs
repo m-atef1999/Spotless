@@ -25,23 +25,24 @@ namespace Spotless.Application.Features.Customers.Queries.GetCustomerDashboard
         {
             var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId);
             if (customer == null)
-            {
                 throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
-            }
 
             var today = DateTime.UtcNow.Date;
 
-
+            // Total orders
             var totalOrders = await _unitOfWork.Orders.CountAsync(o => o.CustomerId == request.CustomerId);
 
+            // Paginated upcoming orders
+            var skip = (request.PageNumber - 1) * request.PageSize;
+            var take = request.PageSize;
 
             var upcomingOrders = await _unitOfWork.Orders.GetPagedAsync(
                 filter: o => o.CustomerId == request.CustomerId
                     && o.ScheduledDate.Date >= today
                     && o.Status != OrderStatus.Cancelled
                     && o.Status != OrderStatus.Delivered,
-                skip: 0,
-                take: 50,
+                skip: skip,
+                take: take,
                 include: query => query.Include(o => o.Items),
                 orderBy: q => q.OrderBy(o => o.ScheduledDate)
             );
@@ -49,11 +50,11 @@ namespace Spotless.Application.Features.Customers.Queries.GetCustomerDashboard
             var upcomingBookedServicesCount = upcomingOrders.Count;
             var upcomingOrderDtos = _orderMapper.MapToDto(upcomingOrders).ToList();
 
-
+            // Wallet
             var walletBalance = customer.WalletBalance.Amount;
             var walletCurrency = customer.WalletBalance.Currency;
 
-
+            // Recent payments
             var allPayments = await _unitOfWork.Payments.GetAsync(p => p.CustomerId == request.CustomerId);
             var recentPayments = allPayments
                 .OrderByDescending(p => p.PaymentDate)
@@ -70,7 +71,7 @@ namespace Spotless.Application.Features.Customers.Queries.GetCustomerDashboard
                 Status: p.Status
             )).ToList();
 
-
+            // Reviews count
             var totalReviewsSent = await _unitOfWork.Reviews.CountAsync(r => r.CustomerId == request.CustomerId);
 
             return new CustomerDashboardDto(
@@ -85,4 +86,3 @@ namespace Spotless.Application.Features.Customers.Queries.GetCustomerDashboard
         }
     }
 }
-
