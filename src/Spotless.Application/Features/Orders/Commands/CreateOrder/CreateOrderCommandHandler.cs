@@ -12,12 +12,14 @@ namespace Spotless.Application.Features.Orders.Commands.CreateOrder
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPricingService _pricingService;
         private readonly IOrderMapper _orderMapper;
+        private readonly IDomainEventPublisher _eventPublisher;
 
-        public CreateOrderCommandHandler(IUnitOfWork unitOfWork, IPricingService pricingService, IOrderMapper orderMapper)
+        public CreateOrderCommandHandler(IUnitOfWork unitOfWork, IPricingService pricingService, IOrderMapper orderMapper, IDomainEventPublisher eventPublisher)
         {
             _unitOfWork = unitOfWork;
             _pricingService = pricingService;
             _orderMapper = orderMapper;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task<OrderDto> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -47,6 +49,10 @@ namespace Spotless.Application.Features.Orders.Commands.CreateOrder
 
             await _unitOfWork.Orders.AddAsync(orderEntity);
             await _unitOfWork.CommitAsync();
+            
+            // Publish domain event
+            var orderCreatedEvent = orderEntity.CreateOrderCreatedEvent();
+            await _eventPublisher.PublishAsync(orderCreatedEvent);
 
             return _orderMapper.MapToDto(orderEntity);
         }

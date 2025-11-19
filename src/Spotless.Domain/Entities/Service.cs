@@ -11,6 +11,8 @@ namespace Spotless.Domain.Entities
         public Money BasePrice { get; private set; } = Money.Zero;
         public Money PricePerUnit { get; private set; } = Money.Zero;
         public decimal EstimatedDurationHours { get; private set; }
+        public bool IsActive { get; private set; } = true;
+        public bool IsFeatured { get; private set; } = false;
 
         public virtual Category Category { get; private set; } = null!;
 
@@ -31,6 +33,7 @@ namespace Spotless.Domain.Entities
 
 
             PricePerUnit = pricePerUnit;
+            BasePrice = pricePerUnit;
             EstimatedDurationHours = estimatedDurationHours;
         }
 
@@ -63,6 +66,16 @@ namespace Spotless.Domain.Entities
 
             if (categoryId.HasValue)
                 CategoryId = categoryId.Value;
+        }
+        
+        public void SetFeatured(bool isFeatured)
+        {
+            IsFeatured = isFeatured;
+        }
+        
+        public void SetActive(bool isActive)
+        {
+            IsActive = isActive;
         }
 
     }

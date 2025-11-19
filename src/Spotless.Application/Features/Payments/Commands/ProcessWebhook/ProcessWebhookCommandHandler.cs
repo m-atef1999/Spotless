@@ -8,11 +8,13 @@ namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaymentGatewayService _paymentGatewayService;
+        private readonly IDomainEventPublisher _eventPublisher;
 
-        public ProcessWebhookCommandHandler(IUnitOfWork unitOfWork, IPaymentGatewayService paymentGatewayService)
+        public ProcessWebhookCommandHandler(IUnitOfWork unitOfWork, IPaymentGatewayService paymentGatewayService, IDomainEventPublisher eventPublisher)
         {
             _unitOfWork = unitOfWork;
             _paymentGatewayService = paymentGatewayService;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task<Unit> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
@@ -47,11 +49,14 @@ namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
 
                     if (order != null)
                     {
-
                         order.SetStatus(OrderStatus.Confirmed);
                         await _unitOfWork.Orders.UpdateAsync(order);
                     }
                 }
+                
+                // Publish domain event
+                var paymentCompletedEvent = payment.CreatePaymentCompletedEvent();
+                await _eventPublisher.PublishAsync(paymentCompletedEvent);
             }
             else if (finalStatus == PaymentStatus.Failed)
             {

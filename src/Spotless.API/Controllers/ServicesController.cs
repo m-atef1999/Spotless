@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Responses;
+using Spotless.Application.Dtos.Service;
 using Spotless.Application.Features.Services.Queries.GetFeaturedServices;
 using Spotless.Application.Features.Services.Queries.ListAllServices;
 using Spotless.Application.Interfaces;

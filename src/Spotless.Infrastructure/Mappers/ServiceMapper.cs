@@ -1,4 +1,5 @@
-﻿using Spotless.Application.Mappers;
+﻿using Spotless.Application.Dtos.Service;
+using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
 
 namespace Spotless.Infrastructure.Mappers
@@ -9,15 +10,17 @@ namespace Spotless.Infrastructure.Mappers
         {
             if (service == null) return null!;
 
-            return new ServiceDto(
-                Id: service.Id,
-                CategoryId: service.CategoryId,
-                Name: service.Name,
-                Description: service.Description,
-
-                PricePerUnit: service.PricePerUnit,
-                EstimatedDurationHours: service.EstimatedDurationHours
-            );
+            return new ServiceDto
+            {
+                Id = service.Id,
+                CategoryId = service.CategoryId,
+                Name = service.Name,
+                Description = service.Description,
+                BasePrice = service.BasePrice.Amount,
+                EstimatedDurationHours = service.EstimatedDurationHours,
+                IsActive = service.IsActive,
+                IsFeatured = service.IsFeatured
+            };
         }
 
         public IEnumerable<ServiceDto> MapToDto(IEnumerable<Service> entities)

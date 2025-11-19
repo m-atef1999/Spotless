@@ -2,37 +2,23 @@
 using Spotless.Application.Dtos.Service;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
+using Spotless.Application.Services;
 
 namespace Spotless.Application.Features.Services.Queries.GetFeaturedServices
 {
     public class GetFeaturedServicesQueryHandler : IRequestHandler<GetFeaturedServicesQuery, IReadOnlyList<ServiceDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IServiceMapper _serviceMapper;
+        private readonly CachedServiceService _cachedServiceService;
 
-        public GetFeaturedServicesQueryHandler(IUnitOfWork unitOfWork, IServiceMapper serviceMapper)
+        public GetFeaturedServicesQueryHandler(CachedServiceService cachedServiceService)
         {
-            _unitOfWork = unitOfWork;
-            _serviceMapper = serviceMapper;
+            _cachedServiceService = cachedServiceService;
         }
 
         public async Task<IReadOnlyList<ServiceDto>> Handle(GetFeaturedServicesQuery request, CancellationToken cancellationToken)
         {
-            var featuredServices = await _unitOfWork.Services.GetPagedAsync(
-                filter: s => true,
-                skip: 0,
-                take: request.Count,
-                include: null,
-                orderBy: q => q.OrderBy(s => s.Name)
-            );
-
-            if (!featuredServices.Any())
-            {
-                return new List<ServiceDto>();
-            }
-
-
-            return _serviceMapper.MapToDto(featuredServices).ToList();
+            var featuredServices = await _cachedServiceService.GetFeaturedServicesAsync();
+            return featuredServices.Take(request.Count).ToList();
         }
     }
 }

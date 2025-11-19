@@ -1,5 +1,6 @@
 ﻿using Spotless.Domain.Enums;
 using Spotless.Domain.ValueObjects;
+using Spotless.Domain.Events;
 
 namespace Spotless.Domain.Entities
 {
@@ -117,7 +118,17 @@ namespace Spotless.Domain.Entities
             }
 
             this.DriverId = driverId;
-
+            this.Status = OrderStatus.DriverAssigned;
+        }
+        
+        public DriverAssignedEvent CreateDriverAssignedEvent()
+        {
+            return new DriverAssignedEvent(this.Id, this.DriverId!.Value, this.CustomerId);
+        }
+        
+        public OrderCreatedEvent CreateOrderCreatedEvent()
+        {
+            return new OrderCreatedEvent(this.Id, this.CustomerId, this.TotalPrice.Amount);
         }
     }
 }

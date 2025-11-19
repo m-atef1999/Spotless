@@ -1,4 +1,5 @@
-﻿using Spotless.Application.Interfaces;
+﻿using Spotless.Application.Dtos.Service;
+using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Services.Queries.GetFeaturedServices
 {

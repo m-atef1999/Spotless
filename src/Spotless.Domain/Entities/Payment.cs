@@ -1,5 +1,6 @@
 ﻿using Spotless.Domain.Enums;
 using Spotless.Domain.ValueObjects;
+using Spotless.Domain.Events;
 
 namespace Spotless.Domain.Entities
 {
@@ -57,6 +58,11 @@ namespace Spotless.Domain.Entities
                 throw new InvalidOperationException($"Payment can only be refunded if status is {PaymentStatus.Completed}.");
 
             Status = PaymentStatus.Refunded;
+        }
+        
+        public PaymentCompletedEvent CreatePaymentCompletedEvent()
+        {
+            return new PaymentCompletedEvent(this.Id, this.CustomerId, this.OrderId, this.Amount.Amount);
         }
     }
 }

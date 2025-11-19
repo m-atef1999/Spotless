@@ -1,5 +1,4 @@
 using FluentValidation;
-using Spotless.Application.Exceptions;
 using Spotless.Domain.Exceptions;
 using System.Net;
 using System.Text.Json;

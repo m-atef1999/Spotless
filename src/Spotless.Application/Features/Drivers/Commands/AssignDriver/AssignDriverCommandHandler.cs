@@ -7,10 +7,12 @@ namespace Spotless.Application.Features.Drivers.Commands.AssignDriver
     public class AssignDriverCommandHandler : IRequestHandler<AssignDriverCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDomainEventPublisher _eventPublisher;
 
-        public AssignDriverCommandHandler(IUnitOfWork unitOfWork)
+        public AssignDriverCommandHandler(IUnitOfWork unitOfWork, IDomainEventPublisher eventPublisher)
         {
             _unitOfWork = unitOfWork;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task<Unit> Handle(AssignDriverCommand request, CancellationToken cancellationToken)
@@ -41,12 +43,15 @@ namespace Spotless.Application.Features.Drivers.Commands.AssignDriver
             }
 
             order.AssignDriver(request.DriverId);
-            order.SetStatus(OrderStatus.DriverAssigned);
             driver.UpdateStatus(DriverStatus.OnRoute);
 
             await _unitOfWork.Orders.UpdateAsync(order);
             await _unitOfWork.Drivers.UpdateAsync(driver);
             await _unitOfWork.CommitAsync();
+            
+            // Publish domain event
+            var driverAssignedEvent = order.CreateDriverAssignedEvent();
+            await _eventPublisher.PublishAsync(driverAssignedEvent);
 
             return Unit.Value;
         }

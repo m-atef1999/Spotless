@@ -15,5 +15,12 @@ namespace Spotless.Infrastructure.Repositories
                                    .Where(s => s.CategoryId == categoryId)
                                    .ToListAsync();
         }
+        
+        public async Task<IReadOnlyList<Service>> GetFeaturedServicesAsync()
+        {
+            return await _dbContext.Services
+                                   .Where(s => s.IsFeatured && s.IsActive)
+                                   .ToListAsync();
+        }
     }
 }

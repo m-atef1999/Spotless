@@ -10,6 +10,7 @@ using Spotless.Application.Dtos.Order;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
 using Spotless.Application.Markers;
+using Spotless.Application.Services;
 using Spotless.Application.Validation;
 using Spotless.Infrastructure.Context;
 using Spotless.Infrastructure.Identity;
@@ -125,6 +126,18 @@ namespace Spotless.API.Extensions
             services.AddScoped<ICustomerMapper, CustomerMapper>();
             services.AddScoped<IServiceMapper, ServiceMapper>();
             services.AddScoped<IDriverMapper, DriverMapper>();
+
+            // Domain Events and Services
+            services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
+            services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IAnalyticsService, AnalyticsService>();
+            services.AddSingleton<ICacheService, CacheService>();
+
+            // Caching Services
+            services.AddScoped<ICachingService, DistributedCachingService>();
+            services.AddScoped<CachedServiceService>();
+            services.AddScoped<CachedCategoryService>();
+            services.AddScoped<CachedTimeSlotService>();
 
             return services;
         }

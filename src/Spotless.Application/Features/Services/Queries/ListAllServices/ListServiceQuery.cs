@@ -1,12 +1,11 @@
-﻿using Spotless.Application.Dtos.Requests;
+﻿using MediatR;
+using Spotless.Application.Dtos.Requests;
 using Spotless.Application.Dtos.Responses;
-using Spotless.Application.Interfaces;
+using Spotless.Application.Dtos.Service;
 
 namespace Spotless.Application.Features.Services.Queries.ListAllServices
 {
-
     public record ListServicesQuery(
         string? NameSearchTerm
-
-    ) : PaginationBaseRequest, IQuery<PagedResponse<ServiceDto>>;
+    ) : PaginationBaseRequest, IRequest<PagedResponse<ServiceDto>>;
 }

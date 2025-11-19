@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="C:\Users\egysc\Downloads\Program.cs" Link="Program.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Audit.EntityFramework.Core" Version="31.0.2" />
     <PackageReference Include="AutoMapper" Version="15.1.0" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.0" />

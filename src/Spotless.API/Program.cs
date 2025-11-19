@@ -12,6 +12,7 @@ using Spotless.Infrastructure.SeedData;
 using Spotless.Infrastructure.Services;
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -100,6 +101,20 @@ builder.Services.AddEndpointsApiExplorer();
 
 
 builder.Services.AddDataProtection();
+
+// Add Redis/IDistributedCache
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+if (!string.IsNullOrEmpty(redisConnectionString))
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConnectionString;
+    });
+}
+else
+{
+    builder.Services.AddDistributedMemoryCache();
+}
 
 builder.Services
     .AddDatabaseConfiguration(builder.Configuration)

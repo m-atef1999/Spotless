@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Spotless.Application.Interfaces;
+using Spotless.Application.Services;
 using Spotless.Domain.Entities;
 using Spotless.Domain.ValueObjects;
 
@@ -8,10 +9,12 @@ namespace Spotless.Application.Features.Services.Commands.CreateService
     public class CreateServiceCommandHandler : IRequestHandler<CreateServiceCommand, Guid>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly CachedServiceService _cachedServiceService;
 
-        public CreateServiceCommandHandler(IUnitOfWork unitOfWork)
+        public CreateServiceCommandHandler(IUnitOfWork unitOfWork, CachedServiceService cachedServiceService)
         {
             _unitOfWork = unitOfWork;
+            _cachedServiceService = cachedServiceService;
         }
 
         public async Task<Guid> Handle(CreateServiceCommand request, CancellationToken cancellationToken)
@@ -37,6 +40,9 @@ namespace Spotless.Application.Features.Services.Commands.CreateService
 
             await _unitOfWork.Services.AddAsync(serviceEntity);
             await _unitOfWork.CommitAsync();
+            
+            // Invalidate cache
+            await _cachedServiceService.InvalidateServiceCacheAsync();
 
             return serviceEntity.Id;
         }

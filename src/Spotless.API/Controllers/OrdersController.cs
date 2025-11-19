@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Order;
-using Spotless.Application.Exceptions;
 using Spotless.Application.Features.Orders.Commands.CreateOrder;
 using Spotless.Application.Features.Orders.Queries.GetOrderDetails;
 using Spotless.Domain.Exceptions;

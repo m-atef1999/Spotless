@@ -1,4 +1,4 @@
-namespace Spotless.Application.Exceptions
+namespace Spotless.Domain.Exceptions
 {
     public class ConflictException : Exception
     {
