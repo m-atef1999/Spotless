@@ -120,7 +120,7 @@ builder.Services
     .AddDatabaseConfiguration(builder.Configuration)
     .AddRepositories()
     .AddIdentityAndAuthentication(builder.Configuration)
-    .AddApplicationServices();
+    .AddApplicationServices(builder.Configuration);
 
 builder.Services.AddSwaggerGen(options =>
 
@@ -170,10 +170,16 @@ builder.Services.Configure<SecuritySettings>(
 builder.Services.Configure<ApiVersioningSettings>(
     builder.Configuration.GetSection(ApiVersioningSettings.SettingsKey));
 
-
 builder.Services.AddScoped<IEncryptionService, DataProtectionService>();
 
-builder.Services.AddSingleton<IPaymentGatewayService, PaymentGatewayService>();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<Spotless.Infrastructure.Context.ApplicationDbContext>()
+    .AddDbContextCheck<Spotless.Infrastructure.Context.IdentityDbContext>()
+    .AddUrlGroup(new Uri("https://accept.paymob.com/"), "Paymob - Accept API");
+
+builder.Services.AddHealthChecksUI()
+    .AddInMemoryStorage();
+
 
 
 var securitySettings = builder.Configuration.GetSection(SecuritySettings.SettingsKey).Get<SecuritySettings>();
@@ -279,6 +285,19 @@ app.UseAuditMiddleware(config =>
 
 // 9. Controllers
 app.MapControllers();
+
+app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+{
+    Predicate = _ => true,
+    ResponseWriter = HealthChecks.UI.Client.UIResponseWriter.WriteHealthCheckUIResponse
+});
+
+app.MapHealthChecksUI(options =>
+{
+    options.UIPath = "/healthchecks-ui";
+    options.ApiPath = "/healthchecks-api";
+});
+
 
 try
 {

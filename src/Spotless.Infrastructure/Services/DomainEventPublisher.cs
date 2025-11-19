@@ -44,7 +44,7 @@ namespace Spotless.Infrastructure.Services
 
         private async Task HandleOrderCreatedAsync(OrderCreatedEvent orderCreated)
         {
-            await _analyticsService.TrackOrderCreatedAsync(orderCreated.OrderId, orderCreated.CustomerId, orderCreated.TotalAmount);
+            await _analyticsService.TrackOrderCreatedAsync(orderCreated.OrderId, orderCreated.CustomerId, orderCreated.TotalPrice);
         }
 
         private async Task HandlePaymentCompletedAsync(PaymentCompletedEvent paymentCompleted)

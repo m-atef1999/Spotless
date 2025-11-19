@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Enums;
+using Spotless.Domain.Exceptions;
 
 namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
 {
@@ -9,70 +10,102 @@ namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaymentGatewayService _paymentGatewayService;
         private readonly IDomainEventPublisher _eventPublisher;
+        private readonly IPaymobSignatureService _paymobSignatureService;
 
-        public ProcessWebhookCommandHandler(IUnitOfWork unitOfWork, IPaymentGatewayService paymentGatewayService, IDomainEventPublisher eventPublisher)
+        public ProcessWebhookCommandHandler(
+            IUnitOfWork unitOfWork, 
+            IPaymentGatewayService paymentGatewayService, 
+            IDomainEventPublisher eventPublisher,
+            IPaymobSignatureService paymobSignatureService)
         {
             _unitOfWork = unitOfWork;
             _paymentGatewayService = paymentGatewayService;
             _eventPublisher = eventPublisher;
+            _paymobSignatureService = paymobSignatureService;
         }
 
         public async Task<Unit> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
         {
+            // Verify the HMAC signature to ensure the webhook is authentic
+            var isSignatureValid = _paymobSignatureService.VerifyProcessedCallbackSignature(
+                request.CallbackData, 
+                request.HmacSignature);
 
-            PaymentStatus finalStatus = await _paymentGatewayService
-                .VerifyPaymentAsync(request.PaymentReference, cancellationToken);
+            if (!isSignatureValid)
+            {
+                throw new UnauthorizedException("Invalid webhook signature. The webhook request is not authentic.");
+            }
+
+            // Extract the Paymob transaction ID and order information
+            var transactionId = request.CallbackData.Id.ToString();
+            var orderId = request.CallbackData.OrderId.ToString();
+
+            if (request.CallbackData.Id == 0)
+            {
+                throw new ArgumentException("Paymob transaction ID is missing from webhook payload.");
+            }
 
 
-            if (!Guid.TryParse(request.PaymentReference, out Guid paymentId))
-                throw new ArgumentException("Invalid payment reference format. Expected a GUID.", nameof(request.PaymentReference));
+            if (!Guid.TryParse(orderId, out Guid paymentOrderId))
+            {
+                throw new ArgumentException($"Invalid order ID format: {orderId}");
+            }
 
-            var payment = await _unitOfWork.Payments.GetByIdAsync(paymentId);
+            // Find payment by order ID using the repository method
+            var payments = await _unitOfWork.Payments.GetPaymentsByOrderIdAsync(paymentOrderId);
+            var payment = payments.FirstOrDefault();
 
             if (payment == null)
-                throw new KeyNotFoundException($"Payment record with ID {paymentId} not found.");
+            {
+                throw new KeyNotFoundException($"No payment record found for order ID {paymentOrderId}");
+            }
 
-
+            // If payment is already processed, return early
             if (payment.Status != PaymentStatus.Pending)
             {
                 return Unit.Value;
             }
 
-
-            if (finalStatus == PaymentStatus.Completed)
+            // Update payment status based on Paymob webhook data
+            if (request.CallbackData.Success && !request.CallbackData.Pending)
             {
+                // Payment completed successfully
                 payment.CompletePayment();
+                payment.SetExternalTransaction(transactionId, "Paymob");
 
                 if (payment.OrderId.HasValue)
                 {
                     var order = await _unitOfWork.Orders.GetByIdAsync(payment.OrderId.Value);
-
                     if (order != null)
                     {
                         order.SetStatus(OrderStatus.Confirmed);
                         await _unitOfWork.Orders.UpdateAsync(order);
                     }
                 }
-                
+
                 // Publish domain event
                 var paymentCompletedEvent = payment.CreatePaymentCompletedEvent();
                 await _eventPublisher.PublishAsync(paymentCompletedEvent);
             }
-            else if (finalStatus == PaymentStatus.Failed)
+            else if (request.CallbackData.ErrorOccured || !request.CallbackData.Success)
             {
-
+                // Payment failed or had errors
                 payment.FailPayment();
-
+                payment.SetExternalTransaction(transactionId, "Paymob");
 
                 if (payment.OrderId.HasValue)
                 {
                     var order = await _unitOfWork.Orders.GetByIdAsync(payment.OrderId.Value);
-                    order?.SetStatus(OrderStatus.PaymentFailed);
-                    if (order != null) await _unitOfWork.Orders.UpdateAsync(order);
+                    if (order != null)
+                    {
+                        order.SetStatus(OrderStatus.PaymentFailed);
+                        await _unitOfWork.Orders.UpdateAsync(order);
+                    }
                 }
             }
+            // If payment is still pending, do nothing
 
-
+            // Save changes
             await _unitOfWork.Payments.UpdateAsync(payment);
             await _unitOfWork.CommitAsync();
 

@@ -1,7 +1,9 @@
 ﻿using MediatR;
+using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
 {
     public record ProcessWebhookCommand(
-        string PaymentReference) : IRequest<Unit>;
+        string HmacSignature,
+        PaymobProcessedCallbackData CallbackData) : IRequest<Unit>;
 }

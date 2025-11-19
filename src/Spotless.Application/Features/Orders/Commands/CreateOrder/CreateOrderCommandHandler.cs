@@ -45,7 +45,7 @@ namespace Spotless.Application.Features.Orders.Commands.CreateOrder
                 itemPrices: calculatedItemPrices
             );
 
-            orderEntity.SetStatus(OrderStatus.Requested);
+            
 
             await _unitOfWork.Orders.AddAsync(orderEntity);
             await _unitOfWork.CommitAsync();

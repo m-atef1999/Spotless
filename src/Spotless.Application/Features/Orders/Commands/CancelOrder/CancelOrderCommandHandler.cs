@@ -1,4 +1,6 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Options;
+using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Enums;
 
@@ -7,10 +9,14 @@ namespace Spotless.Application.Features.Orders.Commands.CancelOrder
     public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly INotificationService _notificationService;
+        private readonly NotificationSettings _settings;
 
-        public CancelOrderCommandHandler(IUnitOfWork unitOfWork)
+        public CancelOrderCommandHandler(IUnitOfWork unitOfWork, INotificationService notificationService, IOptions<NotificationSettings> settings)
         {
             _unitOfWork = unitOfWork;
+            _notificationService = notificationService;
+            _settings = settings.Value;
         }
 
         public async Task<Unit> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
@@ -30,17 +36,20 @@ namespace Spotless.Application.Features.Orders.Commands.CancelOrder
             }
 
 
-            if (order.Status == OrderStatus.PickedUp || order.Status == OrderStatus.InCleaning || order.Status == OrderStatus.OutForDelivery || order.Status == OrderStatus.Delivered || order.Status == OrderStatus.Cancelled)
-            {
-                throw new InvalidOperationException($"Order ID {request.OrderId} cannot be cancelled because its current status is {order.Status}.");
-            }
+            
 
 
             order.SetStatus(OrderStatus.Cancelled);
 
-
             await _unitOfWork.Orders.UpdateAsync(order);
             await _unitOfWork.CommitAsync();
+
+            if (_settings.NotifyOnOrderCancelled && _settings.EnableEmailNotifications)
+            {
+                var customer = await _unitOfWork.Customers.GetByIdAsync(order.CustomerId);
+                if (customer?.Email != null)
+                    await _notificationService.SendEmailNotificationAsync(customer.Email, "Order Cancelled", $"Your order #{order.Id} has been cancelled.");
+            }
 
             return Unit.Value;
         }

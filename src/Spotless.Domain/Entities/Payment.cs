@@ -1,6 +1,6 @@
 ﻿using Spotless.Domain.Enums;
-using Spotless.Domain.ValueObjects;
 using Spotless.Domain.Events;
+using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Domain.Entities
 {
@@ -13,6 +13,9 @@ namespace Spotless.Domain.Entities
         public DateTime PaymentDate { get; private set; }
         public PaymentMethod PaymentMethod { get; private set; }
         public PaymentStatus Status { get; private set; }
+
+        public string? ExternalTransactionId { get; private set; }
+        public string? ExternalGateway { get; private set; }
 
         public virtual Customer Customer { get; private set; } = null!;
         public virtual Admin? Admin { get; private set; }
@@ -59,7 +62,13 @@ namespace Spotless.Domain.Entities
 
             Status = PaymentStatus.Refunded;
         }
-        
+
+        public void SetExternalTransaction(string transactionId, string gateway)
+        {
+            ExternalTransactionId = transactionId;
+            ExternalGateway = gateway;
+        }
+
         public PaymentCompletedEvent CreatePaymentCompletedEvent()
         {
             return new PaymentCompletedEvent(this.Id, this.CustomerId, this.OrderId, this.Amount.Amount);

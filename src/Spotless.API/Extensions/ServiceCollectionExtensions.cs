@@ -103,7 +103,8 @@ namespace Spotless.API.Extensions
 
 
         public static IServiceCollection AddApplicationServices(
-            this IServiceCollection services)
+            this IServiceCollection services,
+            IConfiguration configuration)
         {
 
             services.AddMediatR(cfg =>
@@ -138,6 +139,14 @@ namespace Spotless.API.Extensions
             services.AddScoped<CachedServiceService>();
             services.AddScoped<CachedCategoryService>();
             services.AddScoped<CachedTimeSlotService>();
+
+            // Payment Services
+            services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
+            services.AddScoped<IPaymobSignatureService, PaymobSignatureService>();
+
+            // Configure Paymob settings
+            services.Configure<PaymobSettings>(
+                configuration.GetSection(PaymobSettings.SettingsKey));
 
             return services;
         }

@@ -56,7 +56,36 @@ namespace Spotless.Domain.Entities
 
 
 
-        public void SetStatus(OrderStatus newStatus) { this.Status = newStatus; }
+        private static readonly Dictionary<OrderStatus, List<OrderStatus>> StateTransitions = new()
+        {
+            { OrderStatus.PaymentFailed, new List<OrderStatus> { OrderStatus.Requested, OrderStatus.Cancelled } },
+            { OrderStatus.Requested, new List<OrderStatus> { OrderStatus.Confirmed, OrderStatus.Cancelled } },
+            { OrderStatus.Confirmed, new List<OrderStatus> { OrderStatus.DriverAssigned, OrderStatus.Cancelled } },
+            { OrderStatus.DriverAssigned, new List<OrderStatus> { OrderStatus.PickedUp, OrderStatus.Cancelled } },
+            { OrderStatus.PickedUp, new List<OrderStatus> { OrderStatus.InCleaning, OrderStatus.Cancelled } },
+            { OrderStatus.InCleaning, new List<OrderStatus> { OrderStatus.OutForDelivery, OrderStatus.Cancelled } },
+            { OrderStatus.OutForDelivery, new List<OrderStatus> { OrderStatus.Delivered, OrderStatus.Cancelled } }
+        };
+
+        public void SetStatus(OrderStatus newStatus)
+        {
+            if (StateTransitions.TryGetValue(Status, out var validNextStatuses))
+            {
+                if (validNextStatuses.Contains(newStatus))
+                {
+                    Status = newStatus;
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Cannot transition from {Status} to {newStatus}");
+                }
+            }
+            else
+            {
+                // No transitions defined for the current status, meaning it's a final state (like Delivered or Cancelled)
+                throw new InvalidOperationException($"Cannot transition from a final state {Status}");
+            }
+        }
 
 
         public void UpdateDetails(Guid newTimeSlotId, DateTime newScheduledDate, Location newPickupLocation, Location newDeliveryLocation)
@@ -106,19 +135,42 @@ namespace Spotless.Domain.Entities
             firstItem.UpdateServiceId(newServiceId);
 
         }
+
+        public void AddPayment(Payment payment)
+        {
+            if (payment.Status != PaymentStatus.Completed)
+            {
+                throw new InvalidOperationException("Only completed payments can be added to an order.");
+            }
+
+            if (Payments.Any(p => p.Id == payment.Id))
+            {
+                throw new InvalidOperationException("Payment has already been added to this order.");
+            }
+
+            Payments.Add(payment);
+
+            var totalPaid = Payments.Sum(p => p.Amount.Amount);
+
+            if (totalPaid > TotalPrice.Amount)
+            {
+                throw new InvalidOperationException($"Overpayment detected. Total paid: {totalPaid}, Order total: {TotalPrice.Amount}");
+            }
+
+            if (totalPaid == TotalPrice.Amount)
+            {
+                SetStatus(OrderStatus.Confirmed);
+            }
+        }
         public void AssignDriver(Guid driverId)
         {
-            if (this.Status != OrderStatus.Confirmed && this.Status != OrderStatus.DriverAssigned)
-            {
-                throw new InvalidOperationException($"Cannot assign driver to order with status {this.Status}. Order must be Confirmed or DriverAssigned.");
-            }
             if (driverId == Guid.Empty)
             {
                 throw new ArgumentException("Driver ID cannot be empty.", nameof(driverId));
             }
 
+            SetStatus(OrderStatus.DriverAssigned);
             this.DriverId = driverId;
-            this.Status = OrderStatus.DriverAssigned;
         }
         
         public DriverAssignedEvent CreateDriverAssignedEvent()
