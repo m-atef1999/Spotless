@@ -12,7 +12,6 @@ using Spotless.Infrastructure.SeedData;
 using Spotless.Infrastructure.Services;
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -96,11 +95,32 @@ Audit.Core.Configuration.AddCustomAction(ActionType.OnEventSaving, scope =>
     catch { }
 });
 
+
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 
 builder.Services.AddDataProtection();
+
+
+builder.Configuration
+       .SetBasePath(builder.Environment.ContentRootPath)
+       .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+       .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+       .AddEnvironmentVariables();
+
+
+// paymob settings with environment variable overrides
+
+var paymobSettings = new Spotless.Application.Configurations.PaymobSettings();
+builder.Configuration.GetSection(Spotless.Application.Configurations.PaymobSettings.SettingsKey).Bind(paymobSettings);
+paymobSettings.ApiKey = Environment.GetEnvironmentVariable("PAYMOB_API_KEY") ?? paymobSettings.ApiKey;
+paymobSettings.SecretKey = Environment.GetEnvironmentVariable("PAYMOB_SECRET_KEY") ?? paymobSettings.SecretKey;
+paymobSettings.HmacSecret = Environment.GetEnvironmentVariable("PAYMOB_HMAC_SECRET") ?? paymobSettings.HmacSecret;
+paymobSettings.PublicKey = Environment.GetEnvironmentVariable("PAYMOB_PUBLIC_SECRET") ?? paymobSettings.PublicKey;
+builder.Services.Configure<Spotless.Application.Configurations.PaymobSettings>(
+builder.Configuration.GetSection(Spotless.Application.Configurations.PaymobSettings.SettingsKey));
 
 // Add Redis/IDistributedCache
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis");

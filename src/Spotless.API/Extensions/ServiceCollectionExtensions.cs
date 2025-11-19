@@ -23,20 +23,16 @@ namespace Spotless.API.Extensions
 {
     public static class ServiceCollectionExtensions
     {
-
         public static IServiceCollection AddDatabaseConfiguration(
             this IServiceCollection services,
             IConfiguration configuration)
         {
-
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     configuration.GetConnectionString("DefaultConnection"),
-
                     b => b.MigrationsAssembly("Spotless.Infrastructure")
                 )
             );
-
 
             services.AddDbContext<IdentityDbContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("IdentityConnection"))
@@ -45,12 +41,10 @@ namespace Spotless.API.Extensions
             return services;
         }
 
-
         public static IServiceCollection AddIdentityAndAuthentication(
             this IServiceCollection services,
             IConfiguration configuration)
         {
-
             services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
             {
                 options.Password.RequireDigit = true;
@@ -59,7 +53,6 @@ namespace Spotless.API.Extensions
             })
             .AddEntityFrameworkStores<IdentityDbContext>()
             .AddDefaultTokenProviders();
-
 
             services.Configure<JwtSettings>(
                 configuration.GetSection(JwtSettings.SettingsKey));
@@ -94,19 +87,16 @@ namespace Spotless.API.Extensions
                 };
             });
 
-
             services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IAuthService, AuthService>();
 
             return services;
         }
 
-
         public static IServiceCollection AddApplicationServices(
             this IServiceCollection services,
             IConfiguration configuration)
         {
-
             services.AddMediatR(cfg =>
             {
                 cfg.RegisterServicesFromAssembly(typeof(OrderDto).Assembly)
@@ -116,10 +106,9 @@ namespace Spotless.API.Extensions
                 cfg.RegisterServicesFromAssembly(typeof(AssemblyMarker).Assembly));
 
             services.AddValidatorsFromAssembly(typeof(AssemblyMarker).Assembly);
-
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
-
             services.AddValidatorsFromAssemblyContaining<CreateOrderDtoValidator>();
+
             services.AddScoped<IPricingService, PricingService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISmsService, DummySmsService>();
@@ -144,21 +133,17 @@ namespace Spotless.API.Extensions
             services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
             services.AddScoped<IPaymobSignatureService, PaymobSignatureService>();
 
-            // Configure Paymob settings
-            services.Configure<PaymobSettings>(
-                configuration.GetSection(PaymobSettings.SettingsKey));
+            // Configure Paymob settings (binds to DI)
+
+            services.Configure<PaymobSettings>(configuration.GetSection(PaymobSettings.SettingsKey));
 
             return services;
         }
 
-
-        public static IServiceCollection AddRepositories(
-            this IServiceCollection services)
+        public static IServiceCollection AddRepositories(this IServiceCollection services)
         {
-
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
 
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<IAdminRepository, AdminRepository>();
