@@ -1,4 +1,6 @@
-﻿using Spotless.Application.Interfaces;
+﻿using Spotless.Application.Dtos.Order;
+using Spotless.Application.Dtos.Responses;
+using Spotless.Application.Interfaces;
 using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Infrastructure.Services
@@ -50,6 +52,38 @@ namespace Spotless.Infrastructure.Services
             var totalMoney = new Money(totalAmount, currency);
 
             return new PriceEstimateDto(totalMoney);
+        }
+
+        public async Task<PriceEstimateResponse> CalculatePriceEstimateAsync(CreateOrderDto orderDto, Guid customerId, CancellationToken cancellationToken)
+        {
+            // Extract pricing items from the order dto
+            var pricingItems = orderDto.Items?.Select(item => 
+                new PricingItemDto(
+                    ServiceId: item.ServiceId,
+                    ItemName: $"Service {item.ServiceId}", // Use ServiceId as fallback name
+                    Quantity: item.Quantity
+                )
+            ).ToList() ?? new List<PricingItemDto>();
+
+            // Get item prices
+            var itemPrices = await GetItemPricesAsync(pricingItems);
+
+            // Calculate total
+            var totalEstimate = CalculateTotal(itemPrices);
+
+            return new PriceEstimateResponse
+            {
+                TotalPrice = totalEstimate.Total.Amount,
+                Currency = totalEstimate.Total.Currency,
+                ItemBreakdown = itemPrices.Select(pr => 
+                    new PriceItemResponse
+                    {
+                        ServiceId = pr.ServiceId,
+                        ItemPrice = pr.Price.Amount,
+                        Currency = pr.Price.Currency
+                    }
+                ).ToList()
+            };
         }
     }
 }

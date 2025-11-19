@@ -2,8 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Order;
+using Spotless.Application.Dtos.Responses;
 using Spotless.Application.Features.Orders.Commands.CreateOrder;
+using Spotless.Application.Features.Orders.Commands.CancelOrder;
 using Spotless.Application.Features.Orders.Queries.GetOrderDetails;
+using Spotless.Application.Features.Orders.Queries.ListCustomerOrders;
 using Spotless.Domain.Exceptions;
 using System.Security.Claims;
 
@@ -42,6 +45,34 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("customer")]
+        [ProducesResponseType(typeof(PagedResponse<OrderDto>), 200)]
+        public async Task<IActionResult> ListCustomerOrders(
+            [FromQuery] int? pageNumber,
+            [FromQuery] int? pageSize)
+        {
+            var customerId = GetCurrentUserId();
+            pageNumber ??= 1;
+            pageSize ??= 10;
+
+            var query = new ListCustomerOrdersQuery(customerId, pageNumber.Value, pageSize.Value);
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/cancel")]
+        [ProducesResponseType(typeof(OrderDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(409)]
+        public async Task<IActionResult> CancelOrder(Guid id)
+        {
+            var customerId = GetCurrentUserId();
+            var command = new CancelOrderCommand(id, customerId);
+            var result = await _mediator.Send(command);
+            return Ok(result);
+        }
+
         private Guid GetCurrentUserId()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -52,9 +83,9 @@ namespace Spotless.API.Controllers
                 throw new UnauthorizedException("User identity claim is missing or empty. Authentication token is invalid or incomplete.");
             }
 
-            if (Guid.TryParse(userIdString, out Guid userId))
-            {
-                return userId;
+                if (Guid.TryParse(userIdString, out Guid userId))
+                {
+                    return userId;
             }
             else
             {

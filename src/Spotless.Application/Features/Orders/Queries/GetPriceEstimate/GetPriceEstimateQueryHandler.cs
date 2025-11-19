@@ -1,11 +1,10 @@
 ﻿using MediatR;
+using Spotless.Application.Dtos.Responses;
 using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Orders.Queries.GetPriceEstimate
 {
-
-
-    public class GetPriceEstimateQueryHandler : IRequestHandler<GetPriceEstimateQuery, PriceEstimateDto>
+    public class GetPriceEstimateQueryHandler : IRequestHandler<GetPriceEstimateQuery, PriceEstimateResponse>
     {
         private readonly IPricingService _pricingService;
 
@@ -14,14 +13,9 @@ namespace Spotless.Application.Features.Orders.Queries.GetPriceEstimate
             _pricingService = pricingService;
         }
 
-        public async Task<PriceEstimateDto> Handle(GetPriceEstimateQuery request, CancellationToken cancellationToken)
+        public async Task<PriceEstimateResponse> Handle(GetPriceEstimateQuery request, CancellationToken cancellationToken)
         {
-
-            var itemPrices = await _pricingService.GetItemPricesAsync(request.Details.ServiceItems);
-
-            var estimate = _pricingService.CalculateTotal(itemPrices);
-
-            return estimate;
+            return await _pricingService.CalculatePriceEstimateAsync(request.OrderDto, request.CustomerId, cancellationToken);
         }
     }
 }

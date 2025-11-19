@@ -1,8 +1,12 @@
-﻿using Spotless.Application.Interfaces;
+﻿using MediatR;
+using Spotless.Application.Dtos.Order;
+using Spotless.Application.Dtos.Responses;
+using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Orders.Queries.GetPriceEstimate
 {
     public record GetPriceEstimateQuery(
-        PricingDetailsDto Details
-    ) : IQuery<PriceEstimateDto>;
+        CreateOrderDto OrderDto,
+        Guid CustomerId
+    ) : IRequest<PriceEstimateResponse>;
 }

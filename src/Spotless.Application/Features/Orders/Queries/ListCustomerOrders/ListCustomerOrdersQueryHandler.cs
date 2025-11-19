@@ -20,30 +20,22 @@ namespace Spotless.Application.Features.Orders.Queries.ListCustomerOrders
             _orderMapper = orderMapper;
         }
 
-
         public async Task<PagedResponse<OrderDto>> Handle(ListCustomerOrdersQuery request, CancellationToken cancellationToken)
         {
-
-            var filterExpression = BuildFilterExpression(request);
-
+            // Build filter expression for customer orders
+            Expression<Func<Order, bool>> filterExpression = order => order.CustomerId == request.CustomerId;
 
             var totalRecords = await _unitOfWork.Orders.CountAsync(filterExpression);
 
             var orders = await _unitOfWork.Orders.GetPagedAsync(
                 filterExpression,
-                request.Skip,
+                (request.PageNumber - 1) * request.PageSize,  // Calculate skip from page number
                 request.PageSize,
-
-
                 include: query => query.Include(o => o.Customer).Include(o => o.Items),
-
-
                 orderBy: q => q.OrderByDescending(o => o.OrderDate)
             );
 
-
             var orderDtos = _orderMapper.MapToDto(orders).ToList();
-
 
             return new PagedResponse<OrderDto>(
                 orderDtos,
@@ -51,17 +43,6 @@ namespace Spotless.Application.Features.Orders.Queries.ListCustomerOrders
                 request.PageNumber,
                 request.PageSize
             );
-        }
-
-
-        private Expression<Func<Order, bool>> BuildFilterExpression(ListCustomerOrdersQuery request)
-        {
-            return order =>
-
-                order.CustomerId == request.CustomerId &&
-
-
-                (!request.StatusFilter.HasValue || order.Status == request.StatusFilter.Value);
         }
     }
 }

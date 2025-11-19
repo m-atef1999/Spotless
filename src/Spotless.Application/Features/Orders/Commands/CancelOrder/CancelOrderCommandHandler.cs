@@ -36,7 +36,7 @@ namespace Spotless.Application.Features.Orders.Commands.CancelOrder
             }
 
 
-            
+
 
 
             order.SetStatus(OrderStatus.Cancelled);
