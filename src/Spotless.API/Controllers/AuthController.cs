@@ -25,10 +25,12 @@ namespace Spotless.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager;
 
-        public AuthController(IMediator mediator)
+        public AuthController(IMediator mediator, Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> userManager)
         {
             _mediator = mediator;
+            _userManager = userManager;
         }
 
 
@@ -38,6 +40,30 @@ namespace Spotless.API.Controllers
         {
             var result = await _mediator.Send(command);
             return Ok(result);
+        }
+
+        [Authorize]
+        [HttpPost("register/driver")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Guid))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RegisterDriver([FromBody] Spotless.Application.Dtos.Driver.SubmitDriverApplicationDto dto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var identityUserId))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var identityUser = await _userManager.FindByIdAsync(userIdString);
+            if (identityUser == null || !identityUser.CustomerId.HasValue)
+                return NotFound(new { Message = "Customer profile not found for this user." });
+
+            // We expect that a customer is registering as a driver (submit application)
+            var command = new Spotless.Application.Features.Drivers.Commands.SubmitDriverApplicationCommand.SubmitDriverApplicationCommand(identityUser.CustomerId.Value, dto);
+
+            var applicationId = await _mediator.Send(command);
+
+            return CreatedAtAction(nameof(RegisterDriver), new { id = applicationId }, applicationId);
         }
 
         [HttpPost("login")]

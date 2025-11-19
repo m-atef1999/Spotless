@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Spotless.Application.Dtos.Review;
 using Spotless.Application.Interfaces;
+using System.Linq;
 
 namespace Spotless.Application.Features.Reviews.Queries.GetReviewByDriver
 {

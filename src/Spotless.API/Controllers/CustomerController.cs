@@ -58,5 +58,71 @@ namespace Spotless.API.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet("profile")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Spotless.Application.Dtos.Customer.CustomerDto))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null || !user.CustomerId.HasValue)
+                return NotFound(new { Message = "Customer profile not found for this user." });
+
+            var query = new Spotless.Application.Features.Customers.Queries.GetCustomerProfile.GetCustomerProfileQuery(user.CustomerId.Value);
+
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
+
+        [HttpPut("profile")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateProfile([FromBody] Spotless.Application.Dtos.Customer.UpdateCustomerDto dto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null || !user.CustomerId.HasValue)
+                return NotFound(new { Message = "Customer profile not found for this user." });
+
+            var command = new Spotless.Application.Features.Customers.Commands.UpdateCustomerProfile.UpdateCustomerProfileCommand(dto, user.CustomerId.Value);
+
+            await _mediator.Send(command);
+
+            return NoContent();
+        }
+
+        [HttpPost("topup")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> TopUpWallet([FromBody] Spotless.Application.Dtos.Customer.TopUpWalletRequest dto)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null || !user.CustomerId.HasValue)
+                return NotFound(new { Message = "Customer profile not found for this user." });
+
+            var command = new Spotless.Application.Features.Customers.Commands.TopUpWallet.TopUpWalletCommand(user.CustomerId.Value, dto);
+
+            await _mediator.Send(command);
+
+            return Ok(new { Message = "Wallet successfully topped up." });
+        }
     }
 }

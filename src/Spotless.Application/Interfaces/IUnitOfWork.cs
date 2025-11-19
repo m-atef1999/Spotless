@@ -6,6 +6,7 @@
         IOrderRepository Orders { get; }
         IAdminRepository Admins { get; }
         IDriverRepository Drivers { get; }
+        IOrderDriverApplicationRepository OrderDriverApplications { get; }
 
         IPaymentRepository Payments { get; }
         IServiceRepository Services { get; }

@@ -16,6 +16,7 @@ namespace Spotless.Infrastructure.Repositories
         public IServiceRepository Services { get; }
         public IPaymentRepository Payments { get; }
         public IReviewRepository Reviews { get; }
+        public IOrderDriverApplicationRepository OrderDriverApplications { get; }
 
 
 
@@ -32,6 +33,7 @@ namespace Spotless.Infrastructure.Repositories
             Services = new ServiceRepository(_dbContext);
             Payments = new PaymentRepository(_dbContext);
             Reviews = new ReviewRepository(_dbContext);
+            OrderDriverApplications = new OrderDriverApplicationRepository(_dbContext);
 
         }
 
