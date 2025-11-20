@@ -7,11 +7,16 @@ using System.Text;
 namespace Spotless.Infrastructure.Services
 {
     /// <summary>
-    /// Secure AES-256-GCM encryption service (Recommended standard in 2025+)
-    /// Provides authenticated encryption with random nonce for every operation
+    /// Secure AES-256-GCM encryption service (Recommended standard)
+    /// Provides authenticated encryption with random nonce for every operation.
     /// </summary>
     public class AesEncryptionService : IEncryptionService
     {
+        // Recommended sizes for GCM
+        private const int NonceSize = 12;
+        private const int TagSize = 16;
+        private const int MinimumCipherLength = NonceSize + TagSize;
+
         private readonly byte[] _key;
 
         public AesEncryptionService(IOptions<EncryptionSettings> settings)
@@ -20,11 +25,15 @@ namespace Spotless.Infrastructure.Services
                 throw new InvalidOperationException("EncryptionSettings.EncryptionKey is missing or empty in configuration.");
 
             // Derive a proper 32-byte (256-bit) key using SHA-256
+            // The using statement automatically handles disposal of the SHA256 object.
             using var sha256 = SHA256.Create();
             _key = sha256.ComputeHash(Encoding.UTF8.GetBytes(settings.Value.EncryptionKey));
         }
 
         // =========================== String Encryption ===========================
+
+        // Note: The nullability warning (string?) is fixed by using 'string' for IEncryptionService.Decrypt
+        // and ensuring we return a non-null string (or throw) where expected.
 
         public string Encrypt(string plainText)
         {
@@ -35,26 +44,29 @@ namespace Spotless.Infrastructure.Services
 
             // Format: [nonce:12][tag:16][ciphertext:...]
             var result = new byte[nonce.Length + tag.Length + cipherText.Length];
-            Buffer.BlockCopy(nonce, 0, result, 0, nonce.Length);
-            Buffer.BlockCopy(tag, 0, result, nonce.Length, tag.Length);
-            Buffer.BlockCopy(cipherText, 0, result, nonce.Length + tag.Length, cipherText.Length);
+
+            // Use CopyTo for modern Span-based array copying
+            nonce.CopyTo(result.AsSpan(0));
+            tag.CopyTo(result.AsSpan(nonce.Length));
+            cipherText.CopyTo(result.AsSpan(nonce.Length + tag.Length));
 
             return Convert.ToBase64String(result);
         }
 
-        public string? Decrypt(string cipherText)
+        public string Decrypt(string cipherText) // Removed '?' to fix nullability warning
         {
             if (string.IsNullOrEmpty(cipherText)) return cipherText;
 
             try
             {
                 var data = Convert.FromBase64String(cipherText);
-                if (data.Length < 28) // 12 nonce + 16 tag minimum
+                if (data.Length < MinimumCipherLength)
                     throw new CryptographicException("Invalid ciphertext length.");
 
-                var nonce = data.AsSpan(0, 12).ToArray();
-                var tag = data.AsSpan(12, 16).ToArray();
-                var actualCipherText = data.AsSpan(28).ToArray();
+                // Use Span<byte> for efficient slicing and allocation reduction
+                var nonce = data.AsSpan(0, NonceSize);
+                var tag = data.AsSpan(NonceSize, TagSize);
+                var actualCipherText = data.AsSpan(MinimumCipherLength);
 
                 var plainBytes = DecryptCore(actualCipherText, nonce, tag);
                 return Encoding.UTF8.GetString(plainBytes);
@@ -75,9 +87,9 @@ namespace Spotless.Infrastructure.Services
             var (cipherText, nonce, tag) = EncryptCore(data);
 
             var result = new byte[nonce.Length + tag.Length + cipherText.Length];
-            Buffer.BlockCopy(nonce, 0, result, 0, nonce.Length);
-            Buffer.BlockCopy(tag, 0, result, nonce.Length, tag.Length);
-            Buffer.BlockCopy(cipherText, 0, result, nonce.Length + tag.Length, cipherText.Length);
+            nonce.CopyTo(result.AsSpan(0));
+            tag.CopyTo(result.AsSpan(nonce.Length));
+            cipherText.CopyTo(result.AsSpan(nonce.Length + tag.Length));
 
             return Convert.ToBase64String(result);
         }
@@ -89,12 +101,12 @@ namespace Spotless.Infrastructure.Services
             try
             {
                 var data = Convert.FromBase64String(base64CipherText);
-                if (data.Length < 28)
+                if (data.Length < MinimumCipherLength)
                     throw new CryptographicException("Invalid ciphertext length.");
 
-                var nonce = data.AsSpan(0, 12).ToArray();
-                var tag = data.AsSpan(12, 16).ToArray();
-                var cipherText = data.AsSpan(28).ToArray();
+                var nonce = data.AsSpan(0, NonceSize);
+                var tag = data.AsSpan(NonceSize, TagSize);
+                var cipherText = data.AsSpan(MinimumCipherLength);
 
                 return DecryptCore(cipherText, nonce, tag);
             }
@@ -108,24 +120,29 @@ namespace Spotless.Infrastructure.Services
 
         private (byte[] cipherText, byte[] nonce, byte[] tag) EncryptCore(byte[] plainBytes)
         {
-            using var aesGcm = new AesGcm(_key);
+            // FIX: Use the non-obsolete constructor that takes the tag size.
+            using var aesGcm = new AesGcm(_key, TagSize);
 
-            var nonce = new byte[AesGcm.NonceByteSizes.MaxSize]; // 12 bytes recommended
+            var nonce = new byte[NonceSize];
             RandomNumberGenerator.Fill(nonce);
 
             var cipherText = new byte[plainBytes.Length];
-            var tag = new byte[AesGcm.TagByteSizes.MaxSize]; // 16 bytes
+            var tag = new byte[TagSize];
 
             aesGcm.Encrypt(nonce, plainBytes, cipherText, tag);
 
             return (cipherText, nonce, tag);
         }
 
-        private byte[] DecryptCore(byte[] cipherText, byte[] nonce, byte[] tag)
+        private byte[] DecryptCore(ReadOnlySpan<byte> cipherText, ReadOnlySpan<byte> nonce, ReadOnlySpan<byte> tag)
         {
-            using var aesGcm = new AesGcm(_key);
+            // FIX: Use the non-obsolete constructor that takes the tag size.
+            using var aesGcm = new AesGcm(_key, TagSize);
 
+            // Allocation of plainBytes moved here
             var plainBytes = new byte[cipherText.Length];
+
+            // Decrypt accepts ReadOnlySpan for efficiency
             aesGcm.Decrypt(nonce, cipherText, tag, plainBytes);
 
             return plainBytes;
