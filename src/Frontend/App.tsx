@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/LoginPage';
+import { MainPage } from './pages/MainPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { CustomerDashboard } from './pages/customer/Dashboard';
 import { NewOrderPage } from './pages/customer/NewOrderPage';
@@ -84,9 +85,9 @@ function App() {
           }
         />
 
-        {/* Default Redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* Default Route */}
+        <Route path="/" element={<MainPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ToastProvider>
   );
