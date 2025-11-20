@@ -6,14 +6,9 @@ using System.Linq;
 namespace Spotless.Application.Features.Reviews.Queries.GetReviewByDriver
 {
 
-    public class GetReviewsByDriverQueryHandler : IRequestHandler<GetReviewsByDriverQuery, IReadOnlyList<ReviewDto>>
+    public class GetReviewsByDriverQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetReviewsByDriverQuery, IReadOnlyList<ReviewDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public GetReviewsByDriverQueryHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<IReadOnlyList<ReviewDto>> Handle(GetReviewsByDriverQuery request, CancellationToken cancellationToken)
         {

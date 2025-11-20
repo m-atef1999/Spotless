@@ -7,16 +7,10 @@ using System.Linq;
 
 namespace Spotless.Application.Features.Orders.Queries.GetAvailableForDrivers
 {
-    public class GetAvailableForDriversQueryHandler : IRequestHandler<GetAvailableForDriversQuery, IReadOnlyList<OrderDto>>
+    public class GetAvailableForDriversQueryHandler(IUnitOfWork unitOfWork, IOrderMapper orderMapper) : IRequestHandler<GetAvailableForDriversQuery, IReadOnlyList<OrderDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IOrderMapper _orderMapper;
-
-        public GetAvailableForDriversQueryHandler(IUnitOfWork unitOfWork, IOrderMapper orderMapper)
-        {
-            _unitOfWork = unitOfWork;
-            _orderMapper = orderMapper;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IOrderMapper _orderMapper = orderMapper;
 
         public async Task<IReadOnlyList<OrderDto>> Handle(GetAvailableForDriversQuery request, CancellationToken cancellationToken)
         {

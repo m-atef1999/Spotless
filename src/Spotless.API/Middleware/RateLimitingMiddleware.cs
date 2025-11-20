@@ -33,7 +33,7 @@ namespace Spotless.API.Middleware
 
             CleanupOldEntries(clientIp, now);
 
-            var history = _requestHistory.GetOrAdd(clientIp, _ => new List<DateTime>());
+            var history = _requestHistory.GetOrAdd(clientIp, _ => []);
 
 
             bool rateLimitExceeded = false;

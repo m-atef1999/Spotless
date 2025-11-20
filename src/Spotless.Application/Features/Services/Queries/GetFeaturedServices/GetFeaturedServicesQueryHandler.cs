@@ -6,14 +6,9 @@ using Spotless.Application.Services;
 
 namespace Spotless.Application.Features.Services.Queries.GetFeaturedServices
 {
-    public class GetFeaturedServicesQueryHandler : IRequestHandler<GetFeaturedServicesQuery, IReadOnlyList<ServiceDto>>
+    public class GetFeaturedServicesQueryHandler(CachedServiceService cachedServiceService) : IRequestHandler<GetFeaturedServicesQuery, IReadOnlyList<ServiceDto>>
     {
-        private readonly CachedServiceService _cachedServiceService;
-
-        public GetFeaturedServicesQueryHandler(CachedServiceService cachedServiceService)
-        {
-            _cachedServiceService = cachedServiceService;
-        }
+        private readonly CachedServiceService _cachedServiceService = cachedServiceService;
 
         public async Task<IReadOnlyList<ServiceDto>> Handle(GetFeaturedServicesQuery request, CancellationToken cancellationToken)
         {

@@ -5,26 +5,13 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Drivers.Commands.SubmitDriverApplicationCommand
 {
-    public class SubmitDriverApplicationCommandHandler : IRequestHandler<SubmitDriverApplicationCommand, Guid>
+    public class SubmitDriverApplicationCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<SubmitDriverApplicationCommand, Guid>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public SubmitDriverApplicationCommandHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Guid> Handle(SubmitDriverApplicationCommand request, CancellationToken cancellationToken)
         {
-            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId);
-
-            if (customer == null)
-            {
-                throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
-            }
-
-
-
+            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId) ?? throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
             var newDriverApplication = new Driver(
                 adminId: null,
                 name: request.Dto.Name,

@@ -5,16 +5,10 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Payments.Commands.InitiatePayment
 {
-    public class InitiatePaymentCommandHandler : IRequestHandler<InitiatePaymentCommand, string>
+    public class InitiatePaymentCommandHandler(IUnitOfWork unitOfWork, IPaymentGatewayService paymentGatewayService) : IRequestHandler<InitiatePaymentCommand, string>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IPaymentGatewayService _paymentGatewayService;
-
-        public InitiatePaymentCommandHandler(IUnitOfWork unitOfWork, IPaymentGatewayService paymentGatewayService)
-        {
-            _unitOfWork = unitOfWork;
-            _paymentGatewayService = paymentGatewayService;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IPaymentGatewayService _paymentGatewayService = paymentGatewayService;
 
         public async Task<string> Handle(InitiatePaymentCommand request, CancellationToken cancellationToken)
         {

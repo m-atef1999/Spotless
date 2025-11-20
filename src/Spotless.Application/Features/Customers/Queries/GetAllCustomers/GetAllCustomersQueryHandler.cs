@@ -8,16 +8,10 @@ using System.Linq.Expressions;
 
 namespace Spotless.Application.Features.Customers.Queries.GetAllCustomers
 {
-    public class ListCustomersQueryHandler : IRequestHandler<ListCustomersQuery, PagedResponse<CustomerDto>>
+    public class ListCustomersQueryHandler(IUnitOfWork unitOfWork, ICustomerMapper customerMapper) : IRequestHandler<ListCustomersQuery, PagedResponse<CustomerDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ICustomerMapper _customerMapper;
-
-        public ListCustomersQueryHandler(IUnitOfWork unitOfWork, ICustomerMapper customerMapper)
-        {
-            _unitOfWork = unitOfWork;
-            _customerMapper = customerMapper;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly ICustomerMapper _customerMapper = customerMapper;
 
         public async Task<PagedResponse<CustomerDto>> Handle(ListCustomersQuery request, CancellationToken cancellationToken)
         {

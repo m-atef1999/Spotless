@@ -55,8 +55,7 @@ namespace Spotless.Infrastructure.Services
 
         public Task<PaymentStatus> VerifyPaymentAsync(string transactionReference, CancellationToken cancellationToken)
         {
-
-            var webhookSecret = _encryptionService.Decrypt(_settings.WebhookSecret);
+            _ = _encryptionService.Decrypt(_settings.WebhookSecret);
 
             if (string.IsNullOrEmpty(transactionReference))
             {

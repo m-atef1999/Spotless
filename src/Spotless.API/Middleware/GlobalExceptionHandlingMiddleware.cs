@@ -5,18 +5,12 @@ using System.Text.Json;
 
 namespace Spotless.API.Middleware
 {
-    public class GlobalExceptionHandlingMiddleware
+    public class GlobalExceptionHandlingMiddleware(
+        RequestDelegate next,
+        ILogger<GlobalExceptionHandlingMiddleware> logger)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger;
-
-        public GlobalExceptionHandlingMiddleware(
-            RequestDelegate next,
-            ILogger<GlobalExceptionHandlingMiddleware> logger)
-        {
-            _next = next;
-            _logger = logger;
-        }
+        private readonly RequestDelegate _next = next;
+        private readonly ILogger<GlobalExceptionHandlingMiddleware> _logger = logger;
 
         public async Task InvokeAsync(HttpContext context)
         {

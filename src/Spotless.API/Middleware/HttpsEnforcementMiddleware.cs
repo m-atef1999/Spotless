@@ -1,21 +1,14 @@
 namespace Spotless.API.Middleware
 {
 
-    public class HttpsEnforcementMiddleware
+    public class HttpsEnforcementMiddleware(
+        RequestDelegate next,
+        ILogger<HttpsEnforcementMiddleware> logger,
+        IWebHostEnvironment environment)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<HttpsEnforcementMiddleware> _logger;
-        private readonly bool _enforceHttps;
-
-        public HttpsEnforcementMiddleware(
-            RequestDelegate next,
-            ILogger<HttpsEnforcementMiddleware> logger,
-            IWebHostEnvironment environment)
-        {
-            _next = next;
-            _logger = logger;
-            _enforceHttps = !environment.IsDevelopment();
-        }
+        private readonly RequestDelegate _next = next;
+        private readonly ILogger<HttpsEnforcementMiddleware> _logger = logger;
+        private readonly bool _enforceHttps = !environment.IsDevelopment();
 
         public async Task InvokeAsync(HttpContext context)
         {

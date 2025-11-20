@@ -5,14 +5,9 @@ using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class PricingService : IPricingService
+    public class PricingService(IUnitOfWork unitOfWork) : IPricingService
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public PricingService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<IReadOnlyList<PriceCalculationResult>> GetItemPricesAsync(IReadOnlyList<PricingItemDto> items)
         {
@@ -24,13 +19,7 @@ namespace Spotless.Infrastructure.Services
 
             foreach (var itemDto in items)
             {
-                var service = services.FirstOrDefault(s => s.Id == itemDto.ServiceId);
-
-                if (service == null)
-                {
-                    throw new KeyNotFoundException($"Service with ID {itemDto.ServiceId} not found.");
-                }
-
+                var service = services.FirstOrDefault(s => s.Id == itemDto.ServiceId) ?? throw new KeyNotFoundException($"Service with ID {itemDto.ServiceId} not found.");
                 var itemPrice = service.PricePerUnit.Multiply(itemDto.Quantity);
 
                 results.Add(new PriceCalculationResult(itemDto.ServiceId, itemPrice));
@@ -63,7 +52,7 @@ namespace Spotless.Infrastructure.Services
                     ItemName: $"Service {item.ServiceId}", // Use ServiceId as fallback name
                     Quantity: item.Quantity
                 )
-            ).ToList() ?? new List<PricingItemDto>();
+            ).ToList() ?? [];
 
             // Get item prices
             var itemPrices = await GetItemPricesAsync(pricingItems);

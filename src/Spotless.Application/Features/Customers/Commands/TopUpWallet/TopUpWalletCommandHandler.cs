@@ -4,26 +4,13 @@ using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Features.Customers.Commands.TopUpWallet
 {
-    public class TopUpWalletCommandHandler : IRequestHandler<TopUpWalletCommand, Unit>
+    public class TopUpWalletCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<TopUpWalletCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-
-        public TopUpWalletCommandHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Unit> Handle(TopUpWalletCommand request, CancellationToken cancellationToken)
         {
-            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId);
-
-            if (customer == null)
-            {
-                throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
-            }
-
+            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId) ?? throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
             var topUpAmount = new Money(request.Request.AmountValue, "EGP"); // Assuming EGP currency
 
 

@@ -8,25 +8,16 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Customers.Queries.GetCustomerDashboard
 {
-    public class GetCustomerDashboardQueryHandler : IRequestHandler<GetCustomerDashboardQuery, CustomerDashboardDto>
+    public class GetCustomerDashboardQueryHandler(
+        IUnitOfWork unitOfWork,
+        IOrderMapper orderMapper) : IRequestHandler<GetCustomerDashboardQuery, CustomerDashboardDto>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IOrderMapper _orderMapper;
-
-        public GetCustomerDashboardQueryHandler(
-            IUnitOfWork unitOfWork,
-            IOrderMapper orderMapper)
-        {
-            _unitOfWork = unitOfWork;
-            _orderMapper = orderMapper;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IOrderMapper _orderMapper = orderMapper;
 
         public async Task<CustomerDashboardDto> Handle(GetCustomerDashboardQuery request, CancellationToken cancellationToken)
         {
-            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId);
-            if (customer == null)
-                throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
-
+            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId) ?? throw new KeyNotFoundException($"Customer with ID {request.CustomerId} not found.");
             var today = DateTime.UtcNow.Date;
 
             // Total orders

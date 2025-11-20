@@ -6,26 +6,15 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Orders.Commands.CompleteOrder
 {
-    public class CompleteOrderCommandHandler : IRequestHandler<CompleteOrderCommand, Unit>
+    public class CompleteOrderCommandHandler(IUnitOfWork unitOfWork, INotificationService notificationService, IOptions<NotificationSettings> settings) : IRequestHandler<CompleteOrderCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationService _notificationService;
-        private readonly NotificationSettings _settings;
-
-        public CompleteOrderCommandHandler(IUnitOfWork unitOfWork, INotificationService notificationService, IOptions<NotificationSettings> settings)
-        {
-            _unitOfWork = unitOfWork;
-            _notificationService = notificationService;
-            _settings = settings.Value;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly NotificationSettings _settings = settings.Value;
 
         public async Task<Unit> Handle(CompleteOrderCommand request, CancellationToken cancellationToken)
         {
-            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId);
-
-            if (order == null)
-                throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
-
+            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId) ?? throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
             order.SetStatus(OrderStatus.Delivered);
 
             await _unitOfWork.Orders.UpdateAsync(order);

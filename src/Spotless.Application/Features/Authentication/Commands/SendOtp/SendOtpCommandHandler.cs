@@ -3,14 +3,9 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Authentication.Commands.SendOtp
 {
-    public class SendOtpCommandHandler : IRequestHandler<SendOtpCommand, bool>
+    public class SendOtpCommandHandler(IAuthService authService) : IRequestHandler<SendOtpCommand, bool>
     {
-        private readonly IAuthService _authService;
-
-        public SendOtpCommandHandler(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<bool> Handle(SendOtpCommand request, CancellationToken cancellationToken)
         {

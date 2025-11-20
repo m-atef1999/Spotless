@@ -4,28 +4,15 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Drivers.Commands.ApproveDriverApplication
 {
-    public class ApproveDriverApplicationCommandHandler : IRequestHandler<ApproveDriverApplicationCommand, Guid>
+    public class ApproveDriverApplicationCommandHandler(IUnitOfWork unitOfWork, IAuthService identityService) : IRequestHandler<ApproveDriverApplicationCommand, Guid>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IAuthService _identityService;
-
-        public ApproveDriverApplicationCommandHandler(IUnitOfWork unitOfWork, IAuthService identityService)
-        {
-            _unitOfWork = unitOfWork;
-            _identityService = identityService;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IAuthService _identityService = identityService;
 
         public async Task<Guid> Handle(ApproveDriverApplicationCommand request, CancellationToken cancellationToken)
         {
 
-            var driver = await _unitOfWork.Drivers.GetByIdAsync(request.ApplicationId);
-
-            if (driver == null)
-            {
-                throw new KeyNotFoundException($"Driver application with ID {request.ApplicationId} not found.");
-            }
-
-
+            var driver = await _unitOfWork.Drivers.GetByIdAsync(request.ApplicationId) ?? throw new KeyNotFoundException($"Driver application with ID {request.ApplicationId} not found.");
             if (driver.Status != DriverStatus.PendingApproval && driver.Status != DriverStatus.Offline)
             {
                 throw new InvalidOperationException($"Driver with ID {request.ApplicationId} cannot be approved. Current status is {driver.Status}.");

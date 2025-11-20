@@ -5,16 +5,10 @@ using System.Text.Json;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class DistributedCachingService : ICachingService
+    public class DistributedCachingService(IDistributedCache distributedCache, ILogger<DistributedCachingService> logger) : ICachingService
     {
-        private readonly IDistributedCache _distributedCache;
-        private readonly ILogger<DistributedCachingService> _logger;
-
-        public DistributedCachingService(IDistributedCache distributedCache, ILogger<DistributedCachingService> logger)
-        {
-            _distributedCache = distributedCache;
-            _logger = logger;
-        }
+        private readonly IDistributedCache _distributedCache = distributedCache;
+        private readonly ILogger<DistributedCachingService> _logger = logger;
 
         public async Task<T?> GetAsync<T>(string key) where T : class
         {

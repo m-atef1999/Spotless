@@ -6,10 +6,8 @@ using Spotless.Infrastructure.Context;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class PaymentRepository : BaseRepository<Payment>, IPaymentRepository
+    public class PaymentRepository(ApplicationDbContext dbContext) : BaseRepository<Payment>(dbContext), IPaymentRepository
     {
-        public PaymentRepository(ApplicationDbContext dbContext) : base(dbContext) { }
-
         public async Task<IReadOnlyList<Payment>> GetPaymentsByOrderIdAsync(Guid orderId)
         {
             return await _dbContext.Payments

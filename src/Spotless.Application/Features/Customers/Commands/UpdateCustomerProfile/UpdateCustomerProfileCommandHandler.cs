@@ -4,28 +4,16 @@ using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Features.Customers.Commands.UpdateCustomerProfile
 {
-    public class UpdateCustomerProfileCommandHandler : IRequestHandler<UpdateCustomerProfileCommand, Unit>
+    public class UpdateCustomerProfileCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<UpdateCustomerProfileCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public UpdateCustomerProfileCommandHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Unit> Handle(UpdateCustomerProfileCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Dto;
 
 
-            var customer = await _unitOfWork.Customers.GetByIdAsync(request.UserId);
-
-            if (customer == null)
-            {
-                throw new KeyNotFoundException($"Customer profile not found for user ID: {request.UserId}");
-            }
-
-
+            var customer = await _unitOfWork.Customers.GetByIdAsync(request.UserId) ?? throw new KeyNotFoundException($"Customer profile not found for user ID: {request.UserId}");
             string newName = dto.Name ?? customer.Name;
             string? newPhone = dto.Phone ?? customer.Phone;
 

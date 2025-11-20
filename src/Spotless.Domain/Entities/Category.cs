@@ -9,7 +9,7 @@ namespace Spotless.Domain.Entities
         public string Name { get; private set; } = string.Empty;
         public Money Price { get; private set; } = null!;
 
-        private readonly List<Service> _services = new();
+        private readonly List<Service> _services = [];
         public IReadOnlyCollection<Service> Services => _services.AsReadOnly();
 
         protected Category() { }

@@ -31,6 +31,10 @@ namespace Spotless.Application.Validation
             RuleFor(x => x.EstimatedDurationHours)
 
                 .GreaterThan(0).WithMessage("Estimated duration must be positive.");
+
+            RuleFor(x => x.MaxWeightKg)
+                .GreaterThan(0).WithMessage("Max weight must be greater than zero.")
+                .LessThanOrEqualTo(1000).WithMessage("Max weight seems unreasonably large.");
         }
     }
 }

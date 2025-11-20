@@ -3,14 +3,9 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Authentication.Commands.ChangePassword
 {
-    public class ChangePasswordCommandHandler : IRequestHandler<ChangePasswordCommand, bool>
+    public class ChangePasswordCommandHandler(IAuthService authService) : IRequestHandler<ChangePasswordCommand, bool>
     {
-        private readonly IAuthService _authService;
-
-        public ChangePasswordCommandHandler(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<bool> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
         {

@@ -5,14 +5,9 @@ using System.Linq;
 
 namespace Spotless.Application.Features.Orders.Queries.GetOrderApplications
 {
-    public class GetOrderApplicationsQueryHandler : IRequestHandler<GetOrderApplicationsQuery, IReadOnlyList<DriverApplicationDto>>
+    public class GetOrderApplicationsQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetOrderApplicationsQuery, IReadOnlyList<DriverApplicationDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public GetOrderApplicationsQueryHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<IReadOnlyList<DriverApplicationDto>> Handle(GetOrderApplicationsQuery request, CancellationToken cancellationToken)
         {

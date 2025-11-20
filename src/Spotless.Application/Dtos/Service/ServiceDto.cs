@@ -8,6 +8,7 @@
         public string Description { get; set; } = string.Empty;
         public decimal BasePrice { get; set; }
         public decimal EstimatedDurationHours { get; set; }
+        public decimal MaxWeightKg { get; set; }
         public bool IsActive { get; set; }
         public bool IsFeatured { get; set; }
     }

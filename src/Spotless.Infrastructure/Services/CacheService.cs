@@ -4,15 +4,10 @@ using System.Text.Json;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class CacheService : ICacheService
+    public class CacheService(ILogger<CacheService> logger) : ICacheService
     {
-        private readonly ILogger<CacheService> _logger;
-        private readonly Dictionary<string, (object Value, DateTime Expiration)> _cache = new();
-
-        public CacheService(ILogger<CacheService> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<CacheService> _logger = logger;
+        private readonly Dictionary<string, (object Value, DateTime Expiration)> _cache = [];
 
         public async Task<T?> GetAsync<T>(string key) where T : class
         {

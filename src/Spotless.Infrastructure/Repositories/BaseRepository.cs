@@ -7,14 +7,9 @@ using System.Linq.Expressions;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class BaseRepository<T> : IRepository<T> where T : BaseEntity
+    public class BaseRepository<T>(ApplicationDbContext dbContext) : IRepository<T> where T : BaseEntity
     {
-        protected readonly ApplicationDbContext _dbContext;
-
-        public BaseRepository(ApplicationDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
+        protected readonly ApplicationDbContext _dbContext = dbContext;
 
         public async Task<T?> GetByIdAsync(Guid id)
         {

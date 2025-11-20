@@ -3,14 +3,9 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class AnalyticsService : IAnalyticsService
+    public class AnalyticsService(ILogger<AnalyticsService> logger) : IAnalyticsService
     {
-        private readonly ILogger<AnalyticsService> _logger;
-
-        public AnalyticsService(ILogger<AnalyticsService> logger)
-        {
-            _logger = logger;
-        }
+        private readonly ILogger<AnalyticsService> _logger = logger;
 
         public async Task TrackOrderCreatedAsync(Guid orderId, Guid customerId, decimal amount)
         {

@@ -14,9 +14,9 @@ namespace Spotless.Application.Configurations
     public class CorsSettings
     {
         public bool EnableCors { get; set; } = true;
-        public string[] AllowedOrigins { get; set; } = Array.Empty<string>();
-        public string[] AllowedMethods { get; set; } = new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS" };
-        public string[] AllowedHeaders { get; set; } = new[] { "Content-Type", "Authorization" };
+        public string[] AllowedOrigins { get; set; } = [];
+        public string[] AllowedMethods { get; set; } = ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"];
+        public string[] AllowedHeaders { get; set; } = ["Content-Type", "Authorization"];
         public bool AllowCredentials { get; set; } = true;
     }
 

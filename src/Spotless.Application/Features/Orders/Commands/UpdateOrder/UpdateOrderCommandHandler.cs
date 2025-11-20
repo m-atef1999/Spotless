@@ -4,28 +4,14 @@ using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Features.Orders.Commands.UpdateOrder
 {
-    public class UpdateOrderCommandHandler : IRequestHandler<UpdateOrderCommand, Unit>
+    public class UpdateOrderCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<UpdateOrderCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-
-        public UpdateOrderCommandHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Unit> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
         {
 
-            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId);
-
-            if (order == null)
-            {
-                throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
-            }
-
-
+            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId) ?? throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
             if (order.CustomerId != request.CustomerId)
             {
                 throw new UnauthorizedAccessException("You do not have permission to update this order.");

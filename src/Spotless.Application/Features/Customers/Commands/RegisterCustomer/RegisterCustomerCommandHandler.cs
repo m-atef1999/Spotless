@@ -4,14 +4,9 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Customers.Commands.RegisterCustomer
 {
-    public class RegisterCustomerCommandHandler : IRequestHandler<RegisterCustomerCommand, AuthResult>
+    public class RegisterCustomerCommandHandler(IAuthService authService) : IRequestHandler<RegisterCustomerCommand, AuthResult>
     {
-        private readonly IAuthService _authService;
-
-        public RegisterCustomerCommandHandler(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<AuthResult> Handle(RegisterCustomerCommand request, CancellationToken cancellationToken)
         {

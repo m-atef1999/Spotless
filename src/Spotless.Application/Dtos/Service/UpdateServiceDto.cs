@@ -11,6 +11,7 @@
         public decimal? PricePerUnitValue { get; init; }
         public string? PricePerUnitCurrency { get; init; }
         public decimal? EstimatedDurationHours { get; init; }
+        public decimal? MaxWeightKg { get; init; }
 
         public Guid? CategoryId { get; init; }
     }

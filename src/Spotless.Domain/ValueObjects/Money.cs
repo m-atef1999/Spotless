@@ -7,7 +7,7 @@ public sealed record Money
     public string Currency { get; init; }
 
 
-    public static Money Zero => new Money(0m);
+    public static Money Zero => new(0m);
 
     public Money(decimal amount, string currency = "EGP")
     {

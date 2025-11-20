@@ -11,9 +11,7 @@ using Spotless.Application.Features.Authentication.Commands.ResetPassword;
 using Spotless.Application.Features.Authentication.Commands.SendOtp;
 using Spotless.Application.Features.Authentication.Commands.SendVerificationEmail;
 using Spotless.Application.Features.Authentication.Commands.VerifyOtp;
-using Spotless.Application.Features.Customers.Commands.RegisterCustomer;
 using System.Security.Claims;
-
 
 namespace Spotless.API.Controllers
 {
@@ -22,49 +20,11 @@ namespace Spotless.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Audit]
-    public class AuthController : ControllerBase
+    public class AuthController(IMediator mediator, Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> userManager, Spotless.Application.Interfaces.IAuthService authService) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager;
-
-        public AuthController(IMediator mediator, Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> userManager)
-        {
-            _mediator = mediator;
-            _userManager = userManager;
-        }
-
-
-        [HttpPost("register/customer")]
-        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResult))]
-        public async Task<IActionResult> RegisterCustomer([FromBody] RegisterCustomerCommand command)
-        {
-            var result = await _mediator.Send(command);
-            return Ok(result);
-        }
-
-        [Authorize]
-        [HttpPost("register/driver")]
-        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Guid))]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> RegisterDriver([FromBody] Spotless.Application.Dtos.Driver.SubmitDriverApplicationDto dto)
-        {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var identityUserId))
-                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
-
-            var identityUser = await _userManager.FindByIdAsync(userIdString);
-            if (identityUser == null || !identityUser.CustomerId.HasValue)
-                return NotFound(new { Message = "Customer profile not found for this user." });
-
-            // We expect that a customer is registering as a driver (submit application)
-            var command = new Spotless.Application.Features.Drivers.Commands.SubmitDriverApplicationCommand.SubmitDriverApplicationCommand(identityUser.CustomerId.Value, dto);
-
-            var applicationId = await _mediator.Send(command);
-
-            return CreatedAtAction(nameof(RegisterDriver), new { id = applicationId }, applicationId);
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager = userManager;
+        private readonly Spotless.Application.Interfaces.IAuthService _authService = authService;
 
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResult))]
@@ -74,7 +34,6 @@ namespace Spotless.API.Controllers
             var result = await _mediator.Send(command);
             return Ok(result);
         }
-
 
         [HttpPost("refresh")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResult))]
@@ -88,10 +47,9 @@ namespace Spotless.API.Controllers
             }
             catch (UnauthorizedAccessException ex)
             {
-                return Unauthorized(new { Message = ex.Message });
+                return Unauthorized(new { ex.Message });
             }
         }
-
 
         [Authorize]
         [HttpPost("change-password")]
@@ -99,7 +57,6 @@ namespace Spotless.API.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
         {
-
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
             if (userId == null)
@@ -111,14 +68,11 @@ namespace Spotless.API.Controllers
 
             if (!result)
             {
-
                 return BadRequest(new { Message = "Password change failed. Check your current password." });
             }
 
             return Ok("Password successfully updated.");
         }
-
-
 
         [HttpPost("forgot-password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -162,18 +116,15 @@ namespace Spotless.API.Controllers
 
             if (!success)
             {
-
                 return BadRequest(new { Message = "Could not process request for this user." });
             }
 
             return Ok("Verification email sent to your registered address.");
         }
 
-
         [HttpGet("verify-email/confirm")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-
         public async Task<IActionResult> ConfirmEmail([FromQuery] ConfirmEmailCommand command)
         {
             var success = await _mediator.Send(command);
@@ -184,9 +135,7 @@ namespace Spotless.API.Controllers
             }
 
             return Ok("Email successfully confirmed. You can now log in.");
-
         }
-
 
         [HttpPost("verify-phone/send-otp")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -195,7 +144,6 @@ namespace Spotless.API.Controllers
         {
             var success = await _mediator.Send(command);
 
-
             if (!success)
             {
                 return BadRequest(new { Message = "Service failed to initiate OTP sending. Please try again." });
@@ -203,7 +151,6 @@ namespace Spotless.API.Controllers
 
             return Ok("Verification code sent successfully (or request processed).");
         }
-
 
         [HttpPost("verify-phone/confirm-otp")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -218,6 +165,29 @@ namespace Spotless.API.Controllers
             }
 
             return Ok("Phone number successfully verified.");
+        }
+
+        [HttpPost("external/google")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResult))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ExternalGoogleLogin([FromBody] Spotless.Application.Dtos.Authentication.ExternalAuthRequest request)
+        {
+            if (request == null || string.IsNullOrEmpty(request.Provider) || string.IsNullOrEmpty(request.IdToken))
+                return BadRequest(new { Message = "Provider and IdToken are required." });
+
+            try
+            {
+                var result = await _authService.ExternalLoginAsync(request.Provider, request.IdToken);
+                return Ok(result);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { ex.Message });
+            }
         }
     }
 }

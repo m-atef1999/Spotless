@@ -6,10 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class DriverRepository : BaseRepository<Driver>, IDriverRepository
+    public class DriverRepository(ApplicationDbContext dbContext) : BaseRepository<Driver>(dbContext), IDriverRepository
     {
-        public DriverRepository(ApplicationDbContext dbContext) : base(dbContext) { }
-
         public async Task<IReadOnlyList<Driver>> GetDriversByStatusAsync(DriverStatus status)
         {
             return await _dbContext.Drivers.Where(d => d.Status == status).ToListAsync();

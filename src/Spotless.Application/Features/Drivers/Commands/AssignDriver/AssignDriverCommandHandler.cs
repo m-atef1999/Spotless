@@ -4,16 +4,10 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Drivers.Commands.AssignDriver
 {
-    public class AssignDriverCommandHandler : IRequestHandler<AssignDriverCommand, Unit>
+    public class AssignDriverCommandHandler(IUnitOfWork unitOfWork, IDomainEventPublisher eventPublisher) : IRequestHandler<AssignDriverCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IDomainEventPublisher _eventPublisher;
-
-        public AssignDriverCommandHandler(IUnitOfWork unitOfWork, IDomainEventPublisher eventPublisher)
-        {
-            _unitOfWork = unitOfWork;
-            _eventPublisher = eventPublisher;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IDomainEventPublisher _eventPublisher = eventPublisher;
 
         public async Task<Unit> Handle(AssignDriverCommand request, CancellationToken cancellationToken)
         {

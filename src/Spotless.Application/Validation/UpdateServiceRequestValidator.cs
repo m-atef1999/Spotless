@@ -43,6 +43,11 @@ namespace Spotless.Application.Validation
             RuleFor(x => x.PricePerUnitCurrency)
                 .NotEmpty().WithMessage("Currency must be provided if Price is being updated.")
                 .When(x => x.PricePerUnitValue.HasValue);
+
+            RuleFor(x => x.MaxWeightKg)
+                .GreaterThan(0).WithMessage("Max weight must be greater than zero.")
+                .LessThanOrEqualTo(1000).WithMessage("Max weight seems unreasonably large.")
+                .When(x => x.MaxWeightKg.HasValue);
         }
     }
 }

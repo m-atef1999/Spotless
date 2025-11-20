@@ -3,18 +3,12 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Services
 {
-    public class CachedServiceService
+    public class CachedServiceService(IServiceRepository serviceRepository, ICachingService cachingService)
     {
-        private readonly IServiceRepository _serviceRepository;
-        private readonly ICachingService _cachingService;
+        private readonly IServiceRepository _serviceRepository = serviceRepository;
+        private readonly ICachingService _cachingService = cachingService;
         private const string SERVICES_CACHE_KEY = "services:all";
         private const string FEATURED_SERVICES_CACHE_KEY = "services:featured";
-
-        public CachedServiceService(IServiceRepository serviceRepository, ICachingService cachingService)
-        {
-            _serviceRepository = serviceRepository;
-            _cachingService = cachingService;
-        }
 
         public async Task<IEnumerable<ServiceDto>> GetAllServicesAsync()
         {

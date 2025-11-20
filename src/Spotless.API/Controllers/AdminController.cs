@@ -13,21 +13,14 @@ namespace Spotless.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize(Roles = "Admin")]
-    public class AdminController : ControllerBase
+    public class AdminController(
+        IMediator mediator,
+        UserManager<ApplicationUser> userManager,
+        IPaginationService paginationService) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IPaginationService _paginationService;
-
-        public AdminController(
-            IMediator mediator,
-            UserManager<ApplicationUser> userManager,
-            IPaginationService paginationService)
-        {
-            _mediator = mediator;
-            _userManager = userManager;
-            _paginationService = paginationService;
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly IPaginationService _paginationService = paginationService;
 
         [HttpGet("dashboard")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AdminDashboardDto))]
@@ -38,8 +31,7 @@ namespace Spotless.API.Controllers
             [FromQuery] int? pageSize)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);

@@ -2,16 +2,11 @@
 using Spotless.Application.Interfaces;
 namespace Spotless.Application.Features.Authentication.Commands.ResetPassword
 {
-    public class ResetPasswordCommandHandler : IRequestHandler<ResetPasswordCommand, bool>
+    public class ResetPasswordCommandHandler(IAuthService authService) : IRequestHandler<ResetPasswordCommand, bool>
     {
 
 
-        private readonly IAuthService _authService;
-
-        public ResetPasswordCommandHandler(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<bool> Handle(ResetPasswordCommand request, CancellationToken cancellationToken)
         {

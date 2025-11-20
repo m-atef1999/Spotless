@@ -6,16 +6,10 @@ using System.Text.Json;
 
 namespace Spotless.API.Filters
 {
-    public class AuditActionFilter : IAsyncActionFilter
+    public class AuditActionFilter(ApplicationDbContext dbContext, ILogger<AuditActionFilter> logger) : IAsyncActionFilter
     {
-        private readonly ApplicationDbContext _dbContext;
-        private readonly ILogger<AuditActionFilter> _logger;
-
-        public AuditActionFilter(ApplicationDbContext dbContext, ILogger<AuditActionFilter> logger)
-        {
-            _dbContext = dbContext;
-            _logger = logger;
-        }
+        private readonly ApplicationDbContext _dbContext = dbContext;
+        private readonly ILogger<AuditActionFilter> _logger = logger;
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
@@ -33,7 +27,7 @@ namespace Spotless.API.Filters
                 _logger.LogWarning(ex, "Failed to serialize action arguments for audit");
             }
 
-            var executedContext = await next();
+            _ = await next();
 
             try
             {

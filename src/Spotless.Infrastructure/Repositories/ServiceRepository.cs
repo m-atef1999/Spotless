@@ -5,10 +5,8 @@ using Spotless.Infrastructure.Context;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class ServiceRepository : BaseRepository<Service>, IServiceRepository
+    public class ServiceRepository(ApplicationDbContext dbContext) : BaseRepository<Service>(dbContext), IServiceRepository
     {
-        public ServiceRepository(ApplicationDbContext dbContext) : base(dbContext) { }
-
         public async Task<IReadOnlyList<Service>> GetServicesByCategoryId(Guid categoryId)
         {
             return await _dbContext.Services

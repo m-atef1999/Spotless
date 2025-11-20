@@ -4,20 +4,14 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Authentication.Commands.SendVerificationEmail
 {
-    public class SendVerificationEmailCommandHandler : IRequestHandler<SendVerificationEmailCommand, bool>
+    public class SendVerificationEmailCommandHandler(
+        IAuthService authService,
+        IConfiguration configuration) : IRequestHandler<SendVerificationEmailCommand, bool>
     {
 
 
-        private readonly IAuthService _authService;
-        private readonly IConfiguration _configuration;
-
-        public SendVerificationEmailCommandHandler(
-            IAuthService authService,
-            IConfiguration configuration)
-        {
-            _authService = authService;
-            _configuration = configuration;
-        }
+        private readonly IAuthService _authService = authService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<bool> Handle(SendVerificationEmailCommand request, CancellationToken cancellationToken)
         {

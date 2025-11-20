@@ -9,17 +9,10 @@ namespace Spotless.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentsController : ControllerBase
+    public class PaymentsController(IMediator mediator, ILogger<PaymentsController> logger) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly ILogger<PaymentsController> _logger;
-
-        public PaymentsController(IMediator mediator, ILogger<PaymentsController> logger)
-        {
-            _mediator = mediator;
-            _logger = logger;
-        }
-
+        private readonly IMediator _mediator = mediator;
+        private readonly ILogger<PaymentsController> _logger = logger;
 
         [HttpPost("webhook")]
         [AllowAnonymous] // Webhooks are from external services, not authenticated users

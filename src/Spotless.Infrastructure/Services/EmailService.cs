@@ -1,29 +1,46 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
+using System.Net;
+using System.Net.Mail;
 
 namespace Spotless.Infrastructure.Services
 {
 
-    public class EmailService : IEmailService
+    public class EmailService(ILogger<EmailService> logger, IOptions<EmailSettings> options) : IEmailService
     {
-        private readonly ILogger<EmailService> _logger;
+        private readonly ILogger<EmailService> _logger = logger;
+        private readonly EmailSettings _settings = options?.Value ?? new EmailSettings();
 
-        public EmailService(ILogger<EmailService> logger)
+        public async Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true)
         {
-            _logger = logger;
-        }
+            try
+            {
+                using var msg = new MailMessage();
+                msg.From = new MailAddress(_settings.FromEmail, _settings.FromName);
+                msg.To.Add(new MailAddress(toEmail));
+                msg.Subject = subject;
+                msg.Body = body;
+                msg.IsBodyHtml = isHtml;
 
-        public Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true)
-        {
-            // --- This is a MOCK implementation. ---
-            _logger.LogInformation($"--- EMAIL SENT MOCK ---");
-            _logger.LogInformation($"To: {toEmail}");
-            _logger.LogInformation($"Subject: {subject}");
-            _logger.LogInformation($"Body Snippet: {body.Substring(0, Math.Min(200, body.Length))}...");
-            _logger.LogInformation($"-------------------------");
+                using var client = new SmtpClient(_settings.SmtpServer, _settings.SmtpPort);
+                client.EnableSsl = _settings.EnableSsl;
 
-            // In a real application, you would integrate a third-party email provider here.
-            return Task.CompletedTask;
+                if (!string.IsNullOrEmpty(_settings.SmtpUsername))
+                {
+                    client.Credentials = new NetworkCredential(_settings.SmtpUsername, _settings.SmtpPassword);
+                }
+
+                await client.SendMailAsync(msg);
+
+                _logger.LogInformation("Email sent to {Email} via SMTP server {SmtpServer}", toEmail, _settings.SmtpServer);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send email to {Email}", toEmail);
+                throw;
+            }
         }
     }
 }

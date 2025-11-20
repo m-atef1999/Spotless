@@ -3,14 +3,9 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Authentication.Commands.VerifyOtp
 {
-    public class VerifyOtpCommandHandler : IRequestHandler<VerifyOtpCommand, bool>
+    public class VerifyOtpCommandHandler(IAuthService authService) : IRequestHandler<VerifyOtpCommand, bool>
     {
-        private readonly IAuthService _authService;
-
-        public VerifyOtpCommandHandler(IAuthService authService)
-        {
-            _authService = authService;
-        }
+        private readonly IAuthService _authService = authService;
 
         public async Task<bool> Handle(VerifyOtpCommand request, CancellationToken cancellationToken)
         {

@@ -18,6 +18,7 @@ namespace Spotless.Application.Interfaces
         Task<bool> VerifyPhoneOtpAsync(string phoneNumber, string code);
 
         Task<Guid> CreateUserAsync(string email, string password, string role);
+        Task<AuthResult> ExternalLoginAsync(string provider, string idToken);
 
     }
 }

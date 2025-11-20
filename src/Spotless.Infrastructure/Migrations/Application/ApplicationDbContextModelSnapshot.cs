@@ -105,6 +105,65 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.ToTable("AuditLogs", (string)null);
                 });
 
+            modelBuilder.Entity("Spotless.Domain.Entities.Cart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Carts", (string)null);
+                });
+
+            modelBuilder.Entity("Spotless.Domain.Entities.CartItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CartId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ServiceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("ServiceId");
+
+                    b.ToTable("CartItems", (string)null);
+                });
+
             modelBuilder.Entity("Spotless.Domain.Entities.Category", b =>
                 {
                     b.Property<Guid>("Id")
@@ -283,6 +342,41 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.ToTable("Orders", (string)null);
                 });
 
+            modelBuilder.Entity("Spotless.Domain.Entities.OrderDriverApplication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AppliedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("DriverId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DriverId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderDriverApplications", (string)null);
+                });
+
             modelBuilder.Entity("Spotless.Domain.Entities.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
@@ -427,6 +521,9 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.Property<bool>("IsFeatured")
                         .HasColumnType("bit");
 
+                    b.Property<decimal>("MaxWeightKg")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -475,6 +572,25 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.HasKey("Id");
 
                     b.ToTable("TimeSlots");
+                });
+
+            modelBuilder.Entity("Spotless.Domain.Entities.CartItem", b =>
+                {
+                    b.HasOne("Spotless.Domain.Entities.Cart", "Cart")
+                        .WithMany("Items")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Spotless.Domain.Entities.Service", "Service")
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("Spotless.Domain.Entities.Category", b =>
@@ -741,6 +857,21 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Spotless.Domain.Entities.OrderDriverApplication", b =>
+                {
+                    b.HasOne("Spotless.Domain.Entities.Driver", null)
+                        .WithMany()
+                        .HasForeignKey("DriverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Spotless.Domain.Entities.Order", null)
+                        .WithMany()
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Spotless.Domain.Entities.OrderItem", b =>
                 {
                     b.HasOne("Spotless.Domain.Entities.Order", "Order")
@@ -926,6 +1057,11 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.Navigation("Orders");
 
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("Spotless.Domain.Entities.Cart", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Spotless.Domain.Entities.Category", b =>

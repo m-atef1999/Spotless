@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Driver;
+using Spotless.Application.Features.Drivers.Commands.SubmitDriverApplicationCommand;
 using Spotless.Infrastructure.Identity;
 using System.Security.Claims;
 
@@ -11,15 +12,32 @@ namespace Spotless.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class DriversController : ControllerBase
+    public class DriversController(IMediator mediator, UserManager<ApplicationUser> userManager) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IMediator _mediator = mediator;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
 
-        public DriversController(IMediator mediator, UserManager<ApplicationUser> userManager)
+        [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Guid))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Register([FromBody] SubmitDriverApplicationDto dto)
         {
-            _mediator = mediator;
-            _userManager = userManager;
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var identityUserId))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var identityUser = await _userManager.FindByIdAsync(userIdString);
+            if (identityUser == null || !identityUser.CustomerId.HasValue)
+                return NotFound(new { Message = "Customer profile not found for this user." });
+
+            // We expect that a customer is registering as a driver (submit application)
+            var command = new SubmitDriverApplicationCommand(identityUser.CustomerId.Value, dto);
+
+            var applicationId = await _mediator.Send(command);
+
+            return CreatedAtAction(nameof(Register), new { id = applicationId }, applicationId);
         }
 
         [HttpGet("profile")]
@@ -29,8 +47,7 @@ namespace Spotless.API.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);
@@ -50,8 +67,7 @@ namespace Spotless.API.Controllers
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateDriverProfileDto dto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);
@@ -70,8 +86,7 @@ namespace Spotless.API.Controllers
         public async Task<IActionResult> GetDriverOrders()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);
@@ -94,6 +109,44 @@ namespace Spotless.API.Controllers
             var orders = await _mediator.Send(query);
 
             return Ok(orders);
+        }
+
+        [HttpPut("status")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateStatus([FromBody] Spotless.Application.Dtos.Driver.DriverStatusUpdateDto dto)
+        {
+            var userIdString = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null || !user.DriverId.HasValue)
+                return NotFound(new { Message = "Driver profile not found for this user." });
+
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Status))
+                return BadRequest(new { Message = "Status is required." });
+
+            var command = new Spotless.Application.Features.Drivers.Commands.UpdateDriverStatus.UpdateDriverStatusCommand(user.DriverId.Value, dto.Status);
+            await _mediator.Send(command);
+            return NoContent();
+        }
+
+        [HttpPut("location")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> UpdateLocation([FromBody] Spotless.Application.Dtos.LocationDto location)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null || !user.DriverId.HasValue)
+                return NotFound(new { Message = "Driver profile not found for this user." });
+
+            var command = new Spotless.Application.Features.Drivers.Commands.UpdateDriverLocation.UpdateDriverLocationCommand(user.DriverId.Value, location);
+            await _mediator.Send(command);
+            return NoContent();
         }
 
         [HttpPost("apply/{orderId:guid}")]

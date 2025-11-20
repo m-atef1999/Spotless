@@ -13,7 +13,7 @@ public sealed record PhoneNumber
             throw new DomainException("Phone number cannot be empty.");
 
 
-        var digits = new string(value.Where(char.IsDigit).ToArray());
+        var digits = new string([.. value.Where(char.IsDigit)]);
 
 
         if (digits.Length < 7)

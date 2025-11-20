@@ -6,14 +6,9 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Drivers.Queries.GetAvailableDrivers
 {
-    public class GetAvailableDriversQueryHandler : IRequestHandler<GetAvailableDriversQuery, List<DriverDto>>
+    public class GetAvailableDriversQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetAvailableDriversQuery, List<DriverDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public GetAvailableDriversQueryHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<List<DriverDto>> Handle(GetAvailableDriversQuery request, CancellationToken cancellationToken)
         {

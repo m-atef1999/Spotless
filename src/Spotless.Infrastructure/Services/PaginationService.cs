@@ -4,14 +4,9 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class PaginationService : IPaginationService
+    public class PaginationService(IOptions<PaginationSettings> options) : IPaginationService
     {
-        private readonly PaginationSettings _settings;
-
-        public PaginationService(IOptions<PaginationSettings> options)
-        {
-            _settings = options.Value;
-        }
+        private readonly PaginationSettings _settings = options.Value;
 
         public int NormalizePageSize(int? requestedPageSize)
         {

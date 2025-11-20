@@ -15,8 +15,8 @@ namespace Spotless.Domain.Entities
         public CustomerType Type { get; private set; }
         public UserRole Role { get; private set; } = UserRole.Customer;
 
-        public virtual ICollection<Order> Orders { get; private set; } = new List<Order>();
-        public virtual ICollection<Payment> Payments { get; private set; } = new List<Payment>();
+        public virtual ICollection<Order> Orders { get; private set; } = [];
+        public virtual ICollection<Payment> Payments { get; private set; } = [];
 
         protected Customer() { }
 

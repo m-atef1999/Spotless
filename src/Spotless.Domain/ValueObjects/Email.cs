@@ -8,7 +8,7 @@ public sealed record Email
     public string Value { get; init; }
 
 
-    private static readonly Regex EmailRegex = new Regex(
+    private static readonly Regex EmailRegex = new(
         @"^[^@\s]+@[^@\s]+\.[^@\s]+$",
         RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.CultureInvariant,
         TimeSpan.FromMilliseconds(250)

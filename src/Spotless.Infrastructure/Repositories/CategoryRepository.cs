@@ -4,8 +4,7 @@ using Spotless.Infrastructure.Context;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class CategoryRepository : BaseRepository<Category>, ICategoryRepository
+    public class CategoryRepository(ApplicationDbContext dbContext) : BaseRepository<Category>(dbContext), ICategoryRepository
     {
-        public CategoryRepository(ApplicationDbContext dbContext) : base(dbContext) { }
     }
 }

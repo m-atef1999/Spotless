@@ -104,7 +104,7 @@ namespace Spotless.Infrastructure.Services
         public byte[] DecryptFromBase64(string base64CipherText)
         {
             if (string.IsNullOrEmpty(base64CipherText))
-                return Array.Empty<byte>();
+                return [];
 
             try
             {
@@ -126,7 +126,7 @@ namespace Spotless.Infrastructure.Services
             }
             catch
             {
-                return Array.Empty<byte>();
+                return [];
             }
         }
     }

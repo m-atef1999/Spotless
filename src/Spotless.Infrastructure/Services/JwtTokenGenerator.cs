@@ -11,14 +11,9 @@ using System.Text;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class JwtTokenGenerator : IJwtTokenGenerator
+    public class JwtTokenGenerator(IOptions<JwtSettings> jwtSettings) : IJwtTokenGenerator
     {
-        private readonly JwtSettings _jwtSettings;
-
-        public JwtTokenGenerator(IOptions<JwtSettings> jwtSettings)
-        {
-            _jwtSettings = jwtSettings.Value;
-        }
+        private readonly JwtSettings _jwtSettings = jwtSettings.Value;
 
         public string GenerateToken(IAuthUser user, string role)
         {

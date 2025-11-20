@@ -3,21 +3,14 @@ using Spotless.Application.Configurations;
 
 namespace Spotless.API.Middleware
 {
-    public class ApiVersioningMiddleware
+    public class ApiVersioningMiddleware(
+        RequestDelegate next,
+        ILogger<ApiVersioningMiddleware> logger,
+        IOptions<ApiVersioningSettings> settings)
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<ApiVersioningMiddleware> _logger;
-        private readonly ApiVersioningSettings _settings;
-
-        public ApiVersioningMiddleware(
-            RequestDelegate next,
-            ILogger<ApiVersioningMiddleware> logger,
-            IOptions<ApiVersioningSettings> settings)
-        {
-            _next = next;
-            _logger = logger;
-            _settings = settings.Value;
-        }
+        private readonly RequestDelegate _next = next;
+        private readonly ILogger<ApiVersioningMiddleware> _logger = logger;
+        private readonly ApiVersioningSettings _settings = settings.Value;
 
         public async Task InvokeAsync(HttpContext context)
         {

@@ -8,16 +8,10 @@ namespace Spotless.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ReviewsController : ControllerBase
+    public class ReviewsController(IMediator mediator, Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> userManager) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager;
-
-        public ReviewsController(IMediator mediator, Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> userManager)
-        {
-            _mediator = mediator;
-            _userManager = userManager;
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager = userManager;
 
         [Authorize]
         [HttpPost]
@@ -58,8 +52,7 @@ namespace Spotless.API.Controllers
         public async Task<IActionResult> GetReviewsByCustomer()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var identityUserId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var identityUser = await _userManager.FindByIdAsync(userIdString);

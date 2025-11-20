@@ -5,18 +5,15 @@ using System.Reflection;
 
 namespace Spotless.Infrastructure.Context
 {
-    public class ApplicationDbContext : AuditDbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : AuditDbContext(options)
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<Customer> Customers => Set<Customer>();
         public DbSet<Admin> Admins => Set<Admin>();
         public DbSet<Driver> Drivers => Set<Driver>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Service> Services => Set<Service>();
+        public DbSet<Cart> Carts => Set<Cart>();
+        public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<Payment> Payments => Set<Payment>();
 
@@ -69,6 +66,25 @@ namespace Spotless.Infrastructure.Context
                     p.Property(m => m.Amount).HasColumnName("PricePerUnit_Amount").HasColumnType("decimal(18,2)");
                     p.Property(m => m.Currency).HasColumnName("PricePerUnit_Currency").HasMaxLength(3);
                 });
+
+                // Configure MaxWeightKg precision to avoid truncation warnings
+                b.Property(s => s.MaxWeightKg).HasColumnType("decimal(10,2)");
+            });
+
+            modelBuilder.Entity<Cart>(b =>
+            {
+                b.ToTable("Carts");
+                b.HasKey(c => c.Id);
+                b.Property(c => c.CustomerId).IsRequired();
+                b.HasMany<CartItem>(c => c.Items).WithOne(i => i.Cart).HasForeignKey(i => i.CartId).OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<CartItem>(b =>
+            {
+                b.ToTable("CartItems");
+                b.HasKey(i => i.Id);
+                b.Property(i => i.ServiceId).IsRequired();
+                b.Property(i => i.Quantity).IsRequired();
             });
 
             modelBuilder.Entity<AuditLog>(b =>

@@ -5,13 +5,8 @@ using Spotless.Infrastructure.Identity;
 
 namespace Spotless.Infrastructure.Context
 {
-    public class IdentityDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+    public class IdentityDbContext(DbContextOptions<IdentityDbContext> options) : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
     {
-        public IdentityDbContext(DbContextOptions<IdentityDbContext> options)
-            : base(options)
-        {
-        }
-
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

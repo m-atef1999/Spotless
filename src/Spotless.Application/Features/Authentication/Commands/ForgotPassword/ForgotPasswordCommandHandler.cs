@@ -4,19 +4,13 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Authentication.Commands.ForgotPassword
 {
-    public class ForgotPasswordCommandHandler : IRequestHandler<ForgotPasswordCommand, bool>
+    public class ForgotPasswordCommandHandler(
+        IAuthService authService,
+        IConfiguration configuration) : IRequestHandler<ForgotPasswordCommand, bool>
     {
 
-        private readonly IAuthService _authService;
-        private readonly IConfiguration _configuration;
-
-        public ForgotPasswordCommandHandler(
-            IAuthService authService,
-            IConfiguration configuration)
-        {
-            _authService = authService;
-            _configuration = configuration;
-        }
+        private readonly IAuthService _authService = authService;
+        private readonly IConfiguration _configuration = configuration;
 
         public async Task<bool> Handle(ForgotPasswordCommand request, CancellationToken cancellationToken)
         {

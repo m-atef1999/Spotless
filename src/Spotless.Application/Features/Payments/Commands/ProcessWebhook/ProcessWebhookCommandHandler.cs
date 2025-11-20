@@ -5,24 +5,16 @@ using Spotless.Domain.Exceptions;
 
 namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
 {
-    public class ProcessWebhookCommandHandler : IRequestHandler<ProcessWebhookCommand, Unit>
+    public class ProcessWebhookCommandHandler(
+        IUnitOfWork unitOfWork,
+        IPaymentGatewayService paymentGatewayService,
+        IDomainEventPublisher eventPublisher,
+        IPaymobSignatureService paymobSignatureService) : IRequestHandler<ProcessWebhookCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IPaymentGatewayService _paymentGatewayService;
-        private readonly IDomainEventPublisher _eventPublisher;
-        private readonly IPaymobSignatureService _paymobSignatureService;
-
-        public ProcessWebhookCommandHandler(
-            IUnitOfWork unitOfWork, 
-            IPaymentGatewayService paymentGatewayService, 
-            IDomainEventPublisher eventPublisher,
-            IPaymobSignatureService paymobSignatureService)
-        {
-            _unitOfWork = unitOfWork;
-            _paymentGatewayService = paymentGatewayService;
-            _eventPublisher = eventPublisher;
-            _paymobSignatureService = paymobSignatureService;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IPaymentGatewayService _paymentGatewayService = paymentGatewayService;
+        private readonly IDomainEventPublisher _eventPublisher = eventPublisher;
+        private readonly IPaymobSignatureService _paymobSignatureService = paymobSignatureService;
 
         public async Task<Unit> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
         {
@@ -53,12 +45,7 @@ namespace Spotless.Application.Features.Payments.Commands.ProcessWebhook
 
             // Find payment by order ID using the repository method
             var payments = await _unitOfWork.Payments.GetPaymentsByOrderIdAsync(paymentOrderId);
-            var payment = payments.FirstOrDefault();
-
-            if (payment == null)
-            {
-                throw new KeyNotFoundException($"No payment record found for order ID {paymentOrderId}");
-            }
+            var payment = payments.FirstOrDefault() ?? throw new KeyNotFoundException($"No payment record found for order ID {paymentOrderId}");
 
             // If payment is already processed, return early
             if (payment.Status != PaymentStatus.Pending)

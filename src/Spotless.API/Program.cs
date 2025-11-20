@@ -1,6 +1,7 @@
 using Audit.Core;
 using Audit.EntityFramework;
 using Audit.WebApi;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Spotless.API.Extensions;
@@ -102,6 +103,7 @@ builder.Services.AddEndpointsApiExplorer();
 
 
 builder.Services.AddDataProtection();
+builder.Services.AddSignalR();
 
 
 builder.Configuration
@@ -141,6 +143,12 @@ builder.Services
     .AddRepositories()
     .AddIdentityAndAuthentication(builder.Configuration)
     .AddApplicationServices(builder.Configuration);
+
+// Real-time notifier (SignalR) implementation
+builder.Services.AddScoped<Spotless.Application.Interfaces.IRealTimeNotifier, Spotless.API.Services.SignalRRealTimeNotifier>();
+
+// Background Job Processor (hosted service for message queue consumption)
+builder.Services.AddHostedService<BackgroundJobProcessor>();
 
 builder.Services.AddSwaggerGen(options =>
 
@@ -228,8 +236,8 @@ if (securitySettings?.Cors?.EnableCors == true)
                 }
             }
 
-            policy.WithMethods(corsSettings.AllowedMethods ?? new[] { "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS" });
-            policy.WithHeaders(corsSettings.AllowedHeaders ?? new[] { "Content-Type", "Authorization" });
+            policy.WithMethods(corsSettings.AllowedMethods ?? ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]);
+            policy.WithHeaders(corsSettings.AllowedHeaders ?? ["Content-Type", "Authorization"]);
 
             if (corsSettings.AllowCredentials && corsSettings.AllowedOrigins?.Length > 0)
             {
@@ -305,6 +313,7 @@ app.UseAuditMiddleware(config =>
 
 // 9. Controllers
 app.MapControllers();
+app.MapHub<Spotless.API.Hubs.DriverHub>("/hubs/driver");
 
 app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
 {

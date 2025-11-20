@@ -5,10 +5,8 @@ using Spotless.Infrastructure.Context;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class CustomerRepository : BaseRepository<Customer>, ICustomerRepository
+    public class CustomerRepository(ApplicationDbContext dbContext) : BaseRepository<Customer>(dbContext), ICustomerRepository
     {
-        public CustomerRepository(ApplicationDbContext dbContext) : base(dbContext) { }
-
         public async Task<decimal> GetWalletBalanceAsync(Guid customerId)
         {
             return await _dbContext.Customers

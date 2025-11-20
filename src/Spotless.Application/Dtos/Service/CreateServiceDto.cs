@@ -6,6 +6,7 @@
         string Description,
         decimal PricePerUnitAmount,
         string PricePerUnitCurrency,
-        decimal EstimatedDurationHours
+        decimal EstimatedDurationHours,
+        decimal MaxWeightKg = 50m
     );
 }

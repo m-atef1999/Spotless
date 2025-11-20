@@ -6,6 +6,7 @@ namespace Spotless.Application.Configurations
 
         public bool EnableEmailNotifications { get; set; } = true;
         public bool EnableSmsNotifications { get; set; } = true;
+        public bool EnableWhatsAppNotifications { get; set; } = true;
         public bool EnablePushNotifications { get; set; } = false;
 
 

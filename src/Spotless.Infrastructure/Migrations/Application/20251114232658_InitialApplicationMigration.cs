@@ -363,7 +363,7 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
             migrationBuilder.CreateIndex(
                 name: "IX_Order_Scheduled",
                 table: "Orders",
-                columns: new[] { "ScheduledDate", "TimeSlotId" });
+                columns: ["ScheduledDate", "TimeSlotId"]);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Order_Status",

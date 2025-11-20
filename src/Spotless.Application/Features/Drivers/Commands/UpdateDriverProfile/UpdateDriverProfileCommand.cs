@@ -4,16 +4,10 @@ using Spotless.Application.Dtos.Driver;
 namespace Spotless.Application.Features.Drivers.Commands.UpdateDriverProfile
 {
 
-    public class UpdateDriverProfileCommand : IRequest<Unit>
+    public class UpdateDriverProfileCommand(Guid driverId, UpdateDriverProfileDto dto) : IRequest<Unit>
     {
-        public Guid DriverId { get; set; }
+        public Guid DriverId { get; set; } = driverId;
 
-        public UpdateDriverProfileDto Dto { get; set; } = null!;
-
-        public UpdateDriverProfileCommand(Guid driverId, UpdateDriverProfileDto dto)
-        {
-            DriverId = driverId;
-            Dto = dto;
-        }
+        public UpdateDriverProfileDto Dto { get; set; } = dto;
     }
 }

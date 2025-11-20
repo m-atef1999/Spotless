@@ -9,16 +9,10 @@ using System.Linq.Expressions;
 namespace Spotless.Application.Features.Drivers.Queries.ListDriverQuery
 {
 
-    public class ListDriversQueryHandler : IRequestHandler<ListDriversQuery, PagedResponse<DriverDto>>
+    public class ListDriversQueryHandler(IUnitOfWork unitOfWork, IDriverMapper driverMapper) : IRequestHandler<ListDriversQuery, PagedResponse<DriverDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IDriverMapper _driverMapper;
-
-        public ListDriversQueryHandler(IUnitOfWork unitOfWork, IDriverMapper driverMapper)
-        {
-            _unitOfWork = unitOfWork;
-            _driverMapper = driverMapper;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IDriverMapper _driverMapper = driverMapper;
 
         public async Task<PagedResponse<DriverDto>> Handle(ListDriversQuery request, CancellationToken cancellationToken)
         {
@@ -59,7 +53,8 @@ namespace Spotless.Application.Features.Drivers.Queries.ListDriverQuery
                 (!request.StatusFilter.HasValue || driver.Status == request.StatusFilter.Value) &&
 
 
-                (string.IsNullOrEmpty(request.NameSearchTerm) || driver.Name.Contains(request.NameSearchTerm!));
+                (string.IsNullOrEmpty(request.NameSearchTerm) ||
+                 (driver.Name != null && driver.Name.ToLowerInvariant().Contains(request.NameSearchTerm!.Trim().ToLowerInvariant())));
         }
     }
 }

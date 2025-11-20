@@ -5,10 +5,8 @@ using Spotless.Infrastructure.Context;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class OrderDriverApplicationRepository : BaseRepository<OrderDriverApplication>, IOrderDriverApplicationRepository
+    public class OrderDriverApplicationRepository(ApplicationDbContext dbContext) : BaseRepository<OrderDriverApplication>(dbContext), IOrderDriverApplicationRepository
     {
-        public OrderDriverApplicationRepository(ApplicationDbContext dbContext) : base(dbContext) { }
-
         public async Task<IReadOnlyList<OrderDriverApplication>> GetByOrderIdAsync(Guid orderId)
         {
             return await _dbContext.Set<OrderDriverApplication>()

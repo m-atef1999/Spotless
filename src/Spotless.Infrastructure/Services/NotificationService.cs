@@ -3,18 +3,12 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class NotificationService : INotificationService
+    public class NotificationService(IEmailService emailService, ISmsService smsService, IMessageSender messageSender, ILogger<NotificationService> logger) : INotificationService
     {
-        private readonly IEmailService _emailService;
-        private readonly ISmsService _smsService;
-        private readonly ILogger<NotificationService> _logger;
-
-        public NotificationService(IEmailService emailService, ISmsService smsService, ILogger<NotificationService> logger)
-        {
-            _emailService = emailService;
-            _smsService = smsService;
-            _logger = logger;
-        }
+        private readonly IEmailService _emailService = emailService;
+        private readonly ISmsService _smsService = smsService;
+        private readonly IMessageSender _messageSender = messageSender;
+        private readonly ILogger<NotificationService> _logger = logger;
 
         public async Task SendEmailNotificationAsync(string email, string subject, string message)
         {
@@ -24,14 +18,35 @@ namespace Spotless.Infrastructure.Services
 
         public async Task SendSmsNotificationAsync(string phoneNumber, string message)
         {
-            _logger.LogInformation("SMS notification sent to {PhoneNumber}: {Message}", phoneNumber, message);
-            await Task.CompletedTask;
+            // Use the pluggable message sender for SMS in prototype
+            try
+            {
+                await _messageSender.SendSmsAsync(phoneNumber, message);
+                _logger.LogInformation("SMS notification queued/sent to {PhoneNumber}", phoneNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send SMS to {PhoneNumber}", phoneNumber);
+            }
         }
 
         public async Task SendPushNotificationAsync(string userId, string title, string message)
         {
             _logger.LogInformation("Push notification sent to {UserId}: {Title} - {Message}", userId, title, message);
             await Task.CompletedTask;
+        }
+
+        public async Task SendWhatsAppNotificationAsync(string phoneNumber, string message)
+        {
+            try
+            {
+                await _messageSender.SendWhatsAppAsync(phoneNumber, message);
+                _logger.LogInformation("WhatsApp notification queued/sent to {PhoneNumber}", phoneNumber);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send WhatsApp to {PhoneNumber}", phoneNumber);
+            }
         }
     }
 }

@@ -5,16 +5,10 @@ using Spotless.Application.Mappers;
 
 namespace Spotless.Application.Features.Orders.Queries.GetDriverOrders
 {
-    public class GetDriverOrdersQueryHandler : IRequestHandler<GetDriverOrdersQuery, IReadOnlyList<OrderDto>>
+    public class GetDriverOrdersQueryHandler(IUnitOfWork unitOfWork, IOrderMapper orderMapper) : IRequestHandler<GetDriverOrdersQuery, IReadOnlyList<OrderDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IOrderMapper _orderMapper;
-
-        public GetDriverOrdersQueryHandler(IUnitOfWork unitOfWork, IOrderMapper orderMapper)
-        {
-            _unitOfWork = unitOfWork;
-            _orderMapper = orderMapper;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IOrderMapper _orderMapper = orderMapper;
 
         public async Task<IReadOnlyList<OrderDto>> Handle(GetDriverOrdersQuery request, CancellationToken cancellationToken)
         {

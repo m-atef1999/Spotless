@@ -5,14 +5,9 @@ using System.Linq;
 
 namespace Spotless.Application.Features.Reviews.Queries.GetReviewsByCustomer
 {
-    public class GetReviewsByCustomerQueryHandler : IRequestHandler<GetReviewsByCustomerQuery, IReadOnlyList<ReviewDto>>
+    public class GetReviewsByCustomerQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetReviewsByCustomerQuery, IReadOnlyList<ReviewDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public GetReviewsByCustomerQueryHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<IReadOnlyList<ReviewDto>> Handle(GetReviewsByCustomerQuery request, CancellationToken cancellationToken)
         {

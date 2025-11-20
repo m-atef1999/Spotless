@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Customer;
+using Spotless.Application.Features.Customers.Commands.RegisterCustomer;
 using Spotless.Application.Features.Customers.Queries.GetCustomerDashboard;
 using Spotless.Application.Interfaces;
 using Spotless.Infrastructure.Identity;
@@ -13,20 +14,23 @@ namespace Spotless.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class CustomerController : ControllerBase
+    public class CustomerController(
+        IMediator mediator,
+        UserManager<ApplicationUser> userManager,
+        IPaginationService paginationService) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IPaginationService _paginationService;
+        private readonly IMediator _mediator = mediator;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly IPaginationService _paginationService = paginationService;
 
-        public CustomerController(
-            IMediator mediator,
-            UserManager<ApplicationUser> userManager,
-            IPaginationService paginationService)
+        [HttpPost("register")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Spotless.Application.Dtos.Authentication.AuthResult))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [AllowAnonymous]
+        public async Task<IActionResult> Register([FromBody] RegisterCustomerCommand command)
         {
-            _mediator = mediator;
-            _userManager = userManager;
-            _paginationService = paginationService;
+            var result = await _mediator.Send(command);
+            return Ok(result);
         }
 
         [HttpGet("dashboard")]
@@ -38,8 +42,7 @@ namespace Spotless.API.Controllers
             [FromQuery] int? pageSize)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);
@@ -66,8 +69,7 @@ namespace Spotless.API.Controllers
         public async Task<IActionResult> GetProfile()
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);
@@ -88,8 +90,7 @@ namespace Spotless.API.Controllers
         public async Task<IActionResult> UpdateProfile([FromBody] Spotless.Application.Dtos.Customer.UpdateCustomerDto dto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);
@@ -110,8 +111,7 @@ namespace Spotless.API.Controllers
         public async Task<IActionResult> TopUpWallet([FromBody] Spotless.Application.Dtos.Customer.TopUpWalletRequest dto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var userId))
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
                 return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
             var user = await _userManager.FindByIdAsync(userIdString);

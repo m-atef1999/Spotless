@@ -5,27 +5,14 @@ using Spotless.Domain.Entities;
 namespace Spotless.Application.Features.Reviews.Commands.CreateReview
 {
 
-    public class CreateReviewCommandHandler : IRequestHandler<CreateReviewCommand, Review>
+    public class CreateReviewCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<CreateReviewCommand, Review>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public CreateReviewCommandHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Review> Handle(CreateReviewCommand request, CancellationToken cancellationToken)
         {
 
-            var order = await _unitOfWork.Orders.GetByIdAsync(request.Dto.OrderId);
-
-            if (order == null)
-            {
-                throw new ApplicationException($"Order with ID {request.Dto.OrderId} not found.");
-            }
-
-
-
+            var order = await _unitOfWork.Orders.GetByIdAsync(request.Dto.OrderId) ?? throw new ApplicationException($"Order with ID {request.Dto.OrderId} not found.");
             var existingReview = (await _unitOfWork.Reviews.GetAsync(
                 r => r.OrderId == request.Dto.OrderId && r.CustomerId == request.CustomerId
             )).FirstOrDefault();

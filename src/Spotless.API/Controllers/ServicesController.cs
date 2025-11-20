@@ -10,16 +10,10 @@ namespace Spotless.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ServicesController : ControllerBase
+    public class ServicesController(IMediator mediator, IPaginationService paginationService) : ControllerBase
     {
-        private readonly IMediator _mediator;
-        private readonly IPaginationService _paginationService;
-
-        public ServicesController(IMediator mediator, IPaginationService paginationService)
-        {
-            _mediator = mediator;
-            _paginationService = paginationService;
-        }
+        private readonly IMediator _mediator = mediator;
+        private readonly IPaginationService _paginationService = paginationService;
 
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<ServiceDto>), 200)]

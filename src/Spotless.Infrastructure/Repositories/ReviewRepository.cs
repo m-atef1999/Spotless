@@ -5,10 +5,8 @@ using Spotless.Infrastructure.Context;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class ReviewRepository : BaseRepository<Review>, IReviewRepository
+    public class ReviewRepository(ApplicationDbContext dbContext) : BaseRepository<Review>(dbContext), IReviewRepository
     {
-        public ReviewRepository(ApplicationDbContext dbContext) : base(dbContext) { }
-
         public async Task<double> GetAverageDriverRatingAsync(Guid driverId)
         {
 

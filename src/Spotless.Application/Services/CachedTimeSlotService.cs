@@ -3,17 +3,11 @@ using Spotless.Domain.Entities;
 
 namespace Spotless.Application.Services
 {
-    public class CachedTimeSlotService
+    public class CachedTimeSlotService(IRepository<TimeSlot> timeSlotRepository, ICachingService cachingService)
     {
-        private readonly IRepository<TimeSlot> _timeSlotRepository;
-        private readonly ICachingService _cachingService;
+        private readonly IRepository<TimeSlot> _timeSlotRepository = timeSlotRepository;
+        private readonly ICachingService _cachingService = cachingService;
         private const string TIMESLOTS_CACHE_KEY = "timeslots:all";
-
-        public CachedTimeSlotService(IRepository<TimeSlot> timeSlotRepository, ICachingService cachingService)
-        {
-            _timeSlotRepository = timeSlotRepository;
-            _cachingService = cachingService;
-        }
 
         public async Task<IEnumerable<TimeSlot>> GetAllTimeSlotsAsync()
         {

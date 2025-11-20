@@ -7,11 +7,9 @@ using Spotless.Infrastructure.Context;
 
 namespace Spotless.Infrastructure.Repositories
 {
-    public class OrderRepository : BaseRepository<Order>, IOrderRepository
+    public class OrderRepository(ApplicationDbContext dbContext, IDistributedLockService? lockService = null) : BaseRepository<Order>(dbContext), IOrderRepository
     {
-        public OrderRepository(ApplicationDbContext dbContext) : base(dbContext)
-        {
-        }
+        private readonly IDistributedLockService? _lockService = lockService;
 
         public async Task<IReadOnlyList<MostUsedServiceDto>> GetMostUsedServicesAsync(int pageNumber, int pageSize)
         {
@@ -51,6 +49,75 @@ namespace Spotless.Infrastructure.Repositories
             return await _dbContext.Orders
                                    .Where(o => o.DriverId == driverId && o.Status == OrderStatus.PickedUp)
                                    .ToListAsync();
+        }
+
+        public async Task<int> CountOrdersBySlotAsync(Guid timeSlotId, DateTime scheduledDate)
+        {
+            var start = scheduledDate.Date;
+            var end = start.AddDays(1);
+
+            return await _dbContext.Orders
+                                   .Where(o => o.TimeSlotId == timeSlotId && o.ScheduledDate >= start && o.ScheduledDate < end)
+                                   .CountAsync();
+        }
+
+        public async Task<TimeSlot?> GetTimeSlotByIdAsync(Guid timeSlotId)
+        {
+            return await _dbContext.TimeSlots.FirstOrDefaultAsync(t => t.Id == timeSlotId);
+        }
+
+        public async Task AddOrderWithSlotLockAsync(Order order, Guid timeSlotId, DateTime scheduledDate, int maxCapacity)
+        {
+            // Use a serializable transaction to avoid race conditions / overbooking under concurrency.
+            // This is a simple prototype approach; for scale consider Redis-based distributed locks.
+            await using var tx = await _dbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
+
+            var start = scheduledDate.Date;
+            var end = start.AddDays(1);
+
+            var existingCount = await _dbContext.Orders
+                                   .Where(o => o.TimeSlotId == timeSlotId && o.ScheduledDate >= start && o.ScheduledDate < end)
+                                   .CountAsync();
+
+            if (existingCount >= maxCapacity)
+            {
+                throw new InvalidOperationException("Selected time slot is full. Please choose another time.");
+            }
+
+            _dbContext.Orders.Add(order);
+            await _dbContext.SaveChangesAsync();
+            await tx.CommitAsync();
+        }
+
+        public async Task AddOrderWithRedisLockAsync(Order order, Guid timeSlotId, DateTime scheduledDate, int maxCapacity)
+        {
+            if (_lockService == null)
+            {
+                throw new InvalidOperationException("Distributed lock service is not configured.");
+            }
+
+            // Create a unique lock key based on time slot and date
+            var lockKey = $"timeslot:{timeSlotId}:{scheduledDate:yyyy-MM-dd}";
+
+            // Execute the order creation within the distributed lock
+            await _lockService.ExecuteWithLockAsync(lockKey, async () =>
+            {
+                var start = scheduledDate.Date;
+                var end = start.AddDays(1);
+
+                var existingCount = await _dbContext.Orders
+                                       .Where(o => o.TimeSlotId == timeSlotId && o.ScheduledDate >= start && o.ScheduledDate < end)
+                                       .CountAsync();
+
+                if (existingCount >= maxCapacity)
+                {
+                    throw new InvalidOperationException("Selected time slot is full. Please choose another time.");
+                }
+
+                _dbContext.Orders.Add(order);
+                await _dbContext.SaveChangesAsync();
+                return true;
+            });
         }
     }
 }

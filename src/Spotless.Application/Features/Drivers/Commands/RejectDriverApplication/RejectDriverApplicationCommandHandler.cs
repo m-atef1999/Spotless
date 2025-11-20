@@ -5,25 +5,15 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Drivers.Commands.RejectDriverApplication
 {
-    public class RejectDriverApplicationCommandHandler : IRequestHandler<RejectDriverApplicationCommand, Unit>
+    public class RejectDriverApplicationCommandHandler(IUnitOfWork unitOfWork, INotificationService notificationService, IOptions<NotificationSettings> settings) : IRequestHandler<RejectDriverApplicationCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationService _notificationService;
-        private readonly NotificationSettings _settings;
-
-        public RejectDriverApplicationCommandHandler(IUnitOfWork unitOfWork, INotificationService notificationService, IOptions<NotificationSettings> settings)
-        {
-            _unitOfWork = unitOfWork;
-            _notificationService = notificationService;
-            _settings = settings.Value;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly NotificationSettings _settings = settings.Value;
 
         public async Task<Unit> Handle(RejectDriverApplicationCommand request, CancellationToken cancellationToken)
         {
-            var application = await _unitOfWork.OrderDriverApplications.GetByIdAsync(request.ApplicationId);
-            if (application == null)
-                throw new KeyNotFoundException($"Application with ID {request.ApplicationId} not found.");
-
+            var application = await _unitOfWork.OrderDriverApplications.GetByIdAsync(request.ApplicationId) ?? throw new KeyNotFoundException($"Application with ID {request.ApplicationId} not found.");
             if (application.Status != Domain.Enums.OrderDriverApplicationStatus.Applied)
                 throw new InvalidOperationException("Application is not in an applied state.");
 

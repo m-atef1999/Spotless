@@ -5,14 +5,9 @@ using System.Text;
 namespace Spotless.Infrastructure.Services
 {
 
-    public class DataProtectionService : IEncryptionService
+    public class DataProtectionService(IDataProtectionProvider dataProtectionProvider) : IEncryptionService
     {
-        private readonly IDataProtector _protector;
-
-        public DataProtectionService(IDataProtectionProvider dataProtectionProvider)
-        {
-            _protector = dataProtectionProvider.CreateProtector("Spotless.SensitiveData");
-        }
+        private readonly IDataProtector _protector = dataProtectionProvider.CreateProtector("Spotless.SensitiveData");
 
         public string Encrypt(string plainText)
         {
@@ -53,7 +48,7 @@ namespace Spotless.Infrastructure.Services
         public byte[] DecryptFromBase64(string base64CipherText)
         {
             if (string.IsNullOrEmpty(base64CipherText))
-                return Array.Empty<byte>();
+                return [];
 
             try
             {
@@ -62,7 +57,7 @@ namespace Spotless.Infrastructure.Services
             }
             catch
             {
-                return Array.Empty<byte>();
+                return [];
             }
         }
     }

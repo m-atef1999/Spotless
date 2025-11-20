@@ -17,6 +17,7 @@ namespace Spotless.Infrastructure.Mappers
                 Name = service.Name,
                 Description = service.Description,
                 BasePrice = service.BasePrice.Amount,
+                MaxWeightKg = service.MaxWeightKg,
                 EstimatedDurationHours = service.EstimatedDurationHours,
                 IsActive = service.IsActive,
                 IsFeatured = service.IsFeatured

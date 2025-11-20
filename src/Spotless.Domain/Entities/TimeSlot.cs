@@ -11,7 +11,7 @@
         public string ValidDaysOfWeek { get; private set; } = string.Empty;
 
 
-        private readonly List<Order> _orders = new();
+        private readonly List<Order> _orders = [];
         public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
 
         protected TimeSlot() { }

@@ -10,15 +10,15 @@ namespace Spotless.Domain.Entities
 
         public UserRole Role { get; private set; } = UserRole.Admin;
 
-        private readonly List<Driver> _drivers = new();
+        private readonly List<Driver> _drivers = [];
         public IReadOnlyCollection<Driver> Drivers => _drivers.AsReadOnly();
 
 
-        private readonly List<Order> _orders = new();
+        private readonly List<Order> _orders = [];
         public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
 
 
-        private readonly List<Payment> _payments = new();
+        private readonly List<Payment> _payments = [];
         public IReadOnlyCollection<Payment> Payments => _payments.AsReadOnly();
 
         protected Admin() { }

@@ -6,15 +6,9 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Infrastructure.Services
 {
-    public class PaymobSignatureService : IPaymobSignatureService
+    public class PaymobSignatureService(IOptions<PaymobSettings> paymobSettings) : IPaymobSignatureService
     {
-        private readonly PaymobSettings _paymobSettings;
-
-        public PaymobSignatureService(IOptions<PaymobSettings> paymobSettings)
-        {
-            _paymobSettings = paymobSettings.Value;
-        }
-
+        private readonly PaymobSettings _paymobSettings = paymobSettings.Value;
 
         public bool VerifyProcessedCallbackSignature(Spotless.Application.Interfaces.PaymobProcessedCallbackData callbackData, string receivedHmac)
         {

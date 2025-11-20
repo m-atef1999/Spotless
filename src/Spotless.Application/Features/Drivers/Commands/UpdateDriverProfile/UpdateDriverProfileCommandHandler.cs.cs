@@ -3,28 +3,15 @@ using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Drivers.Commands.UpdateDriverProfile
 {
-    public class UpdateDriverProfileCommandHandler : IRequestHandler<UpdateDriverProfileCommand, Unit>
+    public class UpdateDriverProfileCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<UpdateDriverProfileCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public UpdateDriverProfileCommandHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Unit> Handle(UpdateDriverProfileCommand request, CancellationToken cancellationToken)
         {
             var dto = request.Dto;
 
-            var driver = await _unitOfWork.Drivers.GetByIdAsync(request.DriverId);
-
-            if (driver == null)
-            {
-                throw new KeyNotFoundException($"Driver profile not found for ID: {request.DriverId}");
-            }
-
-
-
+            var driver = await _unitOfWork.Drivers.GetByIdAsync(request.DriverId) ?? throw new KeyNotFoundException($"Driver profile not found for ID: {request.DriverId}");
             string newName = string.IsNullOrWhiteSpace(dto.Name) ? driver.Name : dto.Name;
 
 

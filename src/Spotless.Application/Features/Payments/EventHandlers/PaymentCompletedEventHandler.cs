@@ -7,20 +7,12 @@ using Spotless.Domain.Events;
 
 namespace Spotless.Application.Features.Payments.EventHandlers
 {
-    public class PaymentCompletedEventHandler : INotificationHandler<PaymentCompletedEvent>
+    public class PaymentCompletedEventHandler(INotificationService notificationService, IUnitOfWork unitOfWork, IOptions<NotificationSettings> settings, ILogger<PaymentCompletedEventHandler> logger) : INotificationHandler<PaymentCompletedEvent>
     {
-        private readonly INotificationService _notificationService;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly NotificationSettings _settings;
-        private readonly ILogger<PaymentCompletedEventHandler> _logger;
-
-        public PaymentCompletedEventHandler(INotificationService notificationService, IUnitOfWork unitOfWork, IOptions<NotificationSettings> settings, ILogger<PaymentCompletedEventHandler> logger)
-        {
-            _notificationService = notificationService;
-            _unitOfWork = unitOfWork;
-            _settings = settings.Value;
-            _logger = logger;
-        }
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly NotificationSettings _settings = settings.Value;
+        private readonly ILogger<PaymentCompletedEventHandler> _logger = logger;
 
         public async Task Handle(PaymentCompletedEvent notification, CancellationToken cancellationToken)
         {
@@ -38,6 +30,16 @@ namespace Spotless.Application.Features.Payments.EventHandlers
                     var subject = "Payment Received - Receipt";
                     var message = $"Payment of ${notification.Amount:F2} for order #{notification.OrderId} has been completed successfully.";
                     await _notificationService.SendEmailNotificationAsync(customer.Email, subject, message);
+                }
+
+                if (_settings.EnableSmsNotifications && customer?.Phone != null)
+                {
+                    await _notificationService.SendSmsNotificationAsync(customer.Phone!, $"Payment of ${notification.Amount:F2} for order #{notification.OrderId} has been completed.");
+                }
+
+                if (_settings.EnableWhatsAppNotifications && customer?.Phone != null)
+                {
+                    await _notificationService.SendWhatsAppNotificationAsync(customer.Phone!, $"Payment of ${notification.Amount:F2} for order #{notification.OrderId} has been completed.");
                 }
             }
             catch (Exception ex)

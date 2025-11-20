@@ -4,32 +4,16 @@ using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Features.Services.Commands.UpdateService
 {
-    public class UpdateServiceCommandHandler : IRequestHandler<UpdateServiceCommand, Unit>
+    public class UpdateServiceCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<UpdateServiceCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public UpdateServiceCommandHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<Unit> Handle(UpdateServiceCommand request, CancellationToken cancellationToken)
         {
-            var service = await _unitOfWork.Services.GetByIdAsync(request.Dto.ServiceId);
-
-            if (service == null)
-            {
-                throw new KeyNotFoundException($"Service with ID {request.Dto.ServiceId} not found.");
-            }
-
-
+            var service = await _unitOfWork.Services.GetByIdAsync(request.Dto.ServiceId) ?? throw new KeyNotFoundException($"Service with ID {request.Dto.ServiceId} not found.");
             if (request.Dto.CategoryId.HasValue)
             {
-                var category = await _unitOfWork.Categories.GetByIdAsync(request.Dto.CategoryId.Value);
-                if (category == null)
-                {
-                    throw new KeyNotFoundException($"Service Category with ID {request.Dto.CategoryId.Value} not found.");
-                }
+                var category = await _unitOfWork.Categories.GetByIdAsync(request.Dto.CategoryId.Value) ?? throw new KeyNotFoundException($"Service Category with ID {request.Dto.CategoryId.Value} not found.");
             }
 
 
@@ -54,7 +38,8 @@ namespace Spotless.Application.Features.Services.Commands.UpdateService
                 description: request.Dto.Description,
                 pricePerUnit: newPricePerUnit,
                 estimatedDurationHours: request.Dto.EstimatedDurationHours,
-                categoryId: request.Dto.CategoryId
+                categoryId: request.Dto.CategoryId,
+                maxWeightKg: request.Dto.MaxWeightKg
             );
 
 

@@ -112,6 +112,17 @@ namespace Spotless.API.Extensions
             services.AddScoped<IPricingService, PricingService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISmsService, DummySmsService>();
+            services.AddScoped<IMessageSender>(sp =>
+            {
+                // Choose implementation based on configuration - default to Dummy for prototype
+                var smsSettings = sp.GetRequiredService<IConfiguration>().GetSection(SmsSettings.SettingsKey).Get<SmsSettings>();
+                if (smsSettings != null && smsSettings.Provider == "Twilio")
+                {
+                    return sp.GetRequiredService<TwilioMessageSender>();
+                }
+
+                return sp.GetRequiredService<DummyMessageSender>();
+            });
             services.AddScoped<IOrderMapper, OrderMapper>();
             services.AddScoped<ICustomerMapper, CustomerMapper>();
             services.AddScoped<IServiceMapper, ServiceMapper>();
@@ -120,6 +131,64 @@ namespace Spotless.API.Extensions
             // Domain Events and Services
             services.AddScoped<IDomainEventPublisher, DomainEventPublisher>();
             services.AddScoped<INotificationService, NotificationService>();
+            
+            // Distributed Locking Service for concurrent operations (time-slot booking)
+            services.AddScoped<IDistributedLockService, RedisDistributedLockService>();
+            
+            // Configure Sms/WhatsApp settings from config
+            services.Configure<SmsSettings>(configuration.GetSection(SmsSettings.SettingsKey));
+            services.Configure<WhatsAppSettings>(configuration.GetSection(WhatsAppSettings.SettingsKey));
+            
+            // RabbitMQ Message Broker for decoupled background jobs
+            services.Configure<RabbitMqSettings>(configuration.GetSection(RabbitMqSettings.SettingsKey));
+            var rabbitMqSettings = configuration.GetSection(RabbitMqSettings.SettingsKey).Get<RabbitMqSettings>();
+            if (rabbitMqSettings?.Enabled != false)
+            {
+                services.AddSingleton<IMessageBroker, RabbitMqMessageBroker>();
+            }
+            else
+            {
+                // Register a no-op implementation if RabbitMQ is disabled
+                services.AddSingleton<IMessageBroker>(sp => new NoOpMessageBroker(sp.GetRequiredService<ILogger<NoOpMessageBroker>>()));
+            }
+
+            // Routing / ETA services
+            services.Configure<RoutingSettings>(configuration.GetSection(RoutingSettings.SettingsKey));
+            // Register MapboxRouterService with a typed HttpClient
+            services.AddHttpClient<MapboxRouterService>(client =>
+            {
+                client.Timeout = TimeSpan.FromSeconds(10);
+            });
+            services.AddScoped<FallbackRouterService>();
+            services.AddScoped<IRouterService>(sp =>
+            {
+                var cfg = sp.GetRequiredService<IConfiguration>().GetSection(RoutingSettings.SettingsKey).Get<RoutingSettings>() ?? new RoutingSettings();
+
+                // Allow overriding the Mapbox API key via environment variable `MAPBOX_API_KEY`
+                var configuration = sp.GetRequiredService<IConfiguration>();
+                var envKey = configuration["MAPBOX_API_KEY"] ?? configuration.GetSection("Routing")?["MapboxApiKey"];
+                if (!string.IsNullOrEmpty(envKey))
+                {
+                    cfg.MapboxApiKey = envKey;
+                }
+
+                if (cfg != null && !string.IsNullOrEmpty(cfg.Provider) && cfg.Provider.Equals("Mapbox", StringComparison.OrdinalIgnoreCase))
+                {
+                    // If key looks like the placeholder or is missing, fall back to the simple estimator
+                    if (string.IsNullOrEmpty(cfg.MapboxApiKey) || cfg.MapboxApiKey.Contains("PLACEHOLDER") || cfg.MapboxApiKey.StartsWith("pk.test"))
+                    {
+                        return sp.GetRequiredService<FallbackRouterService>();
+                    }
+
+                    return sp.GetRequiredService<MapboxRouterService>();
+                }
+
+                return sp.GetRequiredService<FallbackRouterService>();
+            });
+
+            // Register Twilio sender as an option alongside Dummy; selection can be changed in DI later
+            services.AddScoped<TwilioMessageSender>();
+            services.AddScoped<DummyMessageSender>();
             services.AddScoped<IAnalyticsService, AnalyticsService>();
             services.AddSingleton<ICacheService, CacheService>();
 
@@ -129,9 +198,18 @@ namespace Spotless.API.Extensions
             services.AddScoped<CachedCategoryService>();
             services.AddScoped<CachedTimeSlotService>();
 
+            // Cart services and repositories
+            services.AddScoped<ICartRepository, CartRepository>();
+            services.AddScoped<ICartService, CartService>();
+
+
             // Payment Services
             services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
             services.AddScoped<IPaymobSignatureService, PaymobSignatureService>();
+
+            // Bind Sms/WhatsApp configuration to DI
+            services.Configure<SmsSettings>(configuration.GetSection(SmsSettings.SettingsKey));
+            services.Configure<WhatsAppSettings>(configuration.GetSection(WhatsAppSettings.SettingsKey));
 
             // Configure Paymob settings (binds to DI)
 
@@ -151,6 +229,7 @@ namespace Spotless.API.Extensions
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IServiceRepository, ServiceRepository>();
+            services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<IOrderDriverApplicationRepository, OrderDriverApplicationRepository>();

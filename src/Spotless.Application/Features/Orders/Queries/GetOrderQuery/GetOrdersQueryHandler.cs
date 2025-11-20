@@ -9,16 +9,10 @@ using System.Linq.Expressions;
 
 namespace Spotless.Application.Features.Orders.Queries.GetOrderQuery
 {
-    public class GetOrdersQueryHandler : IRequestHandler<GetOrdersQuery, PagedResponse<OrderDto>>
+    public class GetOrdersQueryHandler(IUnitOfWork unitOfWork, IOrderMapper orderMapper) : IRequestHandler<GetOrdersQuery, PagedResponse<OrderDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IOrderMapper _orderMapper;
-
-        public GetOrdersQueryHandler(IUnitOfWork unitOfWork, IOrderMapper orderMapper)
-        {
-            _unitOfWork = unitOfWork;
-            _orderMapper = orderMapper;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IOrderMapper _orderMapper = orderMapper;
 
         public async Task<PagedResponse<OrderDto>> Handle(GetOrdersQuery request, CancellationToken cancellationToken)
         {

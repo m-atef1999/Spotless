@@ -15,14 +15,9 @@ namespace Spotless.API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class OrdersController : ControllerBase
+    public class OrdersController(IMediator mediator) : ControllerBase
     {
-        private readonly IMediator _mediator;
-
-        public OrdersController(IMediator mediator)
-        {
-            _mediator = mediator;
-        }
+        private readonly IMediator _mediator = mediator;
 
         [HttpPost]
         [ProducesResponseType(typeof(OrderDto), 201)]

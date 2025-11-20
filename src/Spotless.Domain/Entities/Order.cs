@@ -10,7 +10,7 @@ namespace Spotless.Domain.Entities
 
         public Guid CustomerId { get; private set; }
         public Guid? DriverId { get; private set; }
-        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
+        public virtual ICollection<Payment> Payments { get; set; } = [];
 
         public Guid? AdminId { get; private set; }
         public Location PickupLocation { get; private set; } = null!;
@@ -27,7 +27,7 @@ namespace Spotless.Domain.Entities
 
 
 
-        private readonly List<OrderItem> _items = new();
+        private readonly List<OrderItem> _items = [];
         public IReadOnlyCollection<OrderItem> Items => _items.AsReadOnly();
 
         protected Order() { }
@@ -123,15 +123,7 @@ namespace Spotless.Domain.Entities
             }
 
 
-            var firstItem = _items.FirstOrDefault();
-
-            if (firstItem == null)
-            {
-
-                throw new InvalidOperationException("Cannot update service: Order contains no items.");
-            }
-
-
+            var firstItem = _items.FirstOrDefault() ?? throw new InvalidOperationException("Cannot update service: Order contains no items.");
             firstItem.UpdateServiceId(newServiceId);
 
         }

@@ -6,27 +6,16 @@ using Spotless.Application.Features.Drivers.Commands.AssignDriver;
 
 namespace Spotless.Application.Features.Drivers.Commands.AcceptDriverApplication
 {
-    public class AcceptDriverApplicationCommandHandler : IRequestHandler<AcceptDriverApplicationCommand, Unit>
+    public class AcceptDriverApplicationCommandHandler(IUnitOfWork unitOfWork, IMediator mediator, INotificationService notificationService, IOptions<NotificationSettings> settings) : IRequestHandler<AcceptDriverApplicationCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMediator _mediator;
-        private readonly INotificationService _notificationService;
-        private readonly NotificationSettings _settings;
-
-        public AcceptDriverApplicationCommandHandler(IUnitOfWork unitOfWork, IMediator mediator, INotificationService notificationService, IOptions<NotificationSettings> settings)
-        {
-            _unitOfWork = unitOfWork;
-            _mediator = mediator;
-            _notificationService = notificationService;
-            _settings = settings.Value;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IMediator _mediator = mediator;
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly NotificationSettings _settings = settings.Value;
 
         public async Task<Unit> Handle(AcceptDriverApplicationCommand request, CancellationToken cancellationToken)
         {
-            var application = await _unitOfWork.OrderDriverApplications.GetByIdAsync(request.ApplicationId);
-            if (application == null)
-                throw new KeyNotFoundException($"Application with ID {request.ApplicationId} not found.");
-
+            var application = await _unitOfWork.OrderDriverApplications.GetByIdAsync(request.ApplicationId) ?? throw new KeyNotFoundException($"Application with ID {request.ApplicationId} not found.");
             if (application.Status != Domain.Enums.OrderDriverApplicationStatus.Applied)
                 throw new InvalidOperationException("Application is not in an applied state.");
 

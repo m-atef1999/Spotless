@@ -9,17 +9,10 @@ using System.Linq.Expressions;
 namespace Spotless.Application.Features.Services.Queries.GetServicesByCategory
 {
 
-    public class ListServicesByCategoryQueryHandler : IRequestHandler<ListServicesByCategoryQuery, PagedResponse<ServiceDto>>
+    public class ListServicesByCategoryQueryHandler(IUnitOfWork unitOfWork, IServiceMapper serviceMapper) : IRequestHandler<ListServicesByCategoryQuery, PagedResponse<ServiceDto>>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IServiceMapper _serviceMapper;
-
-
-        public ListServicesByCategoryQueryHandler(IUnitOfWork unitOfWork, IServiceMapper serviceMapper)
-        {
-            _unitOfWork = unitOfWork;
-            _serviceMapper = serviceMapper;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly IServiceMapper _serviceMapper = serviceMapper;
 
         public async Task<PagedResponse<ServiceDto>> Handle(ListServicesByCategoryQuery request, CancellationToken cancellationToken)
         {
@@ -57,7 +50,8 @@ namespace Spotless.Application.Features.Services.Queries.GetServicesByCategory
             return service =>
                 service.CategoryId == request.CategoryId &&
 
-                (string.IsNullOrEmpty(request.NameSearchTerm) || service.Name.Contains(request.NameSearchTerm!));
+                (string.IsNullOrEmpty(request.NameSearchTerm) ||
+                 (service.Name != null && service.Name.ToLowerInvariant().Contains(request.NameSearchTerm!.Trim().ToLowerInvariant())));
         }
     }
 }

@@ -5,14 +5,9 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Admins.Queries.GetAdminDashboard
 {
-    public class GetAdminDashboardQueryHandler : IRequestHandler<GetAdminDashboardQuery, AdminDashboardDto>
+    public class GetAdminDashboardQueryHandler(IUnitOfWork unitOfWork) : IRequestHandler<GetAdminDashboardQuery, AdminDashboardDto>
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public GetAdminDashboardQueryHandler(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         public async Task<AdminDashboardDto> Handle(GetAdminDashboardQuery request, CancellationToken cancellationToken)
         {

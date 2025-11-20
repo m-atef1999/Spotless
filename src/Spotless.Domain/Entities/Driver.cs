@@ -14,7 +14,7 @@ namespace Spotless.Domain.Entities
         public DriverStatus Status { get; private set; } = DriverStatus.Offline;
         public Location CurrentLocation { get; private set; } = null!;
 
-        private readonly List<Order> _orders = new();
+        private readonly List<Order> _orders = [];
         public IReadOnlyCollection<Order> Orders => _orders.AsReadOnly();
 
         public UserRole Role { get; private set; } = UserRole.Driver;

@@ -3,17 +3,11 @@ using Spotless.Domain.Entities;
 
 namespace Spotless.Application.Services
 {
-    public class CachedCategoryService
+    public class CachedCategoryService(ICategoryRepository categoryRepository, ICachingService cachingService)
     {
-        private readonly ICategoryRepository _categoryRepository;
-        private readonly ICachingService _cachingService;
+        private readonly ICategoryRepository _categoryRepository = categoryRepository;
+        private readonly ICachingService _cachingService = cachingService;
         private const string CATEGORIES_CACHE_KEY = "categories:all";
-
-        public CachedCategoryService(ICategoryRepository categoryRepository, ICachingService cachingService)
-        {
-            _categoryRepository = categoryRepository;
-            _cachingService = cachingService;
-        }
 
         public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {

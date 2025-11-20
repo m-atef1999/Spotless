@@ -6,29 +6,15 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Orders.Commands.CancelOrder
 {
-    public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, Unit>
+    public class CancelOrderCommandHandler(IUnitOfWork unitOfWork, INotificationService notificationService, IOptions<NotificationSettings> settings) : IRequestHandler<CancelOrderCommand, Unit>
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly INotificationService _notificationService;
-        private readonly NotificationSettings _settings;
-
-        public CancelOrderCommandHandler(IUnitOfWork unitOfWork, INotificationService notificationService, IOptions<NotificationSettings> settings)
-        {
-            _unitOfWork = unitOfWork;
-            _notificationService = notificationService;
-            _settings = settings.Value;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly NotificationSettings _settings = settings.Value;
 
         public async Task<Unit> Handle(CancelOrderCommand request, CancellationToken cancellationToken)
         {
-            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId);
-
-            if (order == null)
-            {
-                throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
-            }
-
-
+            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId) ?? throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
             if (order.CustomerId != request.CustomerId)
             {
 
