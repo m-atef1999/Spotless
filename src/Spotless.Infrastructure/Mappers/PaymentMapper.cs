@@ -1,4 +1,4 @@
-﻿using Spotless.Application.Dtos.Payment;
+using Spotless.Application.Dtos.Payment;
 using Spotless.Domain.Entities;
 
 namespace Spotless.Infrastructure.Mappers

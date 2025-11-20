@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Review;
 using Spotless.Application.Interfaces;
 using System.Linq;

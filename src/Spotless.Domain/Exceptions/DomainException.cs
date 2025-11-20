@@ -1,4 +1,4 @@
-﻿namespace Spotless.Domain.Exceptions
+namespace Spotless.Domain.Exceptions
 {
     public class DomainException : Exception
     {

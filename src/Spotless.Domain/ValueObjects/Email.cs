@@ -1,4 +1,4 @@
-﻿using Spotless.Domain.Exceptions;
+using Spotless.Domain.Exceptions;
 using System.Text.RegularExpressions;
 
 namespace Spotless.Domain.ValueObjects;

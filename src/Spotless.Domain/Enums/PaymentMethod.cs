@@ -1,14 +1,16 @@
-﻿namespace Spotless.Domain.Enums
+using System.Text.Json.Serialization;
+
+namespace Spotless.Domain.Enums;
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum PaymentMethod
 {
-    public enum PaymentMethod
-    {
-        CreditCard,
-        DebitCard,
-        Fawry,
-        PayPal,
-        Wallet,
-        CashOnDelivery,
-        Paymob,
-        Instapay
-    }
+    CreditCard,
+    DebitCard,
+    Fawry,
+    PayPal,
+    Wallet,
+    CashOnDelivery,
+    Paymob,
+    Instapay
 }

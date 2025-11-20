@@ -1,4 +1,4 @@
-﻿using Spotless.Domain.Enums;
+using Spotless.Domain.Enums;
 using Spotless.Domain.Events;
 using Spotless.Domain.ValueObjects;
 

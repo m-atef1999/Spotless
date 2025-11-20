@@ -1,4 +1,4 @@
-﻿using Spotless.Application.Dtos.Customer;
+using Spotless.Application.Dtos.Customer;
 using Spotless.Domain.Entities;
 
 namespace Spotless.Application.Mappers

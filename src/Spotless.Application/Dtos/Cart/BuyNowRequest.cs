@@ -1,9 +1,12 @@
 using Spotless.Domain.Enums;
 
-namespace Spotless.API.Dtos.Cart
+namespace Spotless.Application.Dtos.Cart
 {
-    public class CartCheckoutRequest
+    public class BuyNowRequest
     {
+        public Guid ServiceId { get; set; }
+        public int Quantity { get; set; } = 1;
+
         public Guid TimeSlotId { get; set; }
         public DateTime ScheduledDate { get; set; }
         public PaymentMethod PaymentMethod { get; set; }

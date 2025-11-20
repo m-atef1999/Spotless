@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Spotless.Application.Configurations;
 using Spotless.Application.Dtos.Authentication;

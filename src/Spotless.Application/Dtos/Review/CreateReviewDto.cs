@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Dtos.Review
+namespace Spotless.Application.Dtos.Review
 {
 
     public record CreateReviewDto(

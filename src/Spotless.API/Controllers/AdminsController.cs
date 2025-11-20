@@ -11,9 +11,9 @@ using System.Security.Claims;
 namespace Spotless.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/admins")]
     [Authorize(Roles = "Admin")]
-    public class AdminController(
+    public class AdminsController(
         IMediator mediator,
         UserManager<ApplicationUser> userManager,
         IPaginationService paginationService) : ControllerBase
@@ -22,6 +22,33 @@ namespace Spotless.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IPaginationService _paginationService = paginationService;
 
+        /// <summary>
+        /// Lists all administrators with pagination
+        /// </summary>
+        [HttpGet]
+        [ProducesResponseType(typeof(Spotless.Application.Dtos.Responses.PagedResponse<Spotless.Application.Dtos.Admin.AdminDto>), 200)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListAdmins(
+            [FromQuery] string? searchTerm,
+            [FromQuery] int? pageNumber,
+            [FromQuery] int? pageSize)
+        {
+            pageNumber ??= _paginationService.GetDefaultPageNumber();
+            pageSize = _paginationService.NormalizePageSize(pageSize);
+
+            var query = new Spotless.Application.Features.Admins.Queries.ListAdmins.ListAdminsQuery(searchTerm)
+            {
+                PageNumber = pageNumber.Value,
+                PageSize = pageSize.Value
+            };
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves admin dashboard with system statistics
+        /// </summary>
         [HttpGet("dashboard")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AdminDashboardDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos;
 using Spotless.Application.Dtos.Driver;
 using Spotless.Application.Interfaces;

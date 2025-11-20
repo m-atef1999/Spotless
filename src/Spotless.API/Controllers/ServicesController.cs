@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Responses;
 using Spotless.Application.Dtos.Service;
@@ -15,6 +15,9 @@ namespace Spotless.API.Controllers
         private readonly IMediator _mediator = mediator;
         private readonly IPaginationService _paginationService = paginationService;
 
+        /// <summary>
+        /// Lists all services with optional search and pagination
+        /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(PagedResponse<ServiceDto>), 200)]
         public async Task<IActionResult> ListServices(
@@ -35,6 +38,9 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves a specific service by ID
+        /// </summary>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ServiceDto), 200)]
         [ProducesResponseType(404)]
@@ -45,6 +51,9 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves featured services for homepage
+        /// </summary>
         [HttpGet("featured")]
         [ProducesResponseType(typeof(IReadOnlyList<ServiceDto>), 200)]
         public async Task<IActionResult> GetFeaturedServices([FromQuery] int count = 4)

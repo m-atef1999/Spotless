@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Customer;
 using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;

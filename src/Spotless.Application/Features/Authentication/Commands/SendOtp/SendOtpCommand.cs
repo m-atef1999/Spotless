@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using System.ComponentModel.DataAnnotations;
 
 namespace Spotless.Application.Features.Authentication.Commands.SendOtp

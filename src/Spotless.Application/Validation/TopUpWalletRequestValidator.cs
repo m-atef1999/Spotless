@@ -1,11 +1,11 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Dtos.Customer;
 
 namespace Spotless.Application.Validation
 {
-    public class TopUpWalletRequestValidator : AbstractValidator<TopUpWalletRequest>
+    public class WalletTopUpRequestValidator : AbstractValidator<WalletTopUpRequest>
     {
-        public TopUpWalletRequestValidator()
+        public WalletTopUpRequestValidator()
         {
             RuleFor(x => x.AmountValue)
                 .GreaterThanOrEqualTo(10.0M).WithMessage("Top-up amount must be at least 10 EGP.")

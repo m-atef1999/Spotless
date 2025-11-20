@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.Enums;

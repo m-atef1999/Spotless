@@ -1,4 +1,4 @@
-﻿using Spotless.Domain.Exceptions;
+using Spotless.Domain.Exceptions;
 
 namespace Spotless.Domain.ValueObjects;
 public sealed record Address

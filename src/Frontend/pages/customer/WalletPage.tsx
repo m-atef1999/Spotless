@@ -7,7 +7,7 @@ import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { apiClient } from '../../lib/api';
-import { TopUpWalletRequest, PaymentMethod } from '../../lib/apiClient';
+import { WalletTopUpRequest, PaymentMethod } from '../../lib/apiClient';
 
 const topUpSchema = z.object({
     amount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
@@ -36,7 +36,7 @@ export const WalletPage: React.FC = () => {
 
     const fetchBalance = async () => {
         try {
-            const profile = await apiClient.profileGET();
+            const profile = await apiClient.meGET();
             setBalance(profile.walletBalance || 0);
             setCurrency(profile.walletCurrency || 'USD');
         } catch (err) {
@@ -56,9 +56,9 @@ export const WalletPage: React.FC = () => {
         setSuccessMessage(null);
 
         try {
-            const request = new TopUpWalletRequest({
+            const request = new WalletTopUpRequest({
                 amountValue: Number(data.amount),
-                paymentMethod: PaymentMethod._1, // Default to Credit Card for now
+                paymentMethod: PaymentMethod.CashOnDelivery, // Default to Credit Card for now
             });
 
             await apiClient.topup(request);

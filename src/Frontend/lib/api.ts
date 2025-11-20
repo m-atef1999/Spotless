@@ -1,11 +1,17 @@
 import { Client } from "./apiClient";
+import axios from "axios";
 
 const baseUrl =
-  import.meta.env.VITE_API_BASE_URL || "https://spotless.runasp.net/";
+  import.meta.env.VITE_API_BASE_URL || "https://spotless.runasp.net";
 
-export const apiClient = new Client(baseUrl, {
-  fetch: async (url: RequestInfo, init?: RequestInit) => {
-    let token = null;
+// Create axios instance with interceptors
+const axiosInstance = axios.create({
+  baseURL: baseUrl,
+});
+
+// Request interceptor to add auth token
+axiosInstance.interceptors.request.use(
+  (config) => {
     const getStoredAuth = () => {
       try {
         const stored = localStorage.getItem("auth-storage");
@@ -20,37 +26,61 @@ export const apiClient = new Client(baseUrl, {
 
     const authData = getStoredAuth();
     if (authData?.state?.token) {
-      token = authData.state.token;
+      config.headers.Authorization = `Bearer ${authData.state.token}`;
     }
 
-    if (token) {
-      init = init || {};
-      init.headers = {
-        ...init.headers,
-        Authorization: `Bearer ${token}`,
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle 401 and refresh token
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // If 401 and not already retrying and not a refresh request
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes("/refresh")
+    ) {
+      originalRequest._retry = true;
+
+      const getStoredAuth = () => {
+        try {
+          const stored = localStorage.getItem("auth-storage");
+          if (stored) {
+            return JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error("Failed to retrieve auth", e);
+        }
+        return null;
       };
-    }
 
-    let response = await fetch(url, init);
-
-    if (response.status === 401 && !url.toString().includes("/refresh")) {
-      // Try to refresh token
+      const authData = getStoredAuth();
       const refreshToken = authData?.state?.refreshToken;
+
       if (refreshToken) {
         try {
-          // Use raw fetch to avoid interceptor loop
-          const refreshUrl = `${baseUrl}/api/Auth/refresh`;
-          const refreshResponse = await fetch(refreshUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({ refreshToken }),
-          });
+          // Call refresh endpoint
+          const refreshResponse = await axios.post(
+            `${baseUrl}/api/Auth/refresh`,
+            { refreshToken },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+            }
+          );
 
-          if (refreshResponse.ok) {
-            const newAuthData = await refreshResponse.json();
+          if (refreshResponse.status === 200) {
+            const newAuthData = refreshResponse.data;
 
             // Update local storage
             const updatedStorage = {
@@ -59,39 +89,34 @@ export const apiClient = new Client(baseUrl, {
                 ...authData.state,
                 token: newAuthData.token,
                 refreshToken: newAuthData.refreshToken,
-                user: newAuthData.user, // Assuming user object is returned or preserved
+                user: newAuthData.user,
               },
             };
-            localStorage.setItem(
-              "auth-storage",
-              JSON.stringify(updatedStorage)
-            );
+            localStorage.setItem("auth-storage", JSON.stringify(updatedStorage));
 
-            // Retry original request with new token
-            if (init) {
-              init.headers = {
-                ...init.headers,
-                Authorization: `Bearer ${newAuthData.token}`,
-              };
-            }
-            response = await fetch(url, init);
-          } else {
-            // Refresh failed, logout
-            localStorage.removeItem("auth-storage");
-            window.location.href = "/login";
+            // Update the failed request with new token
+            originalRequest.headers.Authorization = `Bearer ${newAuthData.token}`;
+
+            // Retry the original request
+            return axiosInstance(originalRequest);
           }
-        } catch (error) {
-          console.error("Token refresh failed", error);
+        } catch (refreshError) {
+          console.error("Token refresh failed", refreshError);
           localStorage.removeItem("auth-storage");
           window.location.href = "/login";
+          return Promise.reject(refreshError);
         }
-      } else {
-        // No refresh token, logout
-        localStorage.removeItem("auth-storage");
-        window.location.href = "/login";
       }
+
+      // No refresh token, logout
+      localStorage.removeItem("auth-storage");
+      window.location.href = "/login";
     }
 
-    return response;
-  },
-});
+    return Promise.reject(error);
+  }
+);
+
+// Create and export API client with axios instance
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const apiClient = new Client(baseUrl, axiosInstance as any);

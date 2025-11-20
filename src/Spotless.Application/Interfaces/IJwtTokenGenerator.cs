@@ -1,4 +1,4 @@
-﻿using Spotless.Application.Dtos.Authentication;
+using Spotless.Application.Dtos.Authentication;
 
 namespace Spotless.Application.Interfaces
 {

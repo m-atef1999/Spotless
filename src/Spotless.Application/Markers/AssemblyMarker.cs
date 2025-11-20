@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Markers
+namespace Spotless.Application.Markers
 {
 
     public abstract class AssemblyMarker { }

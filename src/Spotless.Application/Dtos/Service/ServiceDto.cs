@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Dtos.Service
+namespace Spotless.Application.Dtos.Service
 {
     public class ServiceDto
     {

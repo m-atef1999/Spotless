@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Enums;
 using Spotless.Domain.ValueObjects;

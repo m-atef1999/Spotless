@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Dtos.Authentication;
 
 namespace Spotless.Application.Validation

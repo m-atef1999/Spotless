@@ -17,7 +17,7 @@ export const DriverDashboard: React.FC = () => {
     const fetchData = async () => {
         try {
             const [myOrders, openOrders] = await Promise.all([
-                apiClient.orders(), // Jobs assigned to this driver
+                apiClient.ordersAll(), // Jobs assigned to this driver
                 apiClient.available() // Jobs available for pickup
             ]);
             setActiveJobs(myOrders);

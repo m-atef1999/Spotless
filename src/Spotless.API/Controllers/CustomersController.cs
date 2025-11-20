@@ -12,9 +12,9 @@ using System.Security.Claims;
 namespace Spotless.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/customers")]
     [Authorize]
-    public class CustomerController(
+    public class CustomersController(
         IMediator mediator,
         UserManager<ApplicationUser> userManager,
         IPaginationService paginationService) : ControllerBase
@@ -23,6 +23,35 @@ namespace Spotless.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IPaginationService _paginationService = paginationService;
 
+        /// <summary>
+        /// Lists all customers (Admin only)
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(Spotless.Application.Dtos.Responses.PagedResponse<Spotless.Application.Dtos.Customer.CustomerDto>), 200)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ListCustomers(
+            [FromQuery] string? nameFilter,
+            [FromQuery] string? emailFilter,
+            [FromQuery] int? pageNumber,
+            [FromQuery] int? pageSize)
+        {
+            pageNumber ??= _paginationService.GetDefaultPageNumber();
+            pageSize = _paginationService.NormalizePageSize(pageSize);
+
+            var query = new Spotless.Application.Features.Customers.Queries.GetAllCustomers.ListCustomersQuery(nameFilter, emailFilter)
+            {
+                PageNumber = pageNumber.Value,
+                PageSize = pageSize.Value
+            };
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Registers a new customer account
+        /// </summary>
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Spotless.Application.Dtos.Authentication.AuthResult))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -33,6 +62,9 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Retrieves customer dashboard with orders and wallet info
+        /// </summary>
         [HttpGet("dashboard")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDashboardDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -62,7 +94,10 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
-        [HttpGet("profile")]
+        /// <summary>
+        /// Retrieves authenticated customer's profile
+        /// </summary>
+        [HttpGet("me")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Spotless.Application.Dtos.Customer.CustomerDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -83,11 +118,14 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
-        [HttpPut("profile")]
+        /// <summary>
+        /// Updates authenticated customer's profile
+        /// </summary>
+        [HttpPut("me")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateProfile([FromBody] Spotless.Application.Dtos.Customer.UpdateCustomerDto dto)
+        public async Task<IActionResult> UpdateProfile([FromBody] Spotless.Application.Dtos.Customer.CustomerUpdateRequest dto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
@@ -104,11 +142,14 @@ namespace Spotless.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Tops up customer's wallet balance
+        /// </summary>
         [HttpPost("topup")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> TopUpWallet([FromBody] Spotless.Application.Dtos.Customer.TopUpWalletRequest dto)
+        public async Task<IActionResult> TopUpWallet([FromBody] Spotless.Application.Dtos.Customer.WalletTopUpRequest dto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))

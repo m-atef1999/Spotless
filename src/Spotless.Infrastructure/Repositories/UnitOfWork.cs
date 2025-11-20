@@ -1,4 +1,4 @@
-﻿using Spotless.Application.Interfaces;
+using Spotless.Application.Interfaces;
 using Spotless.Infrastructure.Context;
 
 

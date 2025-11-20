@@ -1,4 +1,4 @@
-﻿using Spotless.Application.Dtos.Driver;
+using Spotless.Application.Dtos.Driver;
 using Spotless.Domain.Entities;
 
 namespace Spotless.Application.Mappers

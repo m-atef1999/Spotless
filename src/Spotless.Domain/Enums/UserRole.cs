@@ -1,4 +1,4 @@
-﻿namespace Spotless.Domain.Enums
+namespace Spotless.Domain.Enums
 {
     public enum UserRole
     {

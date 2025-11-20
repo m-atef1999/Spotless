@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Features.Reviews.Commands.CreateReview;
 
 namespace Spotless.Application.Validation

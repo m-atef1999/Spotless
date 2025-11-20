@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Options;
 using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
 

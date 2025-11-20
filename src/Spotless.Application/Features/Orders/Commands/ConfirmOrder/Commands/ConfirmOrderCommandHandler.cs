@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.Extensions.Options;
 using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;

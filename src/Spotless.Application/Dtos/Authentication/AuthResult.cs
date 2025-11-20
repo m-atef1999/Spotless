@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Dtos.Authentication
+namespace Spotless.Application.Dtos.Authentication
 {
     public record AuthResult(
         Guid UserId,

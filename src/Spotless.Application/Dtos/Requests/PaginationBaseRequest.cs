@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Dtos.Requests
+namespace Spotless.Application.Dtos.Requests
 {
     public record PaginationBaseRequest
     {

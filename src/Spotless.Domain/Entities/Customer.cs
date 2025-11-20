@@ -1,4 +1,4 @@
-﻿using Spotless.Domain.Enums;
+using Spotless.Domain.Enums;
 using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Domain.Entities

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Drivers.Commands.UpdateDriverProfile

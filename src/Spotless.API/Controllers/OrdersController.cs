@@ -13,12 +13,15 @@ using System.Security.Claims;
 namespace Spotless.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/orders")]
     [Authorize]
     public class OrdersController(IMediator mediator) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
 
+        /// <summary>
+        /// Creates a new laundry order
+        /// </summary>
         [HttpPost]
         [ProducesResponseType(typeof(OrderDto), 201)]
         [ProducesResponseType(400)]
@@ -30,6 +33,9 @@ namespace Spotless.API.Controllers
             return CreatedAtAction(nameof(GetOrder), new { id = result.Id }, result);
         }
 
+        /// <summary>
+        /// Retrieves order details by ID
+        /// </summary>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(OrderDto), 200)]
         [ProducesResponseType(404)]
@@ -40,6 +46,9 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Lists all orders for authenticated customer
+        /// </summary>
         [HttpGet("customer")]
         [ProducesResponseType(typeof(PagedResponse<OrderDto>), 200)]
         public async Task<IActionResult> ListCustomerOrders(
@@ -55,6 +64,9 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Cancels an existing order
+        /// </summary>
         [HttpPost("{id}/cancel")]
         [ProducesResponseType(typeof(OrderDto), 200)]
         [ProducesResponseType(404)]

@@ -1,4 +1,4 @@
-﻿public record PricingItemDto(
+public record PricingItemDto(
     Guid ServiceId,
     string ItemName,
     int Quantity

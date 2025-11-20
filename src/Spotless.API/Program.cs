@@ -150,12 +150,20 @@ builder.Services.AddScoped<Spotless.Application.Interfaces.IRealTimeNotifier, Sp
 builder.Services.AddHostedService<BackgroundJobProcessor>();
 
 builder.Services.AddSwaggerGen(options =>
-
 {
-
     options.SwaggerDoc("v1", new OpenApiInfo
-
-    { Title = "Spotless API", Version = "v1" });
+    {
+        Title = "Spotless API",
+        Version = "v1",
+        Description = "Laundry and dry cleaning service API"
+    });
+    // Include XML comments for API documentation
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
 
 
 

@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Dtos.Order
+namespace Spotless.Application.Dtos.Order
 {
     public record CreateOrderItemDto(
             Guid ServiceId,

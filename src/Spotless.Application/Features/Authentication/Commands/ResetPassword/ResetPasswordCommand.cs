@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 
 namespace Spotless.Application.Features.Authentication.Commands.ResetPassword
 {

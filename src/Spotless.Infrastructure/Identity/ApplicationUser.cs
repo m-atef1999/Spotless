@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.ValueObjects;

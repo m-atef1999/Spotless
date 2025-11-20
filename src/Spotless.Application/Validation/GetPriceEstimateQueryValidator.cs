@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Features.Orders.Queries.GetPriceEstimate;
 
 namespace Spotless.Application.Validation

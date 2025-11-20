@@ -17,11 +17,14 @@ namespace Spotless.API.Controllers
         private readonly IMediator _mediator = mediator;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
 
+        /// <summary>
+        /// Submits driver application
+        /// </summary>
         [HttpPost("register")]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Guid))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Register([FromBody] SubmitDriverApplicationDto dto)
+        public async Task<IActionResult> Register([FromBody] DriverApplicationRequest dto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -40,6 +43,9 @@ namespace Spotless.API.Controllers
             return CreatedAtAction(nameof(Register), new { id = applicationId }, applicationId);
         }
 
+        /// <summary>
+        /// Retrieves authenticated driver's profile
+        /// </summary>
         [HttpGet("profile")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DriverDto))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -61,10 +67,13 @@ namespace Spotless.API.Controllers
             return Ok(dto);
         }
 
+        /// <summary>
+        /// Updates authenticated driver's profile
+        /// </summary>
         [HttpPut("profile")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateDriverProfileDto dto)
+        public async Task<IActionResult> UpdateProfile([FromBody] DriverUpdateRequest dto)
         {
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
@@ -81,6 +90,9 @@ namespace Spotless.API.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Retrieves orders assigned to authenticated driver
+        /// </summary>
         [HttpGet("orders")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Spotless.Application.Dtos.Order.OrderDto>))]
         public async Task<IActionResult> GetDriverOrders()
@@ -100,6 +112,9 @@ namespace Spotless.API.Controllers
             return Ok(orders);
         }
 
+        /// <summary>
+        /// Retrieves available orders for drivers to accept
+        /// </summary>
         [HttpGet("available")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyList<Spotless.Application.Dtos.Order.OrderDto>))]
         public async Task<IActionResult> GetAvailableOrders()

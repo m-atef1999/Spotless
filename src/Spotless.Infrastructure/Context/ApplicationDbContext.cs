@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Audit.EntityFramework;
 using Spotless.Domain.Entities;
 using System.Reflection;

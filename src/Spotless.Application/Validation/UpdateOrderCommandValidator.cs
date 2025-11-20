@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Features.Orders.Commands.UpdateOrder;
 
 namespace Spotless.Application.Validation

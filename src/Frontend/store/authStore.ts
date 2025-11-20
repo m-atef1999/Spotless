@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { LoginCommand, RegisterCustomerCommand, SubmitDriverApplicationDto, CustomerDto, DriverDto } from '../lib/apiClient';
+import { LoginCommand, RegisterCustomerCommand, DriverApplicationRequest, CustomerDto, DriverDto } from '../lib/apiClient';
 import { apiClient } from '../lib/api';
 
 interface AuthState {
@@ -12,7 +12,7 @@ interface AuthState {
 
     login: (cmd: LoginCommand) => Promise<void>;
     registerCustomer: (cmd: RegisterCustomerCommand) => Promise<void>;
-    registerDriver: (cmd: SubmitDriverApplicationDto) => Promise<void>;
+    registerDriver: (cmd: DriverApplicationRequest) => Promise<void>;
     logout: () => void;
     setRole: (role: 'Admin' | 'Driver' | 'Customer') => void;
 }
@@ -37,7 +37,7 @@ export const useAuthStore = create<AuthState>()(
 
                     // Try to identify user role by fetching profiles
                     try {
-                        const customerProfile = await apiClient.profileGET();
+                        const customerProfile = await apiClient.meGET();
                         set({
                             user: customerProfile,
                             role: 'Customer',
@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>()(
                     }
 
                     try {
-                        const driverProfile = await apiClient.profileGET2();
+                        const driverProfile = await apiClient.profileGET();
                         set({
                             user: driverProfile,
                             role: 'Driver',

@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { SubmitDriverApplicationDto } from '../../lib/apiClient';
+import { DriverApplicationRequest } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/authStore';
 
 const driverApplicationSchema = z.object({
@@ -37,7 +37,7 @@ export const DriverApplicationPage: React.FC = () => {
         setError(null);
 
         try {
-            const command = new SubmitDriverApplicationDto({
+            const command = new DriverApplicationRequest({
                 name: data.name,
                 email: data.email,
                 phone: data.phone,

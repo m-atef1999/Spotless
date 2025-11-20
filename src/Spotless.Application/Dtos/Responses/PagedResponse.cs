@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Dtos.Responses
+namespace Spotless.Application.Dtos.Responses
 {
 
     public class PagedResponse<T>

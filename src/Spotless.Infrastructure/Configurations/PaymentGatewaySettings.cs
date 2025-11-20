@@ -1,4 +1,4 @@
-﻿namespace Spotless.Infrastructure.Configurations
+namespace Spotless.Infrastructure.Configurations
 {
     public class PaymentGatewaySettings
     {

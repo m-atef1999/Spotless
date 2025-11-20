@@ -1,4 +1,4 @@
-﻿using Spotless.Domain.Entities;
+using Spotless.Domain.Entities;
 
 namespace Spotless.Application.Interfaces
 {

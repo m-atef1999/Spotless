@@ -7,7 +7,7 @@ import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { apiClient } from '../../lib/api';
-import { UpdateCustomerDto, CustomerDto } from '../../lib/apiClient';
+import { CustomerUpdateRequest, CustomerDto } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/authStore';
 
 const profileSchema = z.object({
@@ -41,7 +41,7 @@ export const ProfilePage: React.FC = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const data = await apiClient.profileGET();
+                const data = await apiClient.meGET();
                 setProfile(data);
 
                 // Pre-fill form
@@ -68,7 +68,7 @@ export const ProfilePage: React.FC = () => {
         setError(null);
 
         try {
-            const command = new UpdateCustomerDto({
+            const command = new CustomerUpdateRequest({
                 name: data.name,
                 phone: data.phone,
                 street: data.street,
@@ -77,11 +77,11 @@ export const ProfilePage: React.FC = () => {
                 zipCode: data.zipCode,
             });
 
-            await apiClient.profilePUT(command);
+            await apiClient.mePUT(command);
             setSuccessMessage('Profile updated successfully!');
 
             // Refresh profile data to ensure sync
-            const updatedProfile = await apiClient.profileGET();
+            const updatedProfile = await apiClient.meGET();
             setProfile(updatedProfile);
         } catch (err) {
             console.error('Failed to update profile', err);

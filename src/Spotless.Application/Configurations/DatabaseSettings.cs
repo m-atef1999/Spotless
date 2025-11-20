@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Configurations
+namespace Spotless.Application.Configurations
 {
     public class DatabaseSettings
     {

@@ -1,51 +1,44 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Customer;
 using Spotless.Application.Dtos.Responses;
-using Spotless.Application.Interfaces;
-using Spotless.Application.Mappers;
-using Spotless.Domain.Entities;
-using System.Linq.Expressions;
+using Spotless.Application.Services;
 
 namespace Spotless.Application.Features.Customers.Queries.GetAllCustomers
 {
-    public class ListCustomersQueryHandler(IUnitOfWork unitOfWork, ICustomerMapper customerMapper) : IRequestHandler<ListCustomersQuery, PagedResponse<CustomerDto>>
+    public class ListCustomersQueryHandler(CachedCustomerService cachedCustomerService) 
+        : IRequestHandler<ListCustomersQuery, PagedResponse<CustomerDto>>
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly ICustomerMapper _customerMapper = customerMapper;
+        private readonly CachedCustomerService _cachedCustomerService = cachedCustomerService;
 
         public async Task<PagedResponse<CustomerDto>> Handle(ListCustomersQuery request, CancellationToken cancellationToken)
         {
+            var cachedCustomers = await _cachedCustomerService.GetAllCustomersAsync();
 
-            var filterExpression = BuildFilterExpression(request);
+            // Apply filters
+            var filtered = cachedCustomers.AsEnumerable();
 
-            var totalRecords = await _unitOfWork.Customers.CountAsync(filterExpression);
+            if (!string.IsNullOrEmpty(request.NameFilter))
+            {
+                filtered = filtered.Where(c => c.Name.Contains(request.NameFilter, StringComparison.OrdinalIgnoreCase));
+            }
 
-            var customers = await _unitOfWork.Customers.GetPagedAsync(
-                filterExpression,
-                request.Skip,
-                request.PageSize,
-                include: null,
-                orderBy: q => q.OrderBy(c => c.Name)
-            );
+            if (!string.IsNullOrEmpty(request.EmailFilter))
+            {
+                filtered = filtered.Where(c => c.Email.Contains(request.EmailFilter, StringComparison.OrdinalIgnoreCase));
+            }
 
-
-            var customerDtos = _customerMapper.MapToDto(customers).ToList();
-
+            // Apply pagination
+            var pagedCustomers = filtered
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
 
             return new PagedResponse<CustomerDto>(
-                customerDtos,
-                totalRecords,
+                pagedCustomers,
+                filtered.Count(),
                 request.PageNumber,
                 request.PageSize
             );
-        }
-
-
-        private Expression<Func<Customer, bool>> BuildFilterExpression(ListCustomersQuery request)
-        {
-            return customer =>
-                (string.IsNullOrEmpty(request.NameFilter) || customer.Name.Contains(request.NameFilter!)) &&
-                (string.IsNullOrEmpty(request.EmailFilter) || customer.Email.Contains(request.EmailFilter!));
         }
     }
 }

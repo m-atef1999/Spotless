@@ -1,4 +1,4 @@
-﻿using Spotless.Application.Dtos.Driver;
+using Spotless.Application.Dtos.Driver;
 using Spotless.Application.Interfaces;
 
 namespace Spotless.Application.Features.Drivers.Queries.GetDriverProfile

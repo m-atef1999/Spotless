@@ -1,4 +1,4 @@
-﻿namespace Spotless.Domain.ValueObjects
+namespace Spotless.Domain.ValueObjects
 {
     public record Location
     {

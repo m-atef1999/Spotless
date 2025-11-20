@@ -1,10 +1,10 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Dtos.Driver;
 
 namespace Spotless.Application.Validation
 {
 
-    public class SubmitDriverApplicationValidator : AbstractValidator<SubmitDriverApplicationDto>
+    public class SubmitDriverApplicationValidator : AbstractValidator<DriverApplicationRequest>
     {
         public SubmitDriverApplicationValidator()
         {

@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Interfaces
+namespace Spotless.Application.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {

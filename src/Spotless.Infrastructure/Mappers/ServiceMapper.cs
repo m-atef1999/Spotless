@@ -1,4 +1,4 @@
-﻿using Spotless.Application.Dtos.Service;
+using Spotless.Application.Dtos.Service;
 using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
 

@@ -136,6 +136,14 @@ namespace Spotless.API.Extensions
             // Distributed Locking Service for concurrent operations (time-slot booking)
             services.AddScoped<IDistributedLockService, RedisDistributedLockService>();
             
+            // Cached Services
+            services.AddScoped<CachedAdminService>();
+            services.AddScoped<CachedCustomerService>();
+            services.AddScoped<CachedDriverService>();
+            services.AddScoped<CachedCategoryService>();
+            services.AddScoped<CachedServiceService>();
+            services.AddScoped<CachedTimeSlotService>();
+            
             // Configure Sms/WhatsApp settings from config
             services.Configure<SmsSettings>(configuration.GetSection(SmsSettings.SettingsKey));
             services.Configure<WhatsAppSettings>(configuration.GetSection(WhatsAppSettings.SettingsKey));

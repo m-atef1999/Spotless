@@ -1,4 +1,4 @@
-﻿namespace Spotless.Domain.Entities
+namespace Spotless.Domain.Entities
 {
     public abstract class BaseEntity
     {

@@ -13,6 +13,9 @@ namespace Spotless.API.Controllers
         private readonly IMediator _mediator = mediator;
         private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager = userManager;
 
+        /// <summary>
+        /// Creates a new review for a service
+        /// </summary>
         [Authorize]
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(Guid))]
@@ -34,6 +37,9 @@ namespace Spotless.API.Controllers
             return CreatedAtAction(nameof(CreateReview), new { id = review.Id }, review.Id);
         }
 
+        /// <summary>
+        /// Retrieves all reviews for a specific driver
+        /// </summary>
         [AllowAnonymous]
         [HttpGet("driver/{driverId:guid}")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyList<ReviewDto>))]
@@ -46,6 +52,9 @@ namespace Spotless.API.Controllers
             return Ok(reviews);
         }
 
+        /// <summary>
+        /// Retrieves all reviews by authenticated customer
+        /// </summary>
         [Authorize]
         [HttpGet("customer")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IReadOnlyList<ReviewDto>))]
@@ -66,6 +75,9 @@ namespace Spotless.API.Controllers
             return Ok(reviews);
         }
 
+        /// <summary>
+        /// Lists all reviews (admin only)
+        /// </summary>
         [Authorize(Roles = "Admin")]
         [HttpGet("admin/all")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Spotless.Application.Dtos.Responses.PagedResponse<ReviewDto>))]

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Order;
 
 namespace Spotless.Application.Features.Orders.Commands.UpdateOrder

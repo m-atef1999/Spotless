@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Service;
 
 namespace Spotless.Application.Features.Services.Commands.CreateService

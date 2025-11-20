@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Authentication;
 using Spotless.Application.Interfaces;
 

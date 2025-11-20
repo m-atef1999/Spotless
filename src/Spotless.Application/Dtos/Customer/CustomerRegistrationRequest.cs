@@ -1,11 +1,10 @@
-﻿namespace Spotless.Application.Dtos.Customer
+namespace Spotless.Application.Dtos.Customer
 {
-    public record RegisterCustomerDto(
+    public record CustomerRegistrationRequest(
         string Name,
         string Email,
         string Password,
-        string Phone,
-
+        string? Phone,
         string Street,
         string City,
         string Country,

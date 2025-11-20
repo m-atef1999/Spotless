@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Spotless.Application.Dtos.Authentication;
@@ -26,6 +26,9 @@ namespace Spotless.API.Controllers
         private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager = userManager;
         private readonly Spotless.Application.Interfaces.IAuthService _authService = authService;
 
+        /// <summary>
+        /// Authenticates user and returns JWT token
+        /// </summary>
         [HttpPost("login")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResult))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -35,6 +38,9 @@ namespace Spotless.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Refreshes expired JWT token using refresh token
+        /// </summary>
         [HttpPost("refresh")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResult))]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -51,6 +57,9 @@ namespace Spotless.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Changes authenticated user's password
+        /// </summary>
         [Authorize]
         [HttpPost("change-password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -74,6 +83,9 @@ namespace Spotless.API.Controllers
             return Ok("Password successfully updated.");
         }
 
+        /// <summary>
+        /// Initiates password reset process via email
+        /// </summary>
         [HttpPost("forgot-password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
@@ -82,6 +94,9 @@ namespace Spotless.API.Controllers
             return Ok("If the email exists in our system, a password reset link has been sent.");
         }
 
+        /// <summary>
+        /// Resets user password using reset token
+        /// </summary>
         [HttpPost("reset-password")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -97,6 +112,9 @@ namespace Spotless.API.Controllers
             return Ok("Password successfully reset.");
         }
 
+        /// <summary>
+        /// Sends email verification link to user
+        /// </summary>
         [Authorize]
         [HttpPost("verify-email/send")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -122,6 +140,9 @@ namespace Spotless.API.Controllers
             return Ok("Verification email sent to your registered address.");
         }
 
+        /// <summary>
+        /// Confirms user email address using verification token
+        /// </summary>
         [HttpGet("verify-email/confirm")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -137,6 +158,9 @@ namespace Spotless.API.Controllers
             return Ok("Email successfully confirmed. You can now log in.");
         }
 
+        /// <summary>
+        /// Sends OTP code to phone for verification
+        /// </summary>
         [HttpPost("verify-phone/send-otp")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -152,6 +176,9 @@ namespace Spotless.API.Controllers
             return Ok("Verification code sent successfully (or request processed).");
         }
 
+        /// <summary>
+        /// Verifies phone number using OTP code
+        /// </summary>
         [HttpPost("verify-phone/confirm-otp")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -167,6 +194,9 @@ namespace Spotless.API.Controllers
             return Ok("Phone number successfully verified.");
         }
 
+        /// <summary>
+        /// Authenticates user via Google OAuth
+        /// </summary>
         [HttpPost("external/google")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AuthResult))]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

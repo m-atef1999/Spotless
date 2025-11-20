@@ -7,7 +7,7 @@ import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { apiClient } from '../../lib/api';
-import { UpdateDriverProfileDto, DriverDto } from '../../lib/apiClient';
+import { DriverUpdateRequest, DriverDto } from '../../lib/apiClient';
 import { useAuthStore } from '../../store/authStore';
 
 const driverProfileSchema = z.object({
@@ -38,7 +38,7 @@ export const DriverProfilePage: React.FC = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const data = await apiClient.profileGET2();
+                const data = await apiClient.profileGET();
                 setProfile(data);
 
                 // Pre-fill form
@@ -62,17 +62,17 @@ export const DriverProfilePage: React.FC = () => {
         setError(null);
 
         try {
-            const command = new UpdateDriverProfileDto({
+            const command = new DriverUpdateRequest({
                 name: data.name,
                 phone: data.phone,
                 vehicleInfo: data.vehicleInfo,
             });
 
-            await apiClient.profilePUT2(command);
+            await apiClient.profilePUT(command);
             setSuccessMessage('Profile updated successfully!');
 
             // Refresh profile data
-            const updatedProfile = await apiClient.profileGET2();
+            const updatedProfile = await apiClient.profileGET();
             setProfile(updatedProfile);
         } catch (err) {
             console.error('Failed to update profile', err);

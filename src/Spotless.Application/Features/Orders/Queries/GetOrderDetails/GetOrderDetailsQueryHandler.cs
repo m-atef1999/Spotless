@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Spotless.Application.Dtos.Order;
 using Spotless.Application.Interfaces;

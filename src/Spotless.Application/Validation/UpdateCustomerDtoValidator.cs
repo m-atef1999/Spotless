@@ -1,11 +1,11 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Dtos.Customer;
 
 namespace Spotless.Application.Validation
 {
-    public class UpdateCustomerDtoValidator : AbstractValidator<UpdateCustomerDto>
+    public class CustomerUpdateRequestValidator : AbstractValidator<CustomerUpdateRequest>
     {
-        public UpdateCustomerDtoValidator()
+        public CustomerUpdateRequestValidator()
         {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name cannot be empty.")

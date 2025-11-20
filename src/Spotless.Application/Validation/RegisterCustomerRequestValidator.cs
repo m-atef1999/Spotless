@@ -1,10 +1,10 @@
-﻿using FluentValidation;
+using FluentValidation;
 using Spotless.Application.Dtos.Customer;
 
 namespace Spotless.Application.Validation
 {
 
-    public class RegisterCustomerRequestValidator : AbstractValidator<RegisterCustomerDto>
+    public class RegisterCustomerRequestValidator : AbstractValidator<CustomerRegistrationRequest>
     {
         public RegisterCustomerRequestValidator()
         {

@@ -14,6 +14,9 @@ namespace Spotless.API.Controllers
         private readonly IMediator _mediator = mediator;
         private readonly ILogger<PaymentsController> _logger = logger;
 
+        /// <summary>
+        /// Processes Paymob payment webhook notifications
+        /// </summary>
         [HttpPost("webhook")]
         [AllowAnonymous] // Webhooks are from external services, not authenticated users
         [ProducesResponseType(200)]
@@ -74,6 +77,9 @@ namespace Spotless.API.Controllers
         }
 
 
+        /// <summary>
+        /// Health check endpoint for payment service
+        /// </summary>
         [HttpGet("health")]
         [AllowAnonymous]
         public IActionResult Health()

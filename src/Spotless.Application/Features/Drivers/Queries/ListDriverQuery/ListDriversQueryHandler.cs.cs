@@ -1,60 +1,45 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Driver;
 using Spotless.Application.Dtos.Responses;
-using Spotless.Application.Interfaces;
-using Spotless.Application.Mappers;
-using Spotless.Domain.Entities;
-using System.Linq.Expressions;
+using Spotless.Application.Services;
 
 namespace Spotless.Application.Features.Drivers.Queries.ListDriverQuery
 {
-
-    public class ListDriversQueryHandler(IUnitOfWork unitOfWork, IDriverMapper driverMapper) : IRequestHandler<ListDriversQuery, PagedResponse<DriverDto>>
+    public class ListDriversQueryHandler(CachedDriverService cachedDriverService) 
+        : IRequestHandler<ListDriversQuery, PagedResponse<DriverDto>>
     {
-        private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly IDriverMapper _driverMapper = driverMapper;
+        private readonly CachedDriverService _cachedDriverService = cachedDriverService;
 
         public async Task<PagedResponse<DriverDto>> Handle(ListDriversQuery request, CancellationToken cancellationToken)
         {
+            var cachedDrivers = await _cachedDriverService.GetAllDriversAsync();
 
-            var filterExpression = BuildFilterExpression(request);
+            // Apply filters
+            var filtered = cachedDrivers.AsEnumerable();
 
+            if (request.StatusFilter.HasValue)
+            {
+                filtered = filtered.Where(d => d.Status == request.StatusFilter.Value.ToString());
+            }
 
-            var totalRecords = await _unitOfWork.Drivers.CountAsync(filterExpression);
+            if (!string.IsNullOrEmpty(request.NameSearchTerm))
+            {
+                var searchTerm = request.NameSearchTerm.Trim().ToLowerInvariant();
+                filtered = filtered.Where(d => d.Name.ToLowerInvariant().Contains(searchTerm));
+            }
 
-
-            var drivers = await _unitOfWork.Drivers.GetPagedAsync(
-                filterExpression,
-                request.Skip,
-                request.PageSize,
-
-
-                orderBy: q => q.OrderBy(d => d.Name)
-            );
-
-
-            var driverDtos = _driverMapper.MapToProfileDto(drivers).ToList();
-
+            // Apply pagination
+            var pagedDrivers = filtered
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
 
             return new PagedResponse<DriverDto>(
-                driverDtos,
-                totalRecords,
+                pagedDrivers,
+                filtered.Count(),
                 request.PageNumber,
                 request.PageSize
             );
-        }
-
-        private Expression<Func<Driver, bool>> BuildFilterExpression(ListDriversQuery request)
-        {
-
-            return driver =>
-
-
-                (!request.StatusFilter.HasValue || driver.Status == request.StatusFilter.Value) &&
-
-
-                (string.IsNullOrEmpty(request.NameSearchTerm) ||
-                 (driver.Name != null && driver.Name.ToLowerInvariant().Contains(request.NameSearchTerm!.Trim().ToLowerInvariant())));
         }
     }
 }

@@ -15,7 +15,8 @@ export const MyOrdersPage: React.FC = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const data = await apiClient.orders();
+                const response = await apiClient.customer(1, 100);
+                const data = response.data || [];
                 // Sort by date descending
                 const sorted = data.sort((a, b) =>
                     new Date(b.orderDate || 0).getTime() - new Date(a.orderDate || 0).getTime()

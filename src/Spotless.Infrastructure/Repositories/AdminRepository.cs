@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Infrastructure.Context;

@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Customer;
 
 namespace Spotless.Application.Features.Customers.Commands.TopUpWallet
@@ -6,6 +6,6 @@ namespace Spotless.Application.Features.Customers.Commands.TopUpWallet
 
     public record TopUpWalletCommand(
         Guid CustomerId,
-        TopUpWalletRequest Request
+        WalletTopUpRequest Request
     ) : IRequest<Unit>;
 }

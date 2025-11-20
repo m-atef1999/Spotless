@@ -1,4 +1,4 @@
-﻿using MediatR;
+using MediatR;
 using Spotless.Application.Dtos.Requests;
 using Spotless.Application.Dtos.Responses;
 using Spotless.Application.Dtos.Service;

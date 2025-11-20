@@ -1,4 +1,4 @@
-﻿namespace Spotless.Application.Dtos
+namespace Spotless.Application.Dtos
 {
 
     public record LocationDto
