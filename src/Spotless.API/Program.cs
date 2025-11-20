@@ -1,7 +1,6 @@
 using Audit.Core;
 using Audit.EntityFramework;
 using Audit.WebApi;
-using Microsoft.AspNetCore.SignalR;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Spotless.API.Extensions;
@@ -225,15 +224,11 @@ if (securitySettings?.Cors?.EnableCors == true)
             }
             else
             {
-
                 if (builder.Environment.IsDevelopment())
                 {
                     policy.AllowAnyOrigin();
                 }
-                else
-                {
-                    policy.WithOrigins("https://yourdomain.com");
-                }
+                // In production, if AllowedOrigins is empty, no origins will be allowed by default, which is secure.
             }
 
             policy.WithMethods(corsSettings.AllowedMethods ?? ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]);
