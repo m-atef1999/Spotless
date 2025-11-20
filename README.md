@@ -82,7 +82,7 @@ Key features:
 │   ├── Spotless.Application/      → Application Layer   (CQRS, MediatR, DTOs, Validation)
 │   ├── Spotless.Domain/           → Domain Layer        (Entities, Rules, Events)
 │   ├── Spotless.Infrastructure/   → Infrastructure      (EF Core, Repositories, Migrations)
-│   ├── Spotless.Web/              → React + Vite Frontend
+│   ├── Frontend/                  → React + Vite + Tailwind Frontend
 │   │
 │   └── Spotless.sln               → Solution file
 │
@@ -95,12 +95,13 @@ Key features:
 
 ## 🧠 Layer Responsibilities
 
-| Layer                  | Folder                    | Description                                                                                              |
-| ---------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------- |
-| **Presentation (API)** | `Spotless.API`            | ASP.NET Core Web API. Handles endpoints, authentication, routing, and application configuration.         |
-| **Application**        | `Spotless.Application`    | Contains use cases (CQRS), handlers, DTOs, interfaces, validation, and mapping. No EF or domain logic.   |
-| **Domain**             | `Spotless.Domain`         | Pure business logic: entities, enums, value objects, domain rules, domain events. Framework‑independent. |
-| **Infrastructure**     | `Spotless.Infrastructure` | EF Core DbContext, repositories, migrations, external services, and persistence implementations.         |
+| Layer                  | Folder                    | Description                                                                                                |
+| ---------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Presentation (API)** | `Spotless.API`            | ASP.NET Core Web API. Handles endpoints, authentication, routing, and application configuration.           |
+| **Application**        | `Spotless.Application`    | Contains use cases (CQRS), handlers, DTOs, interfaces, validation, and mapping. No EF or domain logic.     |
+| **Domain**             | `Spotless.Domain`         | Pure business logic: entities, enums, value objects, domain rules, domain events. Framework-independent.   |
+| **Infrastructure**     | `Spotless.Infrastructure` | EF Core DbContext, repositories, migrations, external services, and persistence implementations.           |
+| **Frontend**           | `Frontend`                | React + Vite + Tailwind app structure, handles UI components, pages, routing, and frontend business logic. |
 
 ---
 
@@ -144,7 +145,7 @@ Backend runs on your configured ports.
 ### Navigate to the frontend
 
 ```bash
-cd src/Spotless.Web
+cd src/Frontend
 ```
 
 ### Install dependencies
@@ -169,7 +170,7 @@ http://localhost:5173
 
 ## 🔧 Environment Configuration (Optional)
 
-Create a `.env` file in `Spotless.Web`:
+Create a `.env` file in `src/Frontend`:
 
 ```
 VITE_API_BASE_URL=https://localhost:5001
@@ -194,44 +195,3 @@ const api = import.meta.env.VITE_API_BASE_URL;
 ## 📄 License
 
 This project is licensed under the **MIT License**.
-
-## Frontend Structure
-
-The frontend is located under `src/Frontend` and is built using **React**, **Vite**, and **Tailwind CSS**.
-
-### Folder Overview
-
-```
-src/Frontend/
-├── public/               # Static assets served directly
-├── src/
-│   ├── assets/           # Images, icons, static files
-│   ├── components/       # Reusable UI components
-│   ├── pages/            # Page-level components
-│   ├── layouts/          # Layout wrappers
-│   ├── hooks/            # Custom React hooks
-│   ├── context/          # App-wide context providers
-│   ├── api/              # Generated API client (OpenAPI)
-│   ├── styles/           # Tailwind/global styling
-│   ├── App.jsx           # Main application entry
-│   ├── main.jsx          # Vite entry point
-│   └── router.jsx        # React Router configuration
-├── index.html            # Main HTML template
-├── package.json          # Frontend dependencies + scripts
-└── vite.config.js        # Vite configuration
-```
-
-### Build System
-
-* **Vite** handles bundling and fast HMR.
-* **Tailwind CSS** provides utility-first styling.
-* **React** powers the component-driven UI.
-
-### Common Commands
-
-```
-npm install
-npm run dev
-npm run build
-npm run preview
-```
