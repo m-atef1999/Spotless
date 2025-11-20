@@ -6,129 +6,129 @@ using System.Text;
 
 namespace Spotless.Infrastructure.Services
 {
+    /// <summary>
+    /// Secure AES-256-GCM encryption service (Recommended standard in 2025+)
+    /// Provides authenticated encryption with random nonce for every operation
+    /// </summary>
     public class AesEncryptionService : IEncryptionService
     {
-        private readonly EncryptionSettings _settings;
         private readonly byte[] _key;
-        private readonly byte[] _iv;
 
         public AesEncryptionService(IOptions<EncryptionSettings> settings)
         {
-            _settings = settings.Value;
+            if (string.IsNullOrWhiteSpace(settings.Value.EncryptionKey))
+                throw new InvalidOperationException("EncryptionSettings.EncryptionKey is missing or empty in configuration.");
 
-            if (string.IsNullOrEmpty(_settings.EncryptionKey))
-            {
-                throw new InvalidOperationException("EncryptionSettings.EncryptionKey is not configured.");
-            }
-
-
+            // Derive a proper 32-byte (256-bit) key using SHA-256
             using var sha256 = SHA256.Create();
-            _key = sha256.ComputeHash(Encoding.UTF8.GetBytes(_settings.EncryptionKey));
-
-
-            using var md5 = MD5.Create();
-            _iv = md5.ComputeHash(_key)[..16];
+            _key = sha256.ComputeHash(Encoding.UTF8.GetBytes(settings.Value.EncryptionKey));
         }
+
+        // =========================== String Encryption ===========================
 
         public string Encrypt(string plainText)
         {
-            if (string.IsNullOrEmpty(plainText))
-                return plainText;
+            if (string.IsNullOrEmpty(plainText)) return plainText;
 
-            using var aes = Aes.Create();
-            aes.Key = _key;
-            aes.IV = _iv;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
+            var plainBytes = Encoding.UTF8.GetBytes(plainText);
+            var (cipherText, nonce, tag) = EncryptCore(plainBytes);
 
-            using var encryptor = aes.CreateEncryptor();
-            using var msEncrypt = new MemoryStream();
-            using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-            using (var swEncrypt = new StreamWriter(csEncrypt))
-            {
-                swEncrypt.Write(plainText);
-            }
+            // Format: [nonce:12][tag:16][ciphertext:...]
+            var result = new byte[nonce.Length + tag.Length + cipherText.Length];
+            Buffer.BlockCopy(nonce, 0, result, 0, nonce.Length);
+            Buffer.BlockCopy(tag, 0, result, nonce.Length, tag.Length);
+            Buffer.BlockCopy(cipherText, 0, result, nonce.Length + tag.Length, cipherText.Length);
 
-            return Convert.ToBase64String(msEncrypt.ToArray());
+            return Convert.ToBase64String(result);
         }
 
-        public string Decrypt(string cipherText)
+        public string? Decrypt(string cipherText)
         {
-            if (string.IsNullOrEmpty(cipherText))
-                return cipherText;
+            if (string.IsNullOrEmpty(cipherText)) return cipherText;
 
             try
             {
-                var cipherBytes = Convert.FromBase64String(cipherText);
+                var data = Convert.FromBase64String(cipherText);
+                if (data.Length < 28) // 12 nonce + 16 tag minimum
+                    throw new CryptographicException("Invalid ciphertext length.");
 
-                using var aes = Aes.Create();
-                aes.Key = _key;
-                aes.IV = _iv;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+                var nonce = data.AsSpan(0, 12).ToArray();
+                var tag = data.AsSpan(12, 16).ToArray();
+                var actualCipherText = data.AsSpan(28).ToArray();
 
-                using var decryptor = aes.CreateDecryptor();
-                using var msDecrypt = new MemoryStream(cipherBytes);
-                using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-                using var srDecrypt = new StreamReader(csDecrypt);
-
-                return srDecrypt.ReadToEnd();
+                var plainBytes = DecryptCore(actualCipherText, nonce, tag);
+                return Encoding.UTF8.GetString(plainBytes);
             }
-            catch
+            catch (CryptographicException ex)
             {
-                return cipherText;
+                // Tampered or wrong key → do NOT silently fail
+                throw new CryptographicException("Failed to decrypt data. Possible data tampering or incorrect key.", ex);
             }
         }
 
+        // =========================== Byte[] Encryption ===========================
+
         public string EncryptToBase64(byte[] data)
         {
-            if (data == null || data.Length == 0)
-                return string.Empty;
+            if (data == null || data.Length == 0) return string.Empty;
 
-            using var aes = Aes.Create();
-            aes.Key = _key;
-            aes.IV = _iv;
-            aes.Mode = CipherMode.CBC;
-            aes.Padding = PaddingMode.PKCS7;
+            var (cipherText, nonce, tag) = EncryptCore(data);
 
-            using var encryptor = aes.CreateEncryptor();
-            using var msEncrypt = new MemoryStream();
-            using (var csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-            {
-                csEncrypt.Write(data, 0, data.Length);
-            }
+            var result = new byte[nonce.Length + tag.Length + cipherText.Length];
+            Buffer.BlockCopy(nonce, 0, result, 0, nonce.Length);
+            Buffer.BlockCopy(tag, 0, result, nonce.Length, tag.Length);
+            Buffer.BlockCopy(cipherText, 0, result, nonce.Length + tag.Length, cipherText.Length);
 
-            return Convert.ToBase64String(msEncrypt.ToArray());
+            return Convert.ToBase64String(result);
         }
 
         public byte[] DecryptFromBase64(string base64CipherText)
         {
-            if (string.IsNullOrEmpty(base64CipherText))
-                return [];
+            if (string.IsNullOrEmpty(base64CipherText)) return Array.Empty<byte>();
 
             try
             {
-                var cipherBytes = Convert.FromBase64String(base64CipherText);
+                var data = Convert.FromBase64String(base64CipherText);
+                if (data.Length < 28)
+                    throw new CryptographicException("Invalid ciphertext length.");
 
-                using var aes = Aes.Create();
-                aes.Key = _key;
-                aes.IV = _iv;
-                aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.PKCS7;
+                var nonce = data.AsSpan(0, 12).ToArray();
+                var tag = data.AsSpan(12, 16).ToArray();
+                var cipherText = data.AsSpan(28).ToArray();
 
-                using var decryptor = aes.CreateDecryptor();
-                using var msDecrypt = new MemoryStream(cipherBytes);
-                using var csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-                using var msOutput = new MemoryStream();
-
-                csDecrypt.CopyTo(msOutput);
-                return msOutput.ToArray();
+                return DecryptCore(cipherText, nonce, tag);
             }
-            catch
+            catch (CryptographicException ex)
             {
-                return [];
+                throw new CryptographicException("Failed to decrypt data. Possible data tampering or incorrect key.", ex);
             }
+        }
+
+        // =========================== Core AES-GCM Implementation ===========================
+
+        private (byte[] cipherText, byte[] nonce, byte[] tag) EncryptCore(byte[] plainBytes)
+        {
+            using var aesGcm = new AesGcm(_key);
+
+            var nonce = new byte[AesGcm.NonceByteSizes.MaxSize]; // 12 bytes recommended
+            RandomNumberGenerator.Fill(nonce);
+
+            var cipherText = new byte[plainBytes.Length];
+            var tag = new byte[AesGcm.TagByteSizes.MaxSize]; // 16 bytes
+
+            aesGcm.Encrypt(nonce, plainBytes, cipherText, tag);
+
+            return (cipherText, nonce, tag);
+        }
+
+        private byte[] DecryptCore(byte[] cipherText, byte[] nonce, byte[] tag)
+        {
+            using var aesGcm = new AesGcm(_key);
+
+            var plainBytes = new byte[cipherText.Length];
+            aesGcm.Decrypt(nonce, cipherText, tag, plainBytes);
+
+            return plainBytes;
         }
     }
 }
-
