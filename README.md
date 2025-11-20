@@ -1,6 +1,6 @@
 # Spotless
 
-Graduation project for DEPI: a cleaning services platform.
+Graduation project for DEPI: a full cleaning services platform. This repository contains both the **backend (ASP.NET Core .NET 8)** and **frontend (React + Vite + Tailwind)**, following a clean architecture structure.
 
 <p align="center">
   <img src="docs/spotless_logo.png" alt="Project Logo" width="200"/>
@@ -9,101 +9,189 @@ Graduation project for DEPI: a cleaning services platform.
 ![License](https://img.shields.io/github/license/m-atef1999/Spotless)
 ![Contributors](https://img.shields.io/github/contributors/m-atef1999/Spotless)
 ![Last Commit](https://img.shields.io/github/last-commit/m-atef1999/Spotless)
-![Made with .NET](https://img.shields.io/badge/Made%20with-.NET-blue)
+![Made with .NET](https://img.shields.io/badge/Made%20with-.NET%208-blue)
 
 ---
 
 ## 📚 Table of Contents
-- [📌 Project Overview](#-project-overview)
-- [🌐 Live Demo](#-live-demo)
-- [🛠 Tech Stack](#-tech-stack)
-- [📂 Project Structure](#-project-structure)
-- [⚡ Getting Started](#-getting-started)
-- [👥 Contributors](#-team-members)
-- [📄 License](#-license)
+
+* [📌 Project Overview](#-project-overview)
+* [🌐 Live Demo](#-live-demo)
+* [🛠 Tech Stack](#-tech-stack)
+* [📂 Project Structure](#-project-structure)
+* [🧠 Layer Responsibilities](#-layer-responsibilities)
+* [⚡ Getting Started](#-getting-started)
+* [👥 Contributors](#-contributors)
+* [📄 License](#-license)
 
 ---
 
 ## 📌 Project Overview
-- 🔧 Built with ASP.NET Core + SQL Server
-- 🎯 Purpose: Cleaning Services Platform
-- 👥 Team: Cleaning Services Platform
 
----
+Spotless is a modern **cleaning service platform** built with a scalable, maintainable clean architecture.
 
-## 👥 Team Members
+Key features:
 
-| <a href="https://github.com/m-atef1999"><img src="https://github.com/m-atef1999.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Mahmoud Atef</b></span></a> | <a href="https://github.com/simonnoshy"><img src="https://github.com/simonnoshy.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Simon Noshy</b></span></a> | <a href="https://github.com/amiraamin279-collab"><img src="https://github.com/amiraamin279-collab.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Amira Amin</b></span></a> | <a href="https://github.com/RodainaMahmoud"><img src="https://github.com/RodainaMahmoud.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Rodaina Mahmoud</b></span></a> | <a href="https://github.com/Shosha101"><img src="https://github.com/Shosha101.png?size=100" width="100"/><br /><span style="font-size:14px;"><b>Shosha</b></span></a> |
-|---|---|---|---|---|
-
+* 🔧 ASP.NET Core Web API (.NET 8)
+* 🗄 EF Core + SQL Server
+* 📱 React + Vite + Tailwind frontend
+* 🧱 Clean Architecture (Domain → Application → Infrastructure → Presentation)
+* 🗺 Designed for modularity & future expansion
 
 ---
 
 ## 🌐 Live Demo
-👉 [Check out the website](https://preview--quickclean-wash-wave.lovable.app/)
+
+👉 **Frontend Demo:** [https://preview--quickclean-wash-wave.lovable.app/](https://preview--quickclean-wash-wave.lovable.app/)
 
 ---
 
 ## 🛠 Tech Stack
-- ASP.NET Core, C# (.NET 8)
-- EF Core + SQL Server
-- Blazor/MVC
-- HTML, CSS, (Angular, React, Bootstrap)
-- Docker
-- Jira
-- Figma
-- GitHub Actions
+
+### **Backend**
+
+* ASP.NET Core (.NET 8)
+* Entity Framework Core
+* SQL Server
+* MediatR (CQRS)
+* FluentValidation
+* AutoMapper
+
+### **Frontend**
+
+* React
+* Vite
+* TailwindCSS
+
+### **DevOps & Tools**
+
+* Docker
+* GitHub Actions
+* Jira
+* Figma
 
 ---
 
 ## 📂 Project Structure
 
-```bash
+```
 📦 Spotless/
 │
 ├── src/
-│   ├── Spotless.API/              → Presentation Layer  
-│   ├── Spotless.Application/      → Application Layer (Use Cases + CQRS)
-│   ├── Spotless.Domain/           → Domain Layer (Core Business Rules)
-│   ├── Spotless.Infrastructure/   → Infrastructure Layer (EF Core, Repos, External Services)
+│   ├── Spotless.API/              → Presentation Layer  (Controllers, Swagger, Middleware)
+│   ├── Spotless.Application/      → Application Layer   (CQRS, MediatR, DTOs, Validation)
+│   ├── Spotless.Domain/           → Domain Layer        (Entities, Rules, Events)
+│   ├── Spotless.Infrastructure/   → Infrastructure      (EF Core, Repositories, Migrations)
+│   ├── Frontend/                  → React + Vite + Tailwind Frontend
 │   │
 │   └── Spotless.sln               → Solution file
 │
-├── db/                            → SQL Scripts / Data Exports
+├── db/                            → SQL scripts & exports
 │
-└── docs/                          → Documentation & Architecture Notes
+└── docs/                          → Docs & architecture notes
 ```
 
 ---
 
-### 🧠 Layer Responsibilities
+## 🧠 Layer Responsibilities
 
-| Layer | Folder | Description |
-|-------|---------|-------------|
-| **Presentation (API)** | `Spotless.API` | Hosts the ASP.NET Core Web API. Handles endpoints, middleware, authentication, Swagger, and application startup. |
-| **Application** | `Spotless.Application` | Implements use cases using CQRS + MediatR. Contains DTOs, validators, interfaces, and mapping profiles—no EF or domain rules. |
-| **Business Logic (Domain)** | `Spotless.Domain` | Core business model: entities, value objects, domain events, enums, and business rules. Completely independent and framework-free. |
-| **Data Access (Infrastructure)** | `Spotless.Infrastructure` | Handles persistence and integrations: EF Core DbContext, repositories, migrations, external services, and configuration. Implements Application layer contracts. |
-
+| Layer                  | Folder                    | Description                                                                                                |
+| ---------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| **Presentation (API)** | `Spotless.API`            | ASP.NET Core Web API. Handles endpoints, authentication, routing, and application configuration.           |
+| **Application**        | `Spotless.Application`    | Contains use cases (CQRS), handlers, DTOs, interfaces, validation, and mapping. No EF or domain logic.     |
+| **Domain**             | `Spotless.Domain`         | Pure business logic: entities, enums, value objects, domain rules, domain events. Framework-independent.   |
+| **Infrastructure**     | `Spotless.Infrastructure` | EF Core DbContext, repositories, migrations, external services, and persistence implementations.           |
+| **Frontend**           | `Frontend`                | React + Vite + Tailwind app structure, handles UI components, pages, routing, and frontend business logic. |
 
 ---
 
 ## ⚡ Getting Started
 
+### **Clone the repo**
+
 ```bash
-# Clone the repository
 git clone https://github.com/m-atef1999/Spotless.git
+cd Spotless
+```
 
-# Navigate into the API project
-cd Spotless/src/Spotless.API
+---
 
-# Restore dependencies
+# 🔵 Backend Setup (ASP.NET Core API)
+
+### Navigate to the backend
+
+```bash
+cd src/Spotless.API
+```
+
+### Restore packages
+
+```bash
 dotnet restore
+```
 
-# Run the API
+### Run the API
+
+```bash
 dotnet run
 ```
+
+Backend runs on your configured ports.
+
 ---
+
+# 🟣 Frontend Setup (React + Vite + Tailwind)
+
+### Navigate to the frontend
+
+```bash
+cd src/Frontend
+```
+
+### Install dependencies
+
+```bash
+npm install
+```
+
+### Run development server
+
+```bash
+npm run dev
+```
+
+Runs on:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🔧 Environment Configuration (Optional)
+
+Create a `.env` file in `src/Frontend`:
+
+```
+VITE_API_BASE_URL=https://localhost:5001
+```
+
+Use it in your frontend:
+
+```ts
+const api = import.meta.env.VITE_API_BASE_URL;
+```
+
+---
+
+## 👥 Contributors
+
+| Mahmoud Atef                                                                                                    | Simon Noshy                                                                                                     | Amira Amin                                                                                                                        | Rodaina Mahmoud                                                                                                         | Shosha                                                                                                        |
+| --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| <a href="https://github.com/m-atef1999"><img src="https://github.com/m-atef1999.png?size=100" width="100"/></a> | <a href="https://github.com/simonnoshy"><img src="https://github.com/simonnoshy.png?size=100" width="100"/></a> | <a href="https://github.com/amiraamin279-collab"><img src="https://github.com/amiraamin279-collab.png?size=100" width="100"/></a> | <a href="https://github.com/RodainaMahmoud"><img src="https://github.com/RodainaMahmoud.png?size=100" width="100"/></a> | <a href="https://github.com/Shosha101"><img src="https://github.com/Shosha101.png?size=100" width="100"/></a> |
+
+---
+
 ## 📄 License
 
-- This project is licensed under the MIT License.
+This project is licensed under the **MIT License**.
