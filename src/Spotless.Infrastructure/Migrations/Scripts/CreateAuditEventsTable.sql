@@ -1,7 +1,7 @@
 -- SQL script to create AuditEvents table for SQL Server used by Audit.NET
 CREATE TABLE [dbo].[AuditEvents]
 (
-    [EventId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+    [EventId] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY DEFAULT NEWID(),
     [EventDate] DATETIME2 NOT NULL,
     [EventType] NVARCHAR(200) NULL,
     [Environment] NVARCHAR(100) NULL,
