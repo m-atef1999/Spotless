@@ -1,6 +1,6 @@
 import { Client } from "./apiClient";
 
-const baseUrl = import.meta.env.VITE_API_BASE_URL || "https://localhost:7140";
+const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://spotless.runasp.net/";
 
 export const apiClient = new Client(baseUrl, {
     fetch: async (url: RequestInfo, init?: RequestInit) => {
