@@ -257,11 +257,10 @@ catch (Exception ex)
     logger.LogError(ex, "An error occurred during database seeding.");
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 // 1. Request/Response Logging (first - to log all requests and responses)
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
