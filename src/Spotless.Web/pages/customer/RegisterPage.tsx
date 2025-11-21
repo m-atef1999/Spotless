@@ -7,7 +7,7 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { AuthLayout } from '../../layouts/AuthLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { type RegisterCustomerCommand, CustomerType, AuthService } from '../../lib/api';
+import { type RegisterCustomerCommand, CustomerType } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 
 const registerSchema = z.object({
@@ -30,9 +30,9 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export const RegisterPage: React.FC = () => {
     const navigate = useNavigate();
     const registerCustomer = useAuthStore((state) => state.registerCustomer);
-    const login = useAuthStore((state) => state.login);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showVerification, setShowVerification] = useState(false);
 
     const {
         register,
@@ -42,42 +42,18 @@ export const RegisterPage: React.FC = () => {
         resolver: zodResolver(registerSchema),
     });
 
-    const [showVerification, setShowVerification] = useState(false);
-
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-                setIsLoading(true);
-                setError(null);
-                console.log('Google login success, token response:', tokenResponse);
-
-                // Send the access token to your backend
-                // Note: We are sending the access_token in the idToken field because the backend 
-                // is configured to accept either ID Token or Access Token in that field.
-                const response = await AuthService.postApiAuthExternalGoogle({
-                    requestBody: {
-                        provider: 'GOOGLE',
-                        idToken: tokenResponse.access_token
-                    }
-                });
-
-                console.log('Backend auth response:', response);
-
-                if (response.token && response.user) {
-                    login(response.token, response.user);
-                    navigate('/customer/dashboard');
-                } else {
-                    throw new Error('Invalid response from server');
-                }
+                // Use the store action to handle Google Login
+                await useAuthStore.getState().loginWithGoogle(tokenResponse.access_token);
+                navigate('/customer/dashboard');
             } catch (err: any) {
-                console.error('Google login failed:', err);
-                setError(err.message || 'Google login failed. Please try again.');
-            } finally {
-                setIsLoading(false);
+                console.error('Google login failed', err);
+                setError('Google login failed. Please try again.');
             }
         },
-        onError: (errorResponse) => {
-            console.error('Google login error:', errorResponse);
+        onError: () => {
             setError('Google login failed. Please try again.');
         }
     });

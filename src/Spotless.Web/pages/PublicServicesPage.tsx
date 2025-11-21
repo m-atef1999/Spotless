@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Search, Filter, ArrowRight, LogIn, UserPlus } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
-import { ServicesService, type ServiceDto, type PagedResponse } from '../lib/api';
+import { ServicesService, type ServiceDto } from '../lib/api';
 import logo from '../assets/logo.png';
 import { getServiceImage } from '../utils/imageUtils';
 
 export const PublicServicesPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    const navigate = useNavigate();
     const initialSearch = searchParams.get('search') || '';
 
     const [services, setServices] = useState<ServiceDto[]>([]);

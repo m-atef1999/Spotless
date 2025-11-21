@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, ArrowRight, Star, CheckCircle, Clock, Shield, Sparkles, MapPin, Phone, Mail } from 'lucide-react';
+import { Search, ArrowRight, Star, Clock, Shield, Sparkles, MapPin, Phone, Mail } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { CategoriesService, ServicesService, type CategoryDto, type ServiceDto, type PagedResponse } from '../lib/api';
@@ -213,31 +213,26 @@ export const MainPage: React.FC = () => {
                 <div className="container mx-auto px-4">
                     <div className="flex justify-between items-end mb-12">
                         <div>
-                            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                                Our Services
-                            </h2>
-                            <p className="text-slate-600 dark:text-slate-400 max-w-xl">
-                                From everyday wear to delicate fabrics, we handle it all with care.
-                            </p>
+                            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Popular Categories</h2>
+                            <p className="text-slate-600 dark:text-slate-400">Everything you need, cleaned to perfection.</p>
                         </div>
                         <Link to="/services">
-                            <Button variant="outline" className="hidden md:flex gap-2">
-                                View All Services <ArrowRight className="w-4 h-4" />
+                            <Button variant="ghost" className="hidden md:flex gap-2">
+                                View All <ArrowRight className="w-4 h-4" />
                             </Button>
                         </Link>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {isLoading ? (
-                            // Skeleton loading
                             Array(4).fill(0).map((_, i) => (
-                                <div key={i} className="aspect-[4/5] bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
+                                <div key={i} className="h-64 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse" />
                             ))
                         ) : (
                             categories.map((category) => (
                                 <div
                                     key={category.id}
-                                    className="group relative overflow-hidden rounded-2xl aspect-[4/5] cursor-pointer"
+                                    className="group relative h-64 rounded-2xl overflow-hidden cursor-pointer"
                                     onClick={() => handleCategoryClick(category.name || '')}
                                 >
                                     <img
@@ -245,12 +240,12 @@ export const MainPage: React.FC = () => {
                                         alt={category.name || ''}
                                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                                     <div className="absolute bottom-0 left-0 p-6">
                                         <h3 className="text-xl font-bold text-white mb-2">{category.name}</h3>
-                                        <span className="text-sm text-slate-200 flex items-center gap-2 opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                                            Explore <ArrowRight className="w-4 h-4" />
-                                        </span>
+                                        <p className="text-slate-200 text-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                                            {category.description || 'Professional cleaning service'}
+                                        </p>
                                     </div>
                                 </div>
                             ))
@@ -259,63 +254,88 @@ export const MainPage: React.FC = () => {
                 </div>
             </section>
 
-            {/* Popular Items / Pricing */}
-            <section className="py-24 bg-white dark:bg-slate-900" id="pricing">
+            {/* Popular Services */}
+            <section className="py-24 bg-white dark:bg-slate-900">
                 <div className="container mx-auto px-4">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">
-                            Transparent Pricing
-                        </h2>
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Most Requested Services</h2>
                         <p className="text-slate-600 dark:text-slate-400">
-                            Simple, affordable rates for all your cleaning needs.
+                            From delicate fabrics to everyday wear, we handle it all with care.
                         </p>
                     </div>
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
                         {isLoading ? (
                             Array(4).fill(0).map((_, i) => (
-                                <div key={i} className="h-80 bg-slate-200 dark:bg-slate-700 rounded-2xl animate-pulse" />
+                                <div key={i} className="h-80 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse" />
                             ))
                         ) : (
-                            services.map((service) => (
-                                <div
-                                    key={service.id}
-                                    className="bg-slate-50 dark:bg-slate-800 rounded-2xl p-6 hover:shadow-xl transition-all duration-300 border border-slate-100 dark:border-slate-700 group cursor-pointer"
-                                    onClick={() => navigate(`/services?search=${encodeURIComponent(service.name || '')}`)}
-                                >
-                                    <div className="relative h-48 mb-6 rounded-xl overflow-hidden">
+                            services.slice(0, 4).map((service) => (
+                                <div key={service.id} className="bg-slate-50 dark:bg-slate-800 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-slate-100 dark:border-slate-700">
+                                    <div className="h-48 overflow-hidden">
                                         <img
                                             src={getServiceImage(service.name || '')}
                                             alt={service.name || ''}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                            className="w-full h-full object-cover"
                                         />
-                                        <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1 rounded-full text-sm font-bold text-cyan-600 dark:text-cyan-400 shadow-sm">
-                                            ${service.basePrice?.toFixed(2)}
-                                        </div>
                                     </div>
-                                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{service.name}</h3>
-                                    <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2">
-                                        {service.description || 'Professional cleaning service with premium care.'}
-                                    </p>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex text-yellow-400">
-                                            {Array(5).fill(0).map((_, i) => (
-                                                <Star key={i} className="w-4 h-4 fill-current" />
-                                            ))}
+                                    <div className="p-6">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="font-bold text-slate-900 dark:text-white">{service.name}</h3>
+                                            <span className="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-bold px-2 py-1 rounded-full">
+                                                ${service.basePrice?.toFixed(2)}
+                                            </span>
                                         </div>
-                                        <span className="text-sm font-medium text-cyan-600 dark:text-cyan-400 group-hover:translate-x-1 transition-transform flex items-center gap-1">
-                                            Book <ArrowRight className="w-4 h-4" />
-                                        </span>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
+                                            {service.description}
+                                        </p>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-1 text-amber-400">
+                                                <Star className="w-4 h-4 fill-current" />
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">4.9</span>
+                                            </div>
+                                            <Link to="/login">
+                                                <Button size="sm" variant="outline" className="hover:bg-cyan-50 dark:hover:bg-slate-700">
+                                                    Book <ArrowRight className="w-3 h-3 ml-1" />
+                                                </Button>
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             ))
                         )}
                     </div>
 
-                    <div className="mt-12 text-center">
+                    <div className="text-center mt-12">
                         <Link to="/services">
-                            <Button size="lg" variant="outline" className="min-w-[200px]">
-                                View Full Price List
+                            <Button size="lg" className="rounded-full px-8">
+                                View All Services
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+            </section>
+
+            {/* CTA Section */}
+            <section className="py-24 bg-slate-900 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1545173168-9f1947eebb8f?auto=format&fit=crop&q=80')] bg-cover bg-center opacity-10" />
+                <div className="container mx-auto px-4 relative z-10 text-center">
+                    <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+                        Ready for a Spotless Experience?
+                    </h2>
+                    <p className="text-xl text-slate-300 mb-10 max-w-2xl mx-auto">
+                        Join thousands of satisfied customers who trust us with their garments.
+                        First order gets 20% off!
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <Link to="/register">
+                            <Button size="lg" className="w-full sm:w-auto text-lg px-8 py-6 bg-cyan-500 hover:bg-cyan-600 text-white border-none">
+                                Get Started Now
+                            </Button>
+                        </Link>
+                        <Link to="/services">
+                            <Button size="lg" variant="outline" className="w-full sm:w-auto text-lg px-8 py-6 border-slate-600 text-white hover:bg-slate-800 hover:text-white">
+                                View Pricing
                             </Button>
                         </Link>
                     </div>
@@ -323,59 +343,59 @@ export const MainPage: React.FC = () => {
             </section>
 
             {/* Footer */}
-            <footer className="bg-slate-900 text-white py-16 border-t border-slate-800">
+            <footer className="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 pt-16 pb-8">
                 <div className="container mx-auto px-4">
                     <div className="grid md:grid-cols-4 gap-12 mb-12">
-                        <div className="space-y-6">
+                        <div className="space-y-4">
                             <div className="flex items-center gap-3">
-                                <img src={logo} alt="Spotless Logo" className="h-8 w-auto brightness-0 invert" />
-                                <span className="text-2xl font-bold">Spotless</span>
+                                <img src={logo} alt="Spotless Logo" className="h-8 w-auto" />
+                                <span className="text-xl font-bold text-slate-900 dark:text-white">Spotless</span>
                             </div>
-                            <p className="text-slate-400">
+                            <p className="text-slate-600 dark:text-slate-400">
                                 Premium laundry and dry cleaning service delivered to your doorstep.
                             </p>
                         </div>
 
                         <div>
-                            <h4 className="font-bold mb-6">Services</h4>
-                            <ul className="space-y-4 text-slate-400">
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">Dry Cleaning</a></li>
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">Wash & Fold</a></li>
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">Household Items</a></li>
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">Shoe Care</a></li>
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-4">Services</h4>
+                            <ul className="space-y-2 text-slate-600 dark:text-slate-400">
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">Dry Cleaning</a></li>
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">Wash & Fold</a></li>
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">Ironing</a></li>
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">Alterations</a></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="font-bold mb-6">Company</h4>
-                            <ul className="space-y-4 text-slate-400">
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">About Us</a></li>
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">Contact</a></li>
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">Terms of Service</a></li>
-                                <li><a href="#" className="hover:text-cyan-400 transition-colors">Privacy Policy</a></li>
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-4">Company</h4>
+                            <ul className="space-y-2 text-slate-600 dark:text-slate-400">
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">About Us</a></li>
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">Careers</a></li>
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">Privacy Policy</a></li>
+                                <li><a href="#" className="hover:text-cyan-600 dark:hover:text-cyan-400">Terms of Service</a></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="font-bold mb-6">Contact</h4>
-                            <ul className="space-y-4 text-slate-400">
+                            <h4 className="font-bold text-slate-900 dark:text-white mb-4">Contact</h4>
+                            <ul className="space-y-4 text-slate-600 dark:text-slate-400">
                                 <li className="flex items-center gap-3">
-                                    <Phone className="w-5 h-5 text-cyan-400" />
+                                    <MapPin className="w-5 h-5 text-cyan-600" />
+                                    <span>123 Clean Street, NY 10001</span>
+                                </li>
+                                <li className="flex items-center gap-3">
+                                    <Phone className="w-5 h-5 text-cyan-600" />
                                     <span>+1 (555) 123-4567</span>
                                 </li>
                                 <li className="flex items-center gap-3">
-                                    <Mail className="w-5 h-5 text-cyan-400" />
+                                    <Mail className="w-5 h-5 text-cyan-600" />
                                     <span>support@spotless.com</span>
-                                </li>
-                                <li className="flex items-center gap-3">
-                                    <MapPin className="w-5 h-5 text-cyan-400" />
-                                    <span>123 Clean Street, NY 10001</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
 
-                    <div className="pt-8 border-t border-slate-800 text-center text-slate-500">
+                    <div className="border-t border-slate-200 dark:border-slate-800 pt-8 text-center text-slate-600 dark:text-slate-400">
                         <p>&copy; {new Date().getFullYear()} Spotless. All rights reserved.</p>
                     </div>
                 </div>
