@@ -144,7 +144,7 @@ export const PublicServicesPage: React.FC = () => {
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
                                     <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1 rounded-full text-sm font-bold text-cyan-600 dark:text-cyan-400 shadow-sm">
-                                        ${service.basePrice?.toFixed(2)}
+                                        {service.basePrice ? `$${service.basePrice.toFixed(2)}` : 'Price on Request'}
                                     </div>
                                 </div>
 

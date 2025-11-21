@@ -10,7 +10,6 @@ import { Button } from '../components/ui/Button';
 import { useAuthStore } from '../store/authStore';
 
 import { useGoogleLogin } from '@react-oauth/google';
-import { AuthService } from '../lib/services/AuthService';
 import { useNavigate } from 'react-router-dom';
 
 const loginSchema = z.object({
@@ -27,39 +26,15 @@ export const LoginPage: React.FC = () => {
     const googleLogin = useGoogleLogin({
         onSuccess: async (tokenResponse) => {
             try {
-                // Send the access token to the backend
-                // Note: The backend might expect 'idToken' or 'accessToken' depending on implementation.
-                // The generated client expects 'idToken' in the body.
-                // Google's 'useGoogleLogin' (implicit flow) returns 'access_token'.
-                // If backend expects ID Token, we might need 'flow: "auth-code"' or just use the access token as id token if backend supports it.
-                // However, usually 'idToken' is a JWT. 'access_token' is opaque.
-                // Let's assume for now we send the access_token as the idToken, or we might need to fetch user info.
-                // BUT, standard OIDC flow: useGoogleLogin with flow: 'implicit' (default) gives access_token.
-                // To get ID Token, we usually use the <GoogleLogin> component or flow: 'auth-code'.
-                // Let's try sending the access_token. If backend fails, we might need to adjust.
-
-                const result = await AuthService.postApiAuthExternalGoogle({
-                    requestBody: {
-                        provider: 'Google',
-                        idToken: tokenResponse.access_token
-                    }
-                });
-
-                // Manually update auth store (we might need to expose a method or just reload)
-                // Ideally useAuthStore should have an 'externalLogin' method.
-                // For now, let's just reload or navigate.
-                localStorage.setItem('token', result.accessToken || '');
-                localStorage.setItem('refreshToken', result.refreshToken || '');
-                // We need to decode token to get user info, but for now let's just redirect.
-                window.location.href = '/customer/dashboard';
+                await useAuthStore.getState().loginWithGoogle(tokenResponse.access_token);
+                navigate('/customer/dashboard');
             } catch (err) {
                 console.error('Google login failed', err);
-                alert('Google login failed. Please try again.');
+                // Error is handled by store, but we can show a generic alert or rely on the store's error state
             }
         },
         onError: () => {
             console.error('Google Login Failed');
-            alert('Google Login Failed');
         }
     });
 

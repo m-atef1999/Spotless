@@ -101,7 +101,7 @@ export const MainPage: React.FC = () => {
             </header>
 
             {/* Hero Section */}
-            <section className="relative pt-20 pb-32 overflow-hidden">
+            <section className="relative pt-20 pb-32">
                 <div className="absolute inset-0 bg-grid-slate-200/50 dark:bg-grid-slate-800/50 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] dark:[mask-image:linear-gradient(0deg,rgba(0,0,0,0.2),rgba(0,0,0,0.5))]" />
                 <div className="container mx-auto px-4 relative">
                     <div className="max-w-4xl mx-auto text-center space-y-8">
@@ -163,7 +163,7 @@ export const MainPage: React.FC = () => {
                                             <div>
                                                 <h4 className="font-medium text-slate-900 dark:text-white">{service.name}</h4>
                                                 <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium">
-                                                    ${service.basePrice?.toFixed(2)}
+                                                    {service.basePrice ? `$${service.basePrice.toFixed(2)}` : 'Price on Request'}
                                                 </p>
                                             </div>
                                         </div>
@@ -283,7 +283,7 @@ export const MainPage: React.FC = () => {
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="font-bold text-slate-900 dark:text-white">{service.name}</h3>
                                             <span className="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-bold px-2 py-1 rounded-full">
-                                                ${service.basePrice?.toFixed(2)}
+                                                {service.basePrice ? `$${service.basePrice.toFixed(2)}` : 'Price on Request'}
                                             </span>
                                         </div>
                                         <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
