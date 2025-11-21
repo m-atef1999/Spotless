@@ -23,6 +23,9 @@ namespace Spotless.Infrastructure.Context
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<OrderDriverApplication> OrderDriverApplications => Set<OrderDriverApplication>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+        public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
+        public DbSet<PaymentMethodEntity> PaymentMethods => Set<PaymentMethodEntity>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

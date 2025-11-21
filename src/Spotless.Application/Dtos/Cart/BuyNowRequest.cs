@@ -13,7 +13,9 @@ namespace Spotless.Application.Dtos.Cart
 
         public decimal PickupLatitude { get; set; }
         public decimal PickupLongitude { get; set; }
+        public string? PickupAddress { get; set; }
         public decimal DeliveryLatitude { get; set; }
         public decimal DeliveryLongitude { get; set; }
+        public string? DeliveryAddress { get; set; }
     }
 }

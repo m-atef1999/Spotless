@@ -11,7 +11,9 @@ namespace Spotless.Application.Features.Carts.Commands.Checkout
         PaymentMethod PaymentMethod,
         decimal PickupLatitude,
         decimal PickupLongitude,
+        string? PickupAddress,
         decimal DeliveryLatitude,
-        decimal DeliveryLongitude
+        decimal DeliveryLongitude,
+        string? DeliveryAddress
     ) : IRequest<Guid>;
 }

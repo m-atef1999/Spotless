@@ -9,8 +9,10 @@ namespace Spotless.Application.Dtos.Order
 
         decimal PickupLatitude,
         decimal PickupLongitude,
+        string? PickupAddress,
         decimal DeliveryLatitude,
         decimal DeliveryLongitude,
+        string? DeliveryAddress,
 
         IReadOnlyList<CreateOrderItemDto> Items
     );

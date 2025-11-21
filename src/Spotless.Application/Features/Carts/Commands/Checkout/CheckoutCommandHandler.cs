@@ -25,8 +25,10 @@ namespace Spotless.Application.Features.Carts.Commands.Checkout
                 request.PaymentMethod,
                 request.PickupLatitude,
                 request.PickupLongitude,
+                request.PickupAddress,
                 request.DeliveryLatitude,
                 request.DeliveryLongitude,
+                request.DeliveryAddress,
                 createItems
             );
 

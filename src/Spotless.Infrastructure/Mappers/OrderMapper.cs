@@ -44,7 +44,9 @@ namespace Spotless.Infrastructure.Mappers
                 scheduledDate: dto.ScheduledDate,
                 paymentMethod: dto.PaymentMethod,
                 pickupLocation: pickupLocation,
-                deliveryLocation: deliveryLocation
+                deliveryLocation: deliveryLocation,
+                pickupAddress: dto.PickupAddress,
+                deliveryAddress: dto.DeliveryAddress
             );
         }
 
@@ -61,9 +63,10 @@ namespace Spotless.Infrastructure.Mappers
 
                 PickupLatitude: order.PickupLocation?.Latitude ?? 0.0m,
                 PickupLongitude: order.PickupLocation?.Longitude ?? 0.0m,
+                PickupAddress: order.PickupAddress,
                 DeliveryLatitude: order.DeliveryLocation?.Latitude ?? 0.0m,
                 DeliveryLongitude: order.DeliveryLocation?.Longitude ?? 0.0m,
-
+                DeliveryAddress: order.DeliveryAddress,
 
                 TotalPrice: order.TotalPrice.Amount,
                 Currency: order.TotalPrice.Currency,

@@ -12,6 +12,10 @@ namespace Spotless.Application.Interfaces
         IServiceRepository Services { get; }
         IReviewRepository Reviews { get; }
         ICategoryRepository Categories { get; }
+        INotificationRepository Notifications { get; }
+        IAuditLogRepository AuditLogs { get; }
+        ISystemSettingRepository SystemSettings { get; }
+        IPaymentMethodRepository PaymentMethods { get; }
 
         Task<int> CommitAsync();
         Task RollbackAsync();

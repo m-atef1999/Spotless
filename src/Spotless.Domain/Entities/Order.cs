@@ -14,7 +14,9 @@ namespace Spotless.Domain.Entities
 
         public Guid? AdminId { get; private set; }
         public Location PickupLocation { get; private set; } = null!;
+        public string? PickupAddress { get; private set; }
         public Location DeliveryLocation { get; private set; } = null!;
+        public string? DeliveryAddress { get; private set; }
         public Money TotalPrice { get; private set; } = null!;
         public Guid TimeSlotId { get; private set; }
         public DateTime ScheduledDate { get; private set; }
@@ -33,7 +35,7 @@ namespace Spotless.Domain.Entities
         protected Order() { }
 
 
-        public Order(Guid customerId, IEnumerable<OrderItem> items, Money totalPrice, Guid timeSlotId, DateTime scheduledDate, PaymentMethod paymentMethod, Location pickupLocation, Location deliveryLocation) : base()
+        public Order(Guid customerId, IEnumerable<OrderItem> items, Money totalPrice, Guid timeSlotId, DateTime scheduledDate, PaymentMethod paymentMethod, Location pickupLocation, Location deliveryLocation, string? pickupAddress = null, string? deliveryAddress = null) : base()
         {
             if (!items.Any())
                 throw new InvalidOperationException("An order must contain at least one service item.");
@@ -49,7 +51,9 @@ namespace Spotless.Domain.Entities
             TimeSlotId = timeSlotId;
             ScheduledDate = scheduledDate.Date;
             PickupLocation = pickupLocation;
+            PickupAddress = pickupAddress;
             DeliveryLocation = deliveryLocation;
+            DeliveryAddress = deliveryAddress;
         }
 
 
@@ -88,7 +92,7 @@ namespace Spotless.Domain.Entities
         }
 
 
-        public void UpdateDetails(Guid newTimeSlotId, DateTime newScheduledDate, Location newPickupLocation, Location newDeliveryLocation)
+        public void UpdateDetails(Guid newTimeSlotId, DateTime newScheduledDate, Location newPickupLocation, Location newDeliveryLocation, string? newPickupAddress = null, string? newDeliveryAddress = null)
         {
             if (this.Status != OrderStatus.Requested || this.DriverId.HasValue)
             {
@@ -98,7 +102,9 @@ namespace Spotless.Domain.Entities
             TimeSlotId = newTimeSlotId;
             ScheduledDate = newScheduledDate.Date;
             PickupLocation = newPickupLocation;
+            PickupAddress = newPickupAddress;
             DeliveryLocation = newDeliveryLocation;
+            DeliveryAddress = newDeliveryAddress;
         }
 
 

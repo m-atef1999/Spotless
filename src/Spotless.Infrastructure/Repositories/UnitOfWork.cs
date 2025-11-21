@@ -17,7 +17,10 @@ namespace Spotless.Infrastructure.Repositories
         public IPaymentRepository Payments { get; }
         public IReviewRepository Reviews { get; }
         public IOrderDriverApplicationRepository OrderDriverApplications { get; }
-
+        public INotificationRepository Notifications { get; }
+        public IAuditLogRepository AuditLogs { get; }
+        public ISystemSettingRepository SystemSettings { get; }
+        public IPaymentMethodRepository PaymentMethods { get; }
 
 
 
@@ -34,6 +37,10 @@ namespace Spotless.Infrastructure.Repositories
             Payments = new PaymentRepository(_dbContext);
             Reviews = new ReviewRepository(_dbContext);
             OrderDriverApplications = new OrderDriverApplicationRepository(_dbContext);
+            Notifications = new NotificationRepository(_dbContext);
+            AuditLogs = new AuditLogRepository(_dbContext);
+            SystemSettings = new SystemSettingRepository(_dbContext);
+            PaymentMethods = new PaymentMethodRepository(_dbContext);
 
         }
 

@@ -1,0 +1,19 @@
+/* generated using openapi-typescript-codegen -- do not edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { Spotless_Domain_Enums_PaymentMethod } from './Spotless_Domain_Enums_PaymentMethod';
+export type Spotless_Application_Dtos_Cart_BuyNowRequest = {
+    serviceId?: string;
+    quantity?: number;
+    timeSlotId?: string;
+    scheduledDate?: string;
+    paymentMethod?: Spotless_Domain_Enums_PaymentMethod;
+    pickupLatitude?: number;
+    pickupLongitude?: number;
+    pickupAddress?: string | null;
+    deliveryLatitude?: number;
+    deliveryLongitude?: number;
+    deliveryAddress?: string | null;
+};
+

@@ -5,41 +5,42 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Payments.Commands.InitiatePayment
 {
-    public class InitiatePaymentCommandHandler(IUnitOfWork unitOfWork, IPaymentGatewayService paymentGatewayService) : IRequestHandler<InitiatePaymentCommand, string>
+    public class InitiatePaymentCommandHandler(
+        IUnitOfWork unitOfWork,
+        IPaymentGatewayService paymentGatewayService) : IRequestHandler<InitiatePaymentCommand, InitiatePaymentResult>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IPaymentGatewayService _paymentGatewayService = paymentGatewayService;
 
-        public async Task<string> Handle(InitiatePaymentCommand request, CancellationToken cancellationToken)
+        public async Task<InitiatePaymentResult> Handle(InitiatePaymentCommand request, CancellationToken cancellationToken)
         {
-            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId);
-            var customer = await _unitOfWork.Customers.GetByIdAsync(request.CustomerId);
+            // Get order and validate
+            var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId)
+                ?? throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
 
-            if (order == null || customer == null)
-                throw new KeyNotFoundException("Order or Customer not found.");
+            // Get customer
+            var customer = await _unitOfWork.Customers.GetByIdAsync(order.CustomerId)
+                ?? throw new KeyNotFoundException("Customer not found.");
 
-
-            if (order.CustomerId != request.CustomerId)
-                throw new UnauthorizedAccessException("Customer is not authorized to initiate payment for this order.");
-
+            // Validate order status
             if (order.Status != OrderStatus.Requested)
             {
-                throw new InvalidOperationException($"Payment can only be initiated for orders in the '{OrderStatus.Requested}' status. Current status is {order.Status}.");
+                throw new InvalidOperationException(
+                    $"Payment can only be initiated for orders in 'Requested' status. Current status is {order.Status}.");
             }
 
-
+            // Create payment record
             var payment = new Payment(
-                customerId: request.CustomerId,
+                customerId: order.CustomerId,
                 amount: order.TotalPrice,
-                method: order.PaymentMethod,
+                method: request.PaymentMethod,
                 orderId: order.Id
             );
 
             await _unitOfWork.Payments.AddAsync(payment);
-
             await _unitOfWork.CommitAsync();
 
-
+            // Initiate payment with gateway
             string paymentUrl = await _paymentGatewayService.InitiatePaymentAsync(
                 payment.Id,
                 order.TotalPrice,
@@ -47,11 +48,16 @@ namespace Spotless.Application.Features.Payments.Commands.InitiatePayment
                 cancellationToken
             );
 
-            // Optional: You might want to update the Payment entity with the gateway's transaction reference here.
+            // Extract transaction reference from URL (mock implementation returns it in URL)
+            var transactionReference = payment.Id.ToString();
 
             await _unitOfWork.CommitAsync();
 
-            return paymentUrl;
+            return new InitiatePaymentResult(
+                PaymentId: payment.Id,
+                PaymentUrl: paymentUrl,
+                TransactionReference: transactionReference
+            );
         }
     }
 }

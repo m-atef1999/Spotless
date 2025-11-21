@@ -146,6 +146,9 @@ builder.Services
 // Real-time notifier (SignalR) implementation
 builder.Services.AddScoped<Spotless.Application.Interfaces.IRealTimeNotifier, Spotless.API.Services.SignalRRealTimeNotifier>();
 
+// AI Service
+builder.Services.AddScoped<Spotless.API.Services.IAiService, Spotless.API.Services.AiService>();
+
 // Background Job Processor (hosted service for message queue consumption)
 builder.Services.AddHostedService<BackgroundJobProcessor>();
 
@@ -164,6 +167,9 @@ builder.Services.AddSwaggerGen(options =>
     {
         options.IncludeXmlComments(xmlPath);
     }
+
+    // Use full name for schema IDs to avoid conflicts
+    options.CustomSchemaIds(type => type.FullName?.Replace("+", "."));
 
 
 

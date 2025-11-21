@@ -65,6 +65,54 @@ namespace Spotless.API.Controllers
         }
 
         /// <summary>
+        /// Lists available orders for drivers to accept
+        /// </summary>
+        [HttpGet("available")]
+        [Authorize(Roles = "Driver")]
+        [ProducesResponseType(typeof(PagedResponse<OrderDto>), 200)]
+        public async Task<IActionResult> GetAvailableOrders(
+            [FromQuery] int? pageNumber,
+            [FromQuery] int? pageSize)
+        {
+            pageNumber ??= 1;
+            pageSize ??= 25;
+
+            var query = new Spotless.Application.Features.Orders.Queries.GetAvailableOrders.GetAvailableOrdersQuery(
+                pageNumber.Value,
+                pageSize.Value);
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Driver accepts an available order
+        /// </summary>
+        [HttpPost("{id}/accept")]
+        [Authorize(Roles = "Driver")]
+        [ProducesResponseType(typeof(OrderDto), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        public async Task<IActionResult> AcceptOrder(Guid id)
+        {
+            try
+            {
+                var driverId = GetCurrentUserId();
+                var command = new Spotless.Application.Features.Orders.Commands.AcceptOrder.AcceptOrderCommand(id, driverId);
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Cancels an existing order
         /// </summary>
         [HttpPost("{id}/cancel")]
@@ -86,17 +134,15 @@ namespace Spotless.API.Controllers
 
             if (string.IsNullOrEmpty(userIdString))
             {
-
                 throw new UnauthorizedException("User identity claim is missing or empty. Authentication token is invalid or incomplete.");
             }
 
-                if (Guid.TryParse(userIdString, out Guid userId))
-                {
-                    return userId;
+            if (Guid.TryParse(userIdString, out Guid userId))
+            {
+                return userId;
             }
             else
             {
-
                 throw new NotFoundException($"User ID claim value '{userIdString}' is not a valid identifier.");
             }
         }

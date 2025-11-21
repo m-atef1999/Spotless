@@ -15,15 +15,60 @@ namespace Spotless.API.Controllers
         private readonly ILogger<PaymentsController> _logger = logger;
 
         /// <summary>
+        /// Initiates a payment for an order
+        /// </summary>
+        [HttpPost("initiate")]
+        [Authorize]
+        [ProducesResponseType(typeof(Spotless.Application.Dtos.Payment.InitiatePaymentResponseDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> InitiatePayment(
+            [FromBody] Spotless.Application.Dtos.Payment.InitiatePaymentDto dto)
+        {
+            try
+            {
+                var command = new Spotless.Application.Features.Payments.Commands.InitiatePayment.InitiatePaymentCommand(
+                    dto.OrderId,
+                    dto.PaymentMethod,
+                    dto.ReturnUrl);
+
+                var result = await _mediator.Send(command);
+
+                var response = new Spotless.Application.Dtos.Payment.InitiatePaymentResponseDto
+                {
+                    PaymentId = result.PaymentId,
+                    PaymentUrl = result.PaymentUrl,
+                    TransactionReference = result.TransactionReference
+                };
+
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { error = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { error = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Processes Paymob payment webhook notifications
         /// </summary>
         [HttpPost("webhook")]
-        [AllowAnonymous] // Webhooks are from external services, not authenticated users
+        [AllowAnonymous]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(401)]
-        public async Task<IActionResult> ProcessPaymobWebhook(
-            [FromHeader(Name = "Hmac-SHA512")] string hmacSignature,
+        [ProducesResponseType(404)]
+        [ProducesResponseType(500)]
+        public async Task<IActionResult> ProcessWebhook(
+            [FromHeader(Name = "hmac")] string hmacSignature,
             [FromBody] PaymobProcessedCallbackData callbackData)
         {
             try

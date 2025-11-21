@@ -89,7 +89,8 @@ namespace Spotless.API.Controllers
         {
             var customerId = await GetCurrentCustomerIdAsync();
             var cmd = new CheckoutCommand(customerId, req.TimeSlotId, req.ScheduledDate, req.PaymentMethod,
-                req.PickupLatitude, req.PickupLongitude, req.DeliveryLatitude, req.DeliveryLongitude);
+                req.PickupLatitude, req.PickupLongitude, req.PickupAddress,
+                req.DeliveryLatitude, req.DeliveryLongitude, req.DeliveryAddress);
 
             var orderId = await _mediator.Send(cmd);
             return CreatedAtAction(null, new { id = orderId }, new { orderId });
@@ -113,8 +114,10 @@ namespace Spotless.API.Controllers
                 req.PaymentMethod,
                 req.PickupLatitude,
                 req.PickupLongitude,
+                req.PickupAddress,
                 req.DeliveryLatitude,
                 req.DeliveryLongitude,
+                req.DeliveryAddress,
                 items
             );
 

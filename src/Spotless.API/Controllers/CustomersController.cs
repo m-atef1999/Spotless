@@ -165,5 +165,28 @@ namespace Spotless.API.Controllers
 
             return Ok(new { Message = "Wallet successfully topped up." });
         }
+        /// <summary>
+        /// Retrieves authenticated customer's saved payment methods
+        /// </summary>
+        [HttpGet("payment-methods")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(List<Spotless.Application.Dtos.PaymentMethods.PaymentMethodDto>))]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetPaymentMethods()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null || !user.CustomerId.HasValue)
+                return NotFound(new { Message = "Customer profile not found for this user." });
+
+            var query = new Spotless.Application.Features.Customers.Queries.GetPaymentMethods.GetPaymentMethodsQuery(user.CustomerId.Value);
+
+            var result = await _mediator.Send(query);
+
+            return Ok(result);
+        }
     }
 }
