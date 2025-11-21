@@ -242,6 +242,7 @@ namespace Spotless.API.Extensions
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<IOrderDriverApplicationRepository, OrderDriverApplicationRepository>();
+            services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
 
             return services;
         }
