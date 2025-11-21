@@ -42,8 +42,9 @@ Key features:
 
 ## 🌐 Live Demo
 
-👉 **Frontend Demo:** [https://preview--quickclean-wash-wave.lovable.app/](https://preview--quickclean-wash-wave.lovable.app/)
-
+👉 **Frontend Demo:** https://spotless-project.vercel.app
+or
+👉 https://spotless-alpha.vercel.app
 ---
 
 ## 🛠 Tech Stack
