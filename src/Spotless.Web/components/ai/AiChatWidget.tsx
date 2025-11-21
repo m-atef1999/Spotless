@@ -88,7 +88,7 @@ export const AiChatWidget: React.FC = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
                 <div className="mb-4 w-80 md:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col transition-all duration-300 animate-in slide-in-from-bottom-10 fade-in">
@@ -123,8 +123,8 @@ export const AiChatWidget: React.FC = () => {
                             >
                                 <div
                                     className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.sender === 'user'
-                                            ? 'bg-cyan-500 text-white rounded-br-none'
-                                            : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none shadow-sm'
+                                        ? 'bg-cyan-500 text-white rounded-br-none'
+                                        : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none shadow-sm'
                                         }`}
                                 >
                                     {msg.text.split('\n').map((line, i) => (
@@ -149,22 +149,28 @@ export const AiChatWidget: React.FC = () => {
 
                     {/* Input Area */}
                     <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
-                        <div className="flex gap-2">
-                            <Input
-                                value={inputValue}
-                                onChange={(e) => setInputValue(e.target.value)}
-                                onKeyPress={handleKeyPress}
-                                placeholder="Type a message..."
-                                className="flex-1"
-                                disabled={isLoading}
-                            />
+                        <div className="flex items-center gap-2 w-full">
+                            <div className="relative flex-1">
+                                <Input
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
+                                    onKeyPress={handleKeyPress}
+                                    placeholder="Type a message..."
+                                    className="w-full pr-2"
+                                    disabled={isLoading}
+                                />
+                            </div>
                             <Button
                                 onClick={handleSendMessage}
                                 disabled={!inputValue.trim() || isLoading}
                                 size="sm"
-                                className="shrink-0"
+                                className="h-10 w-10 shrink-0 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white shadow-md p-0 flex items-center justify-center"
                             >
-                                <Send className="w-4 h-4" />
+                                {isLoading ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                    <Send className="w-4 h-4" />
+                                )}
                             </Button>
                         </div>
                     </div>
@@ -175,8 +181,8 @@ export const AiChatWidget: React.FC = () => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 active:scale-95 ${isOpen
-                        ? 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                        : 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white animate-bounce-subtle'
+                    ? 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                    : 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white animate-bounce-subtle'
                     }`}
             >
                 {isOpen ? (

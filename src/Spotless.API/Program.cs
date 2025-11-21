@@ -99,6 +99,7 @@ Audit.Core.Configuration.AddCustomAction(ActionType.OnEventSaving, scope =>
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient();
 
 
 builder.Services.AddDataProtection();

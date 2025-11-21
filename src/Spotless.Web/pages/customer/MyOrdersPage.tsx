@@ -27,8 +27,8 @@ export const MyOrdersPage: React.FC = () => {
     const fetchOrders = async () => {
         try {
             setIsLoading(true);
-            const response = await OrdersService.getApiOrdersCustomer({ pageNumber: 1, pageSize: 100 }) as any;
-            const data: OrderDto[] = response.data || [];
+            const response = await OrdersService.getApiOrdersCustomer({ pageNumber: 1, pageSize: 100 });
+            const data = (response.data as unknown as OrderDto[]) || [];
             // Sort by date descending
             const sorted = data.sort((a, b) =>
                 new Date(b.scheduledDate || 0).getTime() - new Date(a.scheduledDate || 0).getTime()

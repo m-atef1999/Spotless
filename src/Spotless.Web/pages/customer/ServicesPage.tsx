@@ -64,7 +64,7 @@ export const ServicesPage: React.FC = () => {
         }
     };
 
-    const handleBuyNow = (_serviceId: string) => {
+    const handleBuyNow = () => {
         // For now, redirect to new order page with service pre-selected (if supported)
         // Or we could implement immediate checkout flow
         navigate('/customer/new-order');
@@ -185,7 +185,7 @@ export const ServicesPage: React.FC = () => {
                                             )}
                                         </Button>
                                         <Button
-                                            onClick={() => service.id && handleBuyNow(service.id)}
+                                            onClick={() => service.id && handleBuyNow()}
                                             className="w-full shadow-lg shadow-cyan-500/20"
                                         >
                                             <Zap className="w-4 h-4 mr-2" />

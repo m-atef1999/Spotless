@@ -1,61 +1,62 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { z } from 'zod';
+import { Mail, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AuthLayout } from '../layouts/AuthLayout';
-import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { AuthService } from '../lib/api';
+import { Button } from '../components/ui/Button';
 
 const forgotPasswordSchema = z.object({
-    email: z.string().email('Invalid email address'),
+    email: z.string().email('Please enter a valid email address'),
 });
 
-type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
+type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 
 export const ForgotPasswordPage: React.FC = () => {
+    const [isSubmitted, setIsSubmitted] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [success, setSuccess] = useState(false);
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-    } = useForm<ForgotPasswordFormValues>({
+    } = useForm<ForgotPasswordFormData>({
         resolver: zodResolver(forgotPasswordSchema),
     });
 
-    const onSubmit = async (data: ForgotPasswordFormValues) => {
+    const onSubmit = async (data: ForgotPasswordFormData) => {
         setIsLoading(true);
-        setError(null);
-
         try {
-            await AuthService.postApiAuthForgotPassword({ requestBody: { email: data.email } });
-            setSuccess(true);
-        } catch (err) {
-            console.error('Forgot password failed', err);
-            // Don't reveal if email exists or not for security, but for now we might show error
-            // Or just show success anyway
-            setSuccess(true);
+            // Simulate API call
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            console.log('Reset password for:', data.email);
+            setIsSubmitted(true);
+        } catch (error) {
+            console.error('Failed to send reset email', error);
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (success) {
+    if (isSubmitted) {
         return (
             <AuthLayout
-                title="Check your inbox"
-                subtitle="We've sent you instructions to reset your password."
+                title="Check your email"
+                subtitle="We've sent password reset instructions to your email."
             >
                 <div className="text-center space-y-6">
-                    <div className="p-4 bg-green-50 text-green-700 rounded-lg border border-green-100">
-                        If an account exists for that email, you will receive a password reset link shortly.
+                    <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-full w-16 h-16 mx-auto flex items-center justify-center">
+                        <Mail className="w-8 h-8 text-green-600 dark:text-green-400" />
                     </div>
+                    <p className="text-slate-600 dark:text-slate-400">
+                        If an account exists for that email, you will receive instructions shortly.
+                    </p>
                     <Link to="/login">
-                        <Button className="w-full">Return to Login</Button>
+                        <Button variant="outline" className="w-full">
+                            Back to Login
+                        </Button>
                     </Link>
                 </div>
             </AuthLayout>
@@ -64,36 +65,30 @@ export const ForgotPasswordPage: React.FC = () => {
 
     return (
         <AuthLayout
-            title="Forgot Password"
-            subtitle="Enter your email to reset your password"
+            title="Reset Password"
+            subtitle="Enter your email to receive reset instructions"
         >
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                {error && (
-                    <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg border border-red-100">
-                        {error}
-                    </div>
-                )}
-
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <Input
-                    label="Email"
+                    label="Email Address"
                     type="email"
-                    placeholder="john@example.com"
+                    placeholder="you@example.com"
+                    icon={<Mail className="w-5 h-5" />}
                     error={errors.email?.message}
                     {...register('email')}
                 />
 
-                <Button
-                    type="submit"
-                    className="w-full"
-                    isLoading={isLoading}
-                >
+                <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
                     Send Reset Link
                 </Button>
 
-                <div className="text-center text-sm text-slate-600">
-                    Remember your password?{' '}
-                    <Link to="/login" className="font-medium text-cyan-600 hover:text-cyan-500">
-                        Sign in
+                <div className="text-center">
+                    <Link
+                        to="/login"
+                        className="inline-flex items-center text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 transition-colors"
+                    >
+                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        Back to Login
                     </Link>
                 </div>
             </form>

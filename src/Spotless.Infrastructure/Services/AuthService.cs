@@ -7,15 +7,19 @@ using Spotless.Domain.Entities;
 using Spotless.Domain.ValueObjects;
 using Spotless.Infrastructure.Identity;
 
+using System.Net.Http;
+using System.Text.Json;
+
 namespace Spotless.Infrastructure.Services
 {
-    public class AuthService(UserManager<ApplicationUser> userManager, IJwtTokenGenerator jwtTokenGenerator, IUnitOfWork unitOfWork, IEmailService emailService, ISmsService smsService) : IAuthService
+    public class AuthService(UserManager<ApplicationUser> userManager, IJwtTokenGenerator jwtTokenGenerator, IUnitOfWork unitOfWork, IEmailService emailService, ISmsService smsService, IHttpClientFactory httpClientFactory) : IAuthService
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IEmailService _emailService = emailService;
         private readonly ISmsService _smsService = smsService;
+        private readonly IHttpClientFactory _httpClientFactory = httpClientFactory;
 
         public async Task<AuthResult> RegisterAsync(RegisterRequest request, string role)
         {
@@ -303,19 +307,42 @@ namespace Spotless.Infrastructure.Services
             if (!provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
                 throw new NotSupportedException($"Provider '{provider}' is not supported.");
 
-            GoogleJsonWebSignature.Payload payload;
+            string? email = null;
+
+            // 1. Try validating as ID Token (JWT)
             try
             {
-                payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+                email = payload.Email;
             }
-            catch (InvalidJwtException ex)
+            catch (InvalidJwtException)
             {
-                throw new UnauthorizedAccessException("Invalid Google token.", ex);
+                // 2. If invalid JWT, assume it's an Access Token and try UserInfo endpoint
+                try
+                {
+                    var httpClient = _httpClientFactory.CreateClient();
+                    var request = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/oauth2/v3/userinfo");
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", idToken);
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        using var doc = JsonDocument.Parse(content);
+                        if (doc.RootElement.TryGetProperty("email", out var emailElement))
+                        {
+                            email = emailElement.GetString();
+                        }
+                    }
+                }
+                catch
+                {
+                    // Ignore and fall through
+                }
             }
 
-            var email = payload.Email;
             if (string.IsNullOrEmpty(email))
-                throw new Exception("Google token does not contain an email.");
+                throw new UnauthorizedAccessException("Invalid Google token or unable to retrieve email.");
 
             var user = await _userManager.FindByEmailAsync(email);
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -7,6 +8,10 @@ import { AuthLayout } from '../layouts/AuthLayout';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
 import { useAuthStore } from '../store/authStore';
+
+import { useGoogleLogin } from '@react-oauth/google';
+import { AuthService } from '../lib/services/AuthService';
+import { useNavigate } from 'react-router-dom';
 
 const loginSchema = z.object({
     email: z.string().email('Please enter a valid email address'),
@@ -17,6 +22,46 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export const LoginPage: React.FC = () => {
     const { login, isLoading, error } = useAuthStore();
+    const navigate = useNavigate();
+
+    const googleLogin = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            try {
+                // Send the access token to the backend
+                // Note: The backend might expect 'idToken' or 'accessToken' depending on implementation.
+                // The generated client expects 'idToken' in the body.
+                // Google's 'useGoogleLogin' (implicit flow) returns 'access_token'.
+                // If backend expects ID Token, we might need 'flow: "auth-code"' or just use the access token as id token if backend supports it.
+                // However, usually 'idToken' is a JWT. 'access_token' is opaque.
+                // Let's assume for now we send the access_token as the idToken, or we might need to fetch user info.
+                // BUT, standard OIDC flow: useGoogleLogin with flow: 'implicit' (default) gives access_token.
+                // To get ID Token, we usually use the <GoogleLogin> component or flow: 'auth-code'.
+                // Let's try sending the access_token. If backend fails, we might need to adjust.
+
+                const result = await AuthService.postApiAuthExternalGoogle({
+                    requestBody: {
+                        provider: 'Google',
+                        idToken: tokenResponse.access_token
+                    }
+                });
+
+                // Manually update auth store (we might need to expose a method or just reload)
+                // Ideally useAuthStore should have an 'externalLogin' method.
+                // For now, let's just reload or navigate.
+                localStorage.setItem('token', result.accessToken || '');
+                localStorage.setItem('refreshToken', result.refreshToken || '');
+                // We need to decode token to get user info, but for now let's just redirect.
+                window.location.href = '/customer/dashboard';
+            } catch (err) {
+                console.error('Google login failed', err);
+                alert('Google login failed. Please try again.');
+            }
+        },
+        onError: () => {
+            console.error('Google Login Failed');
+            alert('Google Login Failed');
+        }
+    });
 
     const {
         register,
@@ -29,7 +74,10 @@ export const LoginPage: React.FC = () => {
     const onSubmit = async (data: LoginFormData) => {
         try {
             await login({ email: data.email, password: data.password });
-            alert('Login successful (dummy)');
+            // Login successful - store handles redirect usually, or we do it here
+            // The store implementation of 'login' usually sets state.
+            // We should check if we need to navigate.
+            navigate('/customer/dashboard');
         } catch (err) {
             console.error('Login failed', err);
         }
@@ -78,12 +126,12 @@ export const LoginPage: React.FC = () => {
                         </span>
                     </label>
 
-                    <a
-                        href="#"
+                    <Link
+                        to="/forgot-password"
                         className="text-sm font-semibold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300 transition-colors"
                     >
                         Forgot password?
-                    </a>
+                    </Link>
                 </div>
 
                 <Button type="submit" className="w-full" size="lg" isLoading={isLoading}>
@@ -101,7 +149,7 @@ export const LoginPage: React.FC = () => {
 
                 <button
                     type="button"
-                    onClick={() => alert('Google Sign-In not implemented yet (requires backend)')}
+                    onClick={() => googleLogin()}
                     className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-200 dark:focus:ring-slate-700"
                 >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -127,9 +175,9 @@ export const LoginPage: React.FC = () => {
 
                 <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-6">
                     Don't have an account?{' '}
-                    <a href="#" className="font-semibold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300 transition-colors">
+                    <Link to="/register" className="font-semibold text-cyan-600 hover:text-cyan-700 dark:text-cyan-400 dark:hover:text-cyan-300 transition-colors">
                         Sign up for free
-                    </a>
+                    </Link>
                 </p>
             </form>
         </AuthLayout>

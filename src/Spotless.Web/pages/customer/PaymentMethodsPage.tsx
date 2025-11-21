@@ -4,7 +4,7 @@ import { useToast } from '../../components/ui/Toast';
 import { CustomersService } from '../../lib/api';
 import type { Spotless_Application_Dtos_PaymentMethods_PaymentMethodDto } from '../../lib/models/Spotless_Application_Dtos_PaymentMethods_PaymentMethodDto';
 
-interface PaymentMethodDto extends Spotless_Application_Dtos_PaymentMethods_PaymentMethodDto { }
+type PaymentMethodDto = Spotless_Application_Dtos_PaymentMethods_PaymentMethodDto;
 
 export function PaymentMethodsPage() {
     const [paymentMethods, setPaymentMethods] = useState<PaymentMethodDto[]>([]);

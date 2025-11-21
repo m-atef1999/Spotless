@@ -20,6 +20,7 @@ import { DriverApplicationPage } from './pages/driver/DriverApplicationPage';
 import { DriverProfilePage } from './pages/driver/DriverProfilePage';
 import { LocationPage } from './pages/driver/LocationPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { PublicServicesPage } from './pages/PublicServicesPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { ToastProvider } from './components/ui/Toast';
 import { CustomerManagementPage } from './pages/admin/CustomerManagementPage';
@@ -49,6 +50,7 @@ function App() {
         <Route path="/driver/apply" element={<DriverApplicationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/services" element={<PublicServicesPage />} />
 
         {/* Protected Customer Routes */}
         <Route

@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import logo from '../logos/spotless_logo.png';
 
 interface AuthLayoutProps {
     children: React.ReactNode;
@@ -29,7 +30,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
                         <div className="relative group">
                             <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-teal-400 rounded-2xl blur-xl opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
                             <div className="relative p-4 bg-white dark:bg-slate-900 rounded-2xl shadow-xl shadow-cyan-500/20 border border-cyan-100 dark:border-cyan-900/50">
-                                <img src="/logos/spotless_logo.png" alt="Spotless Logo" className="w-10 h-10 object-contain" />
+                                <img src={logo} alt="Spotless Logo" className="w-10 h-10 object-contain" />
                             </div>
                         </div>
                     </div>
@@ -87,7 +88,7 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitl
                         {/* Logo */}
                         <div className="mb-10 flex justify-center">
                             <div className="p-6 bg-white/10 backdrop-blur-md rounded-full border border-white/20 shadow-2xl ring-4 ring-white/5">
-                                <img src="/logos/spotless_logo.png" alt="Spotless Logo" className="w-20 h-20 object-contain" />
+                                <img src={logo} alt="Spotless Logo" className="w-20 h-20 object-contain" />
                             </div>
                         </div>
 

@@ -1,0 +1,270 @@
+
+> Spotless.Web@0.0.0 lint
+> eslint .
+
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\components\ui\ThemeToggle.tsx
+  11:13  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\components\ui\ThemeToggle.tsx:11:13
+   9 |         const savedTheme = localStorage.getItem('theme');
+  10 |         if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+> 11 |             setTheme('dark');
+     |             ^^^^^^^^ Avoid calling setState() directly within an effect
+  12 |             document.documentElement.classList.add('dark');
+  13 |         } else {
+  14 |             setTheme('light');  react-hooks/set-state-in-effect
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\core\OpenAPI.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\index.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Admin_AdminDashboardDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Admin_AdminDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Admin_MostUsedServiceDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Ai_ChatRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Ai_ChatResponse.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Analytics_AdminDashboardDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Analytics_DailyRevenueDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Analytics_RevenueReportDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_AuditLog_AuditLogDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Authentication_AuthResult.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Authentication_ExternalAuthRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Cart_AddToCartDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Cart_BuyNowRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Cart_CartCheckoutRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Category_CategoryDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Category_CreateCategoryDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Category_UpdateCategoryDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Customer_CustomerDashboardDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Customer_CustomerDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Customer_CustomerUpdateRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Customer_WalletTopUpRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Driver_ApproveDriverRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Driver_DriverApplicationRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Driver_DriverDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Driver_DriverStatusUpdateDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Driver_DriverUpdateRequest.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_LocationDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Notification_NotificationDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Order_CreateOrderDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Order_CreateOrderItemDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Order_OrderDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Order_OrderItemDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_PaymentMethods_PaymentMethodDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Payment_InitiatePaymentDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Payment_InitiatePaymentResponseDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Payment_PaymentDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Responses_PagedResponse_1.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Review_CreateReviewDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Review_ReviewDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Service_ServiceDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Settings_SystemSettingDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Dtos_Settings_UpdateSystemSettingDto.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_ChangePassword_ChangePasswordCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_ForgotPassword_ForgotPasswordCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_LoginCommand_LoginCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_RefreshToken_RefreshTokenCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_ResetPassword_ResetPasswordCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_SendOtp_SendOtpCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_SendVerificationEmail_SendVerificationEmailCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Authentication_Commands_VerifyOtp_VerifyOtpCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Customers_Commands_RegisterCustomer_RegisterCustomerCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Features_Drivers_Commands_AssignDriver_AssignDriverCommand.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Application_Interfaces_PaymobProcessedCallbackData.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Domain_Enums_CustomerType.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Domain_Enums_NotificationType.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Domain_Enums_OrderStatus.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Domain_Enums_PaymentMethod.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\models\Spotless_Domain_Enums_PaymentStatus.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\AdminsService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\AiService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\AnalyticsService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\AuditLogsService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\CategoriesService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\NotificationsService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\OrdersService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\ReviewsService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\ServicesService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\lib\services\SystemSettingsService.ts
+  4:1  warning  Unused eslint-disable directive (no problems were reported)
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\MainPage.tsx
+  66:45  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\admin\AuditLogsPage.tsx
+  19:8  warning  React Hook useEffect has a missing dependency: 'fetchLogs'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\admin\CategoryManagementPage.tsx
+  16:8  warning  React Hook useEffect has a missing dependency: 'fetchCategories'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\admin\CustomerManagementPage.tsx
+  16:8  warning  React Hook useEffect has a missing dependency: 'fetchCustomers'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\admin\NotificationsPage.tsx
+  15:8  warning  React Hook useEffect has a missing dependency: 'fetchNotifications'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\customer\MyOrdersPage.tsx
+  30:108  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\customer\NotificationsPage.tsx
+  13:8  warning  React Hook useEffect has a missing dependency: 'fetchNotifications'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\customer\PaymentMethodsPage.tsx
+   7:11  error    An interface declaring no members is equivalent to its supertype                                                        @typescript-eslint/no-empty-object-type
+  16:8   warning  React Hook useEffect has a missing dependency: 'fetchPaymentMethods'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\customer\ServicesPage.tsx
+  67:27  error  '_serviceId' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\driver\AvailableOrdersPage.tsx
+  12:8  warning  React Hook useEffect has a missing dependency: 'fetchAvailableOrders'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Web\pages\driver\EarningsPage.tsx
+  23:8  warning  React Hook useEffect has a missing dependency: 'fetchEarnings'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Γ£û 83 problems (5 errors, 78 warnings)
+  0 errors and 70 warnings potentially fixable with the `--fix` option.
+
