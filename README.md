@@ -42,9 +42,8 @@ Key features:
 
 ## 🌐 Live Demo
 
-* 👉 **Frontend Demo:** [https://spotless-project.vercel.app]
-* or
-* 👉 [https://spotless-alpha.vercel.app]
+* 👉 **Website:** [https://spotless-project.vercel.app]
+
 ---
 
 ## 🛠 Tech Stack
