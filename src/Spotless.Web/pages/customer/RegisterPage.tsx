@@ -140,7 +140,10 @@ export const RegisterPage: React.FC = () => {
                     type="button"
                     variant="outline"
                     className="w-full flex items-center justify-center gap-2 h-11 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    onClick={() => googleLogin()}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        googleLogin();
+                    }}
                 >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">
                         <path

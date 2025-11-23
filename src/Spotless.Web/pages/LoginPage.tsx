@@ -124,7 +124,10 @@ export const LoginPage: React.FC = () => {
 
                 <button
                     type="button"
-                    onClick={() => googleLogin()}
+                    onClick={(e) => {
+                        e.preventDefault();
+                        googleLogin();
+                    }}
                     className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-200 dark:focus:ring-slate-700"
                 >
                     <svg className="w-5 h-5" viewBox="0 0 24 24">

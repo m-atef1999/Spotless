@@ -8,7 +8,8 @@ import {
     type RegisterCustomerCommand,
     type DriverApplicationRequest,
     type CustomerDto,
-    type DriverDto
+    type DriverDto,
+    OpenAPI
 } from '../lib/api';
 
 interface AuthState {
@@ -42,6 +43,9 @@ export const useAuthStore = create<AuthState>()(
                     const result = await AuthService.postApiAuthLogin({ requestBody: cmd });
                     const token = result.accessToken;
                     const role = result.role as 'Admin' | 'Driver' | 'Customer';
+
+                    // Set token for API immediately
+                    OpenAPI.TOKEN = token || undefined;
 
                     // Store token temporarily to allow profile fetch
                     set({ token, role });
@@ -101,6 +105,9 @@ export const useAuthStore = create<AuthState>()(
 
                     const token = result.accessToken;
                     const role = result.role as 'Admin' | 'Driver' | 'Customer';
+
+                    // Set token for API immediately
+                    OpenAPI.TOKEN = token || undefined;
 
                     set({ token, role });
 
