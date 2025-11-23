@@ -9,7 +9,7 @@ import './index.css'
 import { OpenAPI } from './lib/api';
 
 const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-const apiUrl = import.meta.env.VITE_API_URL;
+const apiUrl = import.meta.env.VITE_API_URL || 'https://spotless.runasp.net';
 
 if (apiUrl) {
   OpenAPI.BASE = apiUrl;
