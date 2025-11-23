@@ -294,6 +294,7 @@ app.MapHealthChecksUI(options =>
 });
 
 app.MapHub<Spotless.API.Hubs.NotificationHub>("/notificationHub");
+app.MapHub<Spotless.API.Hubs.DriverHub>("/driverHub");
 app.MapControllers();
 
 

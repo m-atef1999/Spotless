@@ -14,14 +14,20 @@ export class NotificationsService {
      */
     public static getApiNotifications({
         unreadOnly,
+        page,
+        pageSize,
     }: {
         unreadOnly?: boolean,
+        page?: number,
+        pageSize?: number,
     }): CancelablePromise<Array<Spotless_Application_Dtos_Notification_NotificationDto>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/notifications',
             query: {
                 'unreadOnly': unreadOnly,
+                'page': page,
+                'pageSize': pageSize,
             },
         });
     }

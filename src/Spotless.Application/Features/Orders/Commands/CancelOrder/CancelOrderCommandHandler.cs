@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.Extensions.Options;
 using Spotless.Application.Configurations;
 using Spotless.Application.Interfaces;
+using Spotless.Domain.Entities;
 using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Orders.Commands.CancelOrder
@@ -31,6 +32,21 @@ namespace Spotless.Application.Features.Orders.Commands.CancelOrder
             await _unitOfWork.Orders.UpdateAsync(order);
             await _unitOfWork.CommitAsync();
 
+            // Create persistent notification
+            var userIdStr = await _authService.GetUserIdByCustomerIdAsync(order.CustomerId);
+            if (Guid.TryParse(userIdStr, out var userId))
+            {
+                var notification = new Domain.Entities.Notification(
+                    userId,
+                    "Order Cancelled",
+                    $"Your order #{order.Id} has been cancelled.",
+                    NotificationType.OrderCancelled
+                );
+                
+                await _unitOfWork.Notifications.AddAsync(notification);
+                await _unitOfWork.CommitAsync();
+            }
+
             if (_settings.NotifyOnOrderCancelled)
             {
                 var customer = await _unitOfWork.Customers.GetByIdAsync(order.CustomerId);
@@ -42,10 +58,9 @@ namespace Spotless.Application.Features.Orders.Commands.CancelOrder
                 }
 
                 // Push
-                var userId = await _authService.GetUserIdByCustomerIdAsync(order.CustomerId);
-                if (userId != null)
+                if (!string.IsNullOrEmpty(userIdStr))
                 {
-                    await _notificationService.SendPushNotificationAsync(userId, "Order Cancelled", $"Your order #{order.Id} has been cancelled.");
+                    await _notificationService.SendPushNotificationAsync(userIdStr, "Order Cancelled", $"Your order #{order.Id} has been cancelled.");
                 }
             }
 

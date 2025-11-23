@@ -46,12 +46,22 @@ export const CustomerType = {
 } as const;
 
 // NotificationType enum values
-// Based on backend: OrderUpdate = 0, PaymentUpdate = 1, DriverAssignment = 2, General = 3
+// Based on backend: OrderCreated=0, OrderConfirmed=1, OrderAssigned=2, OrderInProgress=3, 
+// OrderCompleted=4, OrderCancelled=5, PaymentReceived=6, PaymentFailed=7, 
+// DriverApplicationApproved=8, DriverApplicationRejected=9, System=10, Promotion=11
 export const NotificationType = {
-    OrderUpdate: 0,
-    PaymentUpdate: 1,
-    DriverAssignment: 2,
-    General: 3,
+    OrderCreated: 0,
+    OrderConfirmed: 1,
+    OrderAssigned: 2,
+    OrderInProgress: 3,
+    OrderCompleted: 4,
+    OrderCancelled: 5,
+    PaymentReceived: 6,
+    PaymentFailed: 7,
+    DriverApplicationApproved: 8,
+    DriverApplicationRejected: 9,
+    System: 10,
+    Promotion: 11,
 } as const;
 
 // Helper functions for status display

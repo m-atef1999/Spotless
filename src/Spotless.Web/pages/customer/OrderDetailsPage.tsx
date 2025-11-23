@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { ArrowLeft, Calendar, MapPin, CreditCard, Package, AlertCircle, Loader2, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
+import { useToast } from '../../components/ui/Toast';
 import { OrdersService, ServicesService, type OrderDto, OrderStatus, PaymentMethod, getOrderStatusLabel, getOrderStatusColor } from '../../lib/api';
 
 export const OrderDetailsPage: React.FC = () => {
@@ -67,15 +68,19 @@ export const OrderDetailsPage: React.FC = () => {
         }
     };
 
+    const { addToast } = useToast(); // Assuming useToast is available or needs import
+
     const handleCancelOrder = async () => {
         if (!window.confirm('Are you sure you want to cancel this order?')) return;
         try {
             if (id) {
                 await OrdersService.postApiOrdersCancel({ id });
                 setOrder(prev => prev ? { ...prev, status: OrderStatus.Cancelled } : null);
+                addToast('Order cancelled successfully', 'success');
             }
         } catch (error) {
             console.error('Failed to cancel order', error);
+            addToast('Failed to cancel order', 'error');
         }
     };
 
@@ -151,11 +156,13 @@ export const OrderDetailsPage: React.FC = () => {
                     </div>
 
                     <div className="ml-auto flex gap-3">
-                        {(order.status === OrderStatus.Requested || order.status === OrderStatus.Confirmed) && (
-                            <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={handleCancelOrder}>
-                                Cancel Order
-                            </Button>
-                        )}
+                        {/* Check for both number and string status representations */}
+                        {([OrderStatus.Requested, OrderStatus.Confirmed, OrderStatus.PaymentFailed].includes(order.status as any) ||
+                            ['Requested', 'Confirmed', 'PaymentFailed'].includes(order.status as any)) && (
+                                <Button variant="outline" className="text-red-600 border-red-200 hover:bg-red-50" onClick={handleCancelOrder}>
+                                    Cancel Order
+                                </Button>
+                            )}
                         {order.status === OrderStatus.Delivered && (
                             <>
                                 <Button variant="outline" onClick={handleReorder}>

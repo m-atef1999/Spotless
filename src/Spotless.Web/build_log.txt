@@ -1,8 +1,0 @@
-
-> Spotless.Web@0.0.0 build
-> tsc -b && vite build
-
-App.tsx(144,7): error TS2657: JSX expressions must have one parent element.
-App.tsx(146,5): error TS1128: Declaration or statement expected.
-App.tsx(147,3): error TS1109: Expression expected.
-App.tsx(148,1): error TS1128: Declaration or statement expected.

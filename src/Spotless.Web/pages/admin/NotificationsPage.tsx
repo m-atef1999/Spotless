@@ -50,20 +50,40 @@ export const NotificationsPage: React.FC = () => {
 
     const getNotificationTypeColor = (type: number | undefined) => {
         switch (type) {
-            case NotificationType.OrderUpdate: return 'bg-blue-100 text-blue-800 border-blue-200';
-            case NotificationType.PaymentUpdate: return 'bg-green-100 text-green-800 border-green-200';
-            case NotificationType.DriverAssignment: return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case NotificationType.General: return 'bg-gray-100 text-gray-800 border-gray-200';
+            case NotificationType.OrderCreated:
+            case NotificationType.OrderConfirmed:
+            case NotificationType.OrderInProgress:
+            case NotificationType.OrderCompleted:
+            case NotificationType.OrderAssigned:
+                return 'bg-blue-100 text-blue-800 border-blue-200';
+            case NotificationType.OrderCancelled:
+            case NotificationType.PaymentFailed:
+            case NotificationType.DriverApplicationRejected:
+                return 'bg-red-100 text-red-800 border-red-200';
+            case NotificationType.PaymentReceived:
+            case NotificationType.DriverApplicationApproved:
+                return 'bg-green-100 text-green-800 border-green-200';
+            case NotificationType.System:
+            case NotificationType.Promotion:
+                return 'bg-gray-100 text-gray-800 border-gray-200';
             default: return 'bg-gray-100 text-gray-800 border-gray-200';
         }
     };
 
     const getNotificationTypeLabel = (type: number | undefined) => {
         switch (type) {
-            case NotificationType.OrderUpdate: return 'Order Update';
-            case NotificationType.PaymentUpdate: return 'Payment Update';
-            case NotificationType.DriverAssignment: return 'Driver Assignment';
-            case NotificationType.General: return 'General';
+            case NotificationType.OrderCreated: return 'Order Created';
+            case NotificationType.OrderConfirmed: return 'Order Confirmed';
+            case NotificationType.OrderAssigned: return 'Order Assigned';
+            case NotificationType.OrderInProgress: return 'Order In Progress';
+            case NotificationType.OrderCompleted: return 'Order Completed';
+            case NotificationType.OrderCancelled: return 'Order Cancelled';
+            case NotificationType.PaymentReceived: return 'Payment Received';
+            case NotificationType.PaymentFailed: return 'Payment Failed';
+            case NotificationType.DriverApplicationApproved: return 'Driver Approved';
+            case NotificationType.DriverApplicationRejected: return 'Driver Rejected';
+            case NotificationType.System: return 'System';
+            case NotificationType.Promotion: return 'Promotion';
             default: return 'Notification';
         }
     };

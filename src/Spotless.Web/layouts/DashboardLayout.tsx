@@ -31,17 +31,17 @@ const mockNotifications: NotificationDto[] = [
         id: 'mock-welcome',
         title: 'Welcome to Spotless!',
         message: 'Get started by placing your first order.',
-        type: NotificationType.General,
+        type: NotificationType.System,
         isRead: false,
-        createdAt: new Date().toISOString()
+        createdAt: '2024-01-01T00:00:00.000Z' // Old date to stay at bottom
     },
     {
         id: 'mock-profile',
         title: 'Complete your profile',
         message: 'Add your address for faster checkout.',
-        type: NotificationType.General,
+        type: NotificationType.System,
         isRead: false,
-        createdAt: new Date().toISOString()
+        createdAt: '2024-01-01T00:00:00.000Z' // Old date to stay at bottom
     }
 ];
 
@@ -90,9 +90,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
             const allNotifications = [...safeData, ...processedMocks];
 
             // Sort by date descending (newest first)
-            const sorted = allNotifications.sort((a, b) =>
-                new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-            );
+            const sorted = allNotifications.sort((a, b) => {
+                const getTime = (dateStr?: string) => {
+                    if (!dateStr) return 0;
+                    const d = new Date(dateStr);
+                    return isNaN(d.getTime()) ? 0 : d.getTime();
+                };
+                const timeA = getTime(a.createdAt);
+                const timeB = getTime(b.createdAt);
+                return timeB - timeA;
+            });
             // Keep only the latest 20
             const limited = sorted.slice(0, 20);
 
@@ -149,9 +156,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
             navigate('/customer/new-order');
         } else if (notification.id === 'mock-profile' || notification.message?.includes('address')) {
             navigate('/customer/settings');
-        } else if (notification.type === NotificationType.OrderUpdate ||
-            notification.type === NotificationType.PaymentUpdate ||
-            notification.type === NotificationType.DriverAssignment ||
+        } else if (notification.type === NotificationType.OrderInProgress ||
+            notification.type === NotificationType.OrderCreated ||
+            notification.type === NotificationType.OrderConfirmed ||
+            notification.type === NotificationType.OrderCompleted ||
+            notification.type === NotificationType.OrderCancelled ||
+            notification.type === NotificationType.PaymentReceived ||
+            notification.type === NotificationType.PaymentFailed ||
+            notification.type === NotificationType.OrderAssigned ||
             notification.title?.toLowerCase().includes('order') ||
             notification.message?.toLowerCase().includes('status')) {
             navigate('/customer/orders');
@@ -183,6 +195,49 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
     };
 
     const currentMenuItems = menuItems[role] || [];
+
+    const getNotificationColor = (type?: number | string, title?: string | null) => {
+        // Fallback based on title if type is generic or missing
+        if (title) {
+            const lowerTitle = title.toLowerCase();
+            if (lowerTitle.includes('cancel') || lowerTitle.includes('failed') || lowerTitle.includes('rejected')) {
+                return 'bg-red-500';
+            }
+            if (lowerTitle.includes('success') || lowerTitle.includes('complete') || lowerTitle.includes('received') || lowerTitle.includes('approved')) {
+                return 'bg-green-500';
+            }
+        }
+
+        if (type === undefined || type === null) return 'bg-amber-500';
+
+        let typeValue = type;
+        if (typeof type === 'string') {
+            // Map string to enum value if possible
+            const key = Object.keys(NotificationType).find(k => k === type);
+            if (key) {
+                typeValue = NotificationType[key as keyof typeof NotificationType];
+            }
+        }
+
+        switch (typeValue) {
+            case NotificationType.OrderCreated:
+            case NotificationType.OrderConfirmed:
+            case NotificationType.OrderInProgress:
+            case NotificationType.OrderCompleted:
+            case NotificationType.OrderAssigned:
+                return 'bg-cyan-500';
+            case NotificationType.PaymentReceived:
+            case NotificationType.PaymentFailed:
+                return 'bg-green-500';
+            case NotificationType.OrderCancelled:
+                return 'bg-red-500';
+            case NotificationType.System:
+                // If system type, rely on title fallback above, otherwise default
+                return 'bg-amber-500';
+            default:
+                return 'bg-amber-500';
+        }
+    };
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex">
@@ -309,10 +364,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
                                                         : 'bg-cyan-50/50 dark:bg-cyan-900/10 hover:bg-cyan-50 dark:hover:bg-cyan-900/20'
                                                         }`}
                                                 >
-                                                    <div className={`w-2 h-2 mt-2 rounded-full shrink-0 ${notification.type === NotificationType.OrderUpdate ? 'bg-cyan-500' :
-                                                        notification.type === NotificationType.PaymentUpdate ? 'bg-green-500' :
-                                                            'bg-amber-500'
-                                                        }`} />
+                                                    <div className={`w-2 h-2 mt-2 rounded-full shrink-0 ${getNotificationColor(notification.type, notification.title)}`} />
                                                     <div>
                                                         <p className="text-sm text-slate-900 dark:text-white font-medium">{notification.title}</p>
                                                         <p className="text-xs text-slate-500 line-clamp-2">{notification.message}</p>

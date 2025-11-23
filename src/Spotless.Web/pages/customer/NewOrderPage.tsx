@@ -244,19 +244,40 @@ export const NewOrderPage: React.FC = () => {
         }
     };
 
-    const handleUseMyAddress = () => {
-        if (user) {
-            const customer = user as CustomerDto;
-            const parts = [customer.street, customer.city, customer.country].filter(Boolean);
-            if (parts.length > 0) {
-                const fullAddress = parts.join(', ');
-                setAddress(fullAddress);
-                addToast('Address loaded from profile', 'success');
-            } else {
-                addToast('No address found in your profile.', 'error');
+    const handleUseMyAddress = async () => {
+        if (!user) {
+            const { token, fetchProfile } = useAuthStore.getState();
+            if (token) {
+                try {
+                    await fetchProfile();
+                    // Re-check user after fetch
+                    const updatedUser = useAuthStore.getState().user;
+                    if (updatedUser) {
+                        const customer = updatedUser as CustomerDto;
+                        const parts = [customer.street, customer.city, customer.country].filter(Boolean);
+                        if (parts.length > 0) {
+                            const fullAddress = parts.join(', ');
+                            setAddress(fullAddress);
+                            addToast('Address loaded from profile', 'success');
+                            return;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch profile', error);
+                }
             }
+            addToast('User information not found. Please try logging in again.', 'error');
+            return;
+        }
+
+        const customer = user as CustomerDto;
+        const parts = [customer.street, customer.city, customer.country].filter(Boolean);
+        if (parts.length > 0) {
+            const fullAddress = parts.join(', ');
+            setAddress(fullAddress);
+            addToast('Address loaded from profile', 'success');
         } else {
-            addToast('User information not found.', 'error');
+            addToast('No address found in your profile.', 'error');
         }
     };
 

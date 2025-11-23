@@ -187,17 +187,7 @@ export const ProfilePage: React.FC = () => {
                                 Personal Information
                             </h3>
 
-                            {successMessage && (
-                                <div className="mb-6 p-4 bg-green-50 text-green-700 rounded-lg border border-green-100">
-                                    {successMessage}
-                                </div>
-                            )}
 
-                            {error && (
-                                <div className="mb-6 p-4 bg-red-50 text-red-700 rounded-lg border border-red-100">
-                                    {error}
-                                </div>
-                            )}
 
                             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -274,6 +264,21 @@ export const ProfilePage: React.FC = () => {
                                         />
                                     </div>
                                 </div>
+
+                                {successMessage && (
+                                    <div className="p-4 bg-green-600 text-white rounded-lg shadow-sm">
+                                        <div className="flex items-center gap-2">
+                                            <CheckCircle className="w-5 h-5" />
+                                            <span className="font-medium">{successMessage}</span>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {error && (
+                                    <div className="p-4 bg-red-50 text-red-700 rounded-lg border border-red-100">
+                                        {error}
+                                    </div>
+                                )}
 
                                 <div className="pt-4">
                                     <Button

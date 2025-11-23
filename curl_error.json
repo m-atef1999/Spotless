@@ -1,5 +1,0 @@
-{
-  "statusCode": 500,
-  "message": "An error occurred: [DEBUG] Gemini API Failed: Gemini API failed: NotFound - {\n  \u0022error\u0022: {\n    \u0022code\u0022: 404,\n    \u0022message\u0022: \u0022models/gemini-1.5-flash is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.\u0022,\n    \u0022status\u0022: \u0022NOT_FOUND\u0022\n  }\n}\n Inner: ",
-  "errors": null
-}

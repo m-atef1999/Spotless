@@ -21,10 +21,10 @@ namespace Spotless.API.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<NotificationDto>), 200)]
-        public async Task<IActionResult> ListNotifications([FromQuery] bool? unreadOnly)
+        public async Task<IActionResult> ListNotifications([FromQuery] bool? unreadOnly, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var userId = GetCurrentUserId();
-            var query = new ListNotificationsQuery(userId, unreadOnly);
+            var query = new ListNotificationsQuery(userId, unreadOnly, page, pageSize);
             var result = await _mediator.Send(query);
             return Ok(result);
         }

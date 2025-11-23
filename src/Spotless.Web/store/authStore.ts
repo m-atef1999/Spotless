@@ -24,11 +24,12 @@ interface AuthState {
     registerDriver: (cmd: DriverApplicationRequest) => Promise<void>;
     logout: () => void;
     setRole: (role: 'Admin' | 'Driver' | 'Customer') => void;
+    fetchProfile: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
             user: null,
             token: null,
             role: null,
@@ -178,15 +179,38 @@ export const useAuthStore = create<AuthState>()(
             },
 
             setRole: (role) => set({ role }),
+            fetchProfile: async () => {
+                const { token, role } = get();
+                if (!token) return;
+
+                set({ isLoading: true });
+                try {
+                    if (role === 'Customer') {
+                        const customerProfile = await CustomersService.getApiCustomersMe();
+                        set({ user: customerProfile, isLoading: false });
+                    } else if (role === 'Driver') {
+                        const driverProfile = await DriversService.getApiDriversProfile();
+                        set({ user: driverProfile, isLoading: false });
+                    } else {
+                        // Fallback
+                        try {
+                            const customerProfile = await CustomersService.getApiCustomersMe();
+                            set({ user: customerProfile, role: 'Customer', isLoading: false });
+                        } catch {
+                            set({ isLoading: false });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch profile', error);
+                    set({ isLoading: false });
+                }
+            },
         }),
         {
             name: 'auth-storage',
             version: 1,
             migrate: (persistedState: any, version: number) => {
                 if (version === 0) {
-                    // Migration from version 0 (no version) to 1
-                    // For safety, we can just clear the state or try to adapt it
-                    // Here we'll just return the persisted state as is, but the version bump ensures we track it
                     return persistedState;
                 }
                 return persistedState;
