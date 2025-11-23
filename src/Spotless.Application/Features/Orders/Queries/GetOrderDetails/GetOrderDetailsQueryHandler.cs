@@ -17,7 +17,8 @@ namespace Spotless.Application.Features.Orders.Queries.GetOrderDetails
                 o => o.Id == request.OrderId,
                 include: query => query
                     .Include(o => o.Customer)
-                    .Include(o => o.Items)
+                    .Include(o => o.TimeSlot)
+                    .Include(o => o.Items).ThenInclude(i => i.Service)
             ) ?? throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
             return _orderMapper.MapToDto(order);
         }

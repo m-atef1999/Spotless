@@ -12,6 +12,7 @@ namespace Spotless.Infrastructure.Identity
         public Guid? DriverId { get; set; }
 
         public bool IsActive { get; set; } = true;
+        public string Name { get; set; } = string.Empty;
         public DateTime LastLoginDate { get; set; }
 
         public virtual Customer? Customer { get; set; }

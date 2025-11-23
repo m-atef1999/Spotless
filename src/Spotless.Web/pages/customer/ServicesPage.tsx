@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { Search, Clock, DollarSign, Sparkles, Loader2, AlertCircle, ShoppingCart, Zap } from 'lucide-react';
+import { Search, Clock, Sparkles, Loader2, AlertCircle, ShoppingCart, Zap } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
@@ -64,10 +64,8 @@ export const ServicesPage: React.FC = () => {
         }
     };
 
-    const handleBuyNow = () => {
-        // For now, redirect to new order page with service pre-selected (if supported)
-        // Or we could implement immediate checkout flow
-        navigate('/customer/new-order');
+    const handleBuyNow = (serviceId?: string) => {
+        navigate(`/customer/new-order${serviceId ? `?serviceId=${serviceId}` : ''}`);
     };
 
     return (
@@ -154,6 +152,7 @@ export const ServicesPage: React.FC = () => {
                                     <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-3">
                                         {service.description || 'No description available.'}
                                     </p>
+                                    {/* Weight moved to price section */}
                                 </div>
 
                                 <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
@@ -162,9 +161,16 @@ export const ServicesPage: React.FC = () => {
                                             <Clock className="w-4 h-4" />
                                             {service.estimatedDurationHours}h
                                         </div>
-                                        <div className="flex items-center gap-1.5 text-lg font-bold text-slate-900 dark:text-white">
-                                            <DollarSign className="w-5 h-5 text-cyan-500" />
-                                            {service.basePrice?.toFixed(2)}
+                                        <div className="flex flex-col items-end gap-1">
+                                            <div className="flex items-center gap-1.5 text-lg font-bold text-slate-900 dark:text-white">
+                                                <span className="text-sm font-bold text-cyan-500">EGP</span>
+                                                {service.basePrice?.toFixed(2)}
+                                            </div>
+                                            {service.maxWeightKg !== undefined && (
+                                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                                    Max {service.maxWeightKg} KG
+                                                </span>
+                                            )}
                                         </div>
                                     </div>
 
@@ -185,7 +191,7 @@ export const ServicesPage: React.FC = () => {
                                             )}
                                         </Button>
                                         <Button
-                                            onClick={() => service.id && handleBuyNow()}
+                                            onClick={() => service.id && handleBuyNow(service.id)}
                                             className="w-full shadow-lg shadow-cyan-500/20"
                                         >
                                             <Zap className="w-4 h-4 mr-2" />

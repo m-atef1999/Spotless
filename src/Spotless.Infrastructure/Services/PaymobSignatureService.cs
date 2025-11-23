@@ -1,8 +1,8 @@
+using Microsoft.Extensions.Options;
+using Spotless.Application.Interfaces;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.Extensions.Options;
 using Spotless.Application.Configurations;
-using Spotless.Application.Interfaces;
 
 namespace Spotless.Infrastructure.Services
 {
@@ -43,7 +43,7 @@ namespace Spotless.Infrastructure.Services
             return string.Equals(calculatedHmac, receivedHmac, StringComparison.OrdinalIgnoreCase);
         }
 
- 
+
         public bool VerifyResponseCallbackSignature(PaymobResponseCallbackData callbackData, string receivedHmac)
         {
             if (string.IsNullOrEmpty(receivedHmac))

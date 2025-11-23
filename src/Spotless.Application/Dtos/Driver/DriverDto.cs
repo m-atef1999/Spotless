@@ -12,6 +12,7 @@ namespace Spotless.Application.Dtos.Driver
         public string VehicleInfo { get; init; } = string.Empty;
 
         public string Status { get; init; } = DriverStatus.Offline.ToString();
+        public DateTime? UpdatedAt { get; init; }
 
         public LocationDto? CurrentLocation { get; init; }
     }

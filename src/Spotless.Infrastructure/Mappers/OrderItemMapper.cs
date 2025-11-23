@@ -14,7 +14,8 @@ namespace Spotless.Infrastructure.Mappers
                 ServiceId: item.ServiceId,
                 PriceAmount: item.Price.Amount,
                 PriceCurrency: item.Price.Currency,
-                Quantity: item.Quantity
+                Quantity: item.Quantity,
+                ServiceName: item.Service?.Name ?? "Unknown Service"
             );
         }
     }

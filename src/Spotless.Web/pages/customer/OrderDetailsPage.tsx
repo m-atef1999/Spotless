@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { ArrowLeft, Calendar, MapPin, CreditCard, Package, AlertCircle, Loader2, RotateCcw } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
-import { OrdersService, ServicesService, type OrderDto, OrderStatus, PaymentMethod } from '../../lib/api';
+import { OrdersService, ServicesService, type OrderDto, OrderStatus, PaymentMethod, getOrderStatusLabel, getOrderStatusColor } from '../../lib/api';
 
 export const OrderDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -50,46 +50,6 @@ export const OrderDetailsPage: React.FC = () => {
             fetchData();
         }
     }, [id]);
-
-    const getStatusColor = (status?: number) => {
-        switch (status) {
-            case OrderStatus.PaymentFailed: // Pending/Failed
-                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-            case OrderStatus.Requested: // Requested
-                return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-            case OrderStatus.Confirmed: // Confirmed
-                return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400';
-            case OrderStatus.DriverAssigned: // DriverAssigned
-                return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
-            case OrderStatus.PickedUp: // PickedUp
-                return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400';
-            case OrderStatus.InCleaning: // InCleaning
-                return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-            case OrderStatus.OutForDelivery: // OutForDelivery
-                return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
-            case OrderStatus.Delivered: // Delivered
-                return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-            case OrderStatus.Cancelled: // Cancelled
-                return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
-            default:
-                return 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400';
-        }
-    };
-
-    const getStatusLabel = (status?: number) => {
-        switch (status) {
-            case OrderStatus.PaymentFailed: return 'Payment Failed';
-            case OrderStatus.Requested: return 'Requested';
-            case OrderStatus.Confirmed: return 'Confirmed';
-            case OrderStatus.DriverAssigned: return 'Driver Assigned';
-            case OrderStatus.PickedUp: return 'Picked Up';
-            case OrderStatus.InCleaning: return 'In Cleaning';
-            case OrderStatus.OutForDelivery: return 'Out For Delivery';
-            case OrderStatus.Delivered: return 'Delivered';
-            case OrderStatus.Cancelled: return 'Cancelled';
-            default: return 'Unknown';
-        }
-    };
 
     const getPaymentMethodLabel = (method?: string | number) => {
         // PaymentMethod in DTO might be string or number depending on serialization
@@ -181,12 +141,12 @@ export const OrderDetailsPage: React.FC = () => {
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
                             Order #{order.id?.slice(0, 8)}
-                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
-                                {getStatusLabel(order.status)}
+                            <span className={`px-3 py-1 rounded-full text-sm font-medium ${getOrderStatusColor(order.status || 0)}`}>
+                                {getOrderStatusLabel(order.status || 0)}
                             </span>
                         </h1>
                         <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-                            Placed on {order.orderDate ? format(new Date(order.orderDate), 'PPP p') : 'Unknown date'}
+                            Placed on {order.createdAt ? format(new Date(order.createdAt.endsWith('Z') ? order.createdAt : order.createdAt + 'Z'), 'PPP p') : (order.orderDate ? format(new Date(order.orderDate), 'PPP p') : 'Unknown date')}
                         </p>
                     </div>
 
@@ -224,14 +184,14 @@ export const OrderDetailsPage: React.FC = () => {
                                     <div key={index} className="flex justify-between items-center py-3 border-b border-slate-100 dark:border-slate-800 last:border-0">
                                         <div>
                                             <div className="font-medium text-slate-900 dark:text-white">
-                                                {item.serviceId && servicesMap[item.serviceId] ? servicesMap[item.serviceId] : 'Service Item'}
+                                                {item.serviceName || (item.serviceId && servicesMap[item.serviceId] ? servicesMap[item.serviceId] : 'Service Item')}
                                             </div>
                                             <div className="text-sm text-slate-500 dark:text-slate-400">
                                                 Quantity: {item.quantity}
                                             </div>
                                         </div>
                                         <div className="font-medium text-slate-900 dark:text-white">
-                                            ${((item.priceAmount || 0) * (item.quantity || 1)).toFixed(2)}
+                                            {((item.priceAmount || 0) * (item.quantity || 1)).toFixed(2)} EGP
                                         </div>
                                     </div>
                                 ))}
@@ -239,7 +199,7 @@ export const OrderDetailsPage: React.FC = () => {
                             <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
                                 <span className="font-semibold text-slate-900 dark:text-white">Total Amount</span>
                                 <span className="text-xl font-bold text-cyan-600 dark:text-cyan-400">
-                                    ${order.totalPrice?.toFixed(2)}
+                                    {order.totalPrice?.toFixed(2)} EGP
                                 </span>
                             </div>
                         </div>
@@ -253,11 +213,28 @@ export const OrderDetailsPage: React.FC = () => {
                                 <Calendar className="w-5 h-5 text-cyan-500" />
                                 Schedule
                             </h3>
-                            <div className="space-y-1">
-                                <p className="text-sm text-slate-500 dark:text-slate-400">Scheduled for</p>
-                                <p className="font-medium text-slate-900 dark:text-white">
-                                    {order.scheduledDate ? format(new Date(order.scheduledDate), 'PPP p') : 'Not scheduled'}
-                                </p>
+                            <div className="space-y-3">
+                                <div>
+                                    <p className="text-sm text-slate-500 dark:text-slate-400">Pickup Time</p>
+                                    <div className="font-medium text-slate-900 dark:text-white">
+                                        {order.scheduledDate && order.startTime ? (
+                                            <>
+                                                {format(new Date(order.scheduledDate), 'PPP')} at {format(new Date(`2000-01-01T${order.startTime}`), 'h:mm a')}
+                                            </>
+                                        ) : (
+                                            'Not Scheduled'
+                                        )}
+                                    </div>
+                                </div>
+
+                                {order.estimatedDurationHours && order.estimatedDurationHours > 0 && (
+                                    <div>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">Total Estimated Hours</p>
+                                        <div className="font-medium text-slate-900 dark:text-white">
+                                            {order.estimatedDurationHours} hrs
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -269,10 +246,8 @@ export const OrderDetailsPage: React.FC = () => {
                             </h3>
                             <div className="space-y-1">
                                 <p className="text-sm text-slate-500 dark:text-slate-400">Delivery Address</p>
-                                <p className="font-medium text-slate-900 dark:text-white">
-                                    {/* Address missing in DTO, placeholder */}
-                                    123 Main St, Apt 4B<br />
-                                    New York, NY 10001
+                                <p className="font-medium text-slate-900 dark:text-white break-words">
+                                    {order.deliveryAddress || 'No address provided'}
                                 </p>
                             </div>
                         </div>

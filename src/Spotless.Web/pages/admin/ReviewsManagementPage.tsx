@@ -35,8 +35,8 @@ export const ReviewsManagementPage: React.FC = () => {
         review.customerId?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const handleDeleteReview = (id: string) => {
-        console.log('Delete review', id);
+    const handleDeleteReview = (_id: string) => {
+
         alert('Delete Review functionality is currently mocked (API endpoint missing).');
     };
 

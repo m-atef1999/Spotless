@@ -48,12 +48,14 @@ export const CustomerDashboard: React.FC = () => {
     const stats = [
         { label: 'Active Orders', value: dashboardData?.upcomingBookedServices || 0, icon: Clock, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
         { label: 'Completed', value: dashboardData?.totalOrders || 0, icon: CheckCircle, color: 'text-teal-500', bg: 'bg-teal-50 dark:bg-teal-900/20' },
-        { label: 'Wallet Balance', value: `$${dashboardData?.walletBalance?.toFixed(2) || '0.00'}`, icon: CreditCard, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
+        { label: 'Wallet Balance', value: `${dashboardData?.walletBalance?.toFixed(2) || '0.00'} EGP`, icon: CreditCard, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
     ];
 
     return (
         <DashboardLayout role="Customer">
             <div className="space-y-8">
+
+
                 {/* Welcome Section */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     {stats.map((stat, index) => (
@@ -107,7 +109,7 @@ export const CustomerDashboard: React.FC = () => {
                                         </p>
                                     </div>
                                     <div className="flex justify-between items-center mt-4">
-                                        <span className="font-bold text-slate-900 dark:text-white">${order.totalPrice?.toFixed(2)}</span>
+                                        <span className="font-bold text-slate-900 dark:text-white">{order.totalPrice?.toFixed(2)} EGP</span>
                                         <Link to={`/customer/orders`} className="text-sm text-cyan-600 hover:text-cyan-700 font-medium">
                                             View Details
                                         </Link>
@@ -168,7 +170,7 @@ export const CustomerDashboard: React.FC = () => {
                                                 {order.orderDate ? new Date(order.orderDate).toLocaleDateString() : '-'}
                                             </td>
                                             <td className="px-6 py-4 text-sm font-medium text-slate-900 dark:text-white">
-                                                ${order.totalPrice?.toFixed(2)}
+                                                {order.totalPrice?.toFixed(2)} EGP
                                             </td>
                                         </tr>
                                     ))

@@ -6,7 +6,7 @@ namespace Spotless.Application.Interfaces
     public interface IPaymentGatewayService
     {
         Task<string> InitiatePaymentAsync(
-            Guid orderId,
+            Guid? orderId,
             Money amount,
             string customerEmail,
             CancellationToken cancellationToken);

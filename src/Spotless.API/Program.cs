@@ -97,7 +97,11 @@ Audit.Core.Configuration.AddCustomAction(ActionType.OnEventSaving, scope =>
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient();
 
@@ -117,10 +121,10 @@ builder.Configuration
 
 var paymobSettings = new Spotless.Application.Configurations.PaymobSettings();
 builder.Configuration.GetSection(Spotless.Application.Configurations.PaymobSettings.SettingsKey).Bind(paymobSettings);
-paymobSettings.ApiKey = Environment.GetEnvironmentVariable("PAYMOB_API_KEY") ?? paymobSettings.ApiKey;
-paymobSettings.SecretKey = Environment.GetEnvironmentVariable("PAYMOB_SECRET_KEY") ?? paymobSettings.SecretKey;
-paymobSettings.HmacSecret = Environment.GetEnvironmentVariable("PAYMOB_HMAC_SECRET") ?? paymobSettings.HmacSecret;
-paymobSettings.PublicKey = Environment.GetEnvironmentVariable("PAYMOB_PUBLIC_SECRET") ?? paymobSettings.PublicKey;
+paymobSettings.ApiKey = Environment.GetEnvironmentVariable("Paymob__ApiKey") ?? paymobSettings.ApiKey;
+paymobSettings.SecretKey = Environment.GetEnvironmentVariable("Paymob__SecretKey") ?? paymobSettings.SecretKey;
+paymobSettings.HmacSecret = Environment.GetEnvironmentVariable("Paymob__HmacSecret") ?? paymobSettings.HmacSecret;
+paymobSettings.PublicKey = Environment.GetEnvironmentVariable("Paymob__PublicKey") ?? paymobSettings.PublicKey;
 builder.Services.Configure<Spotless.Application.Configurations.PaymobSettings>(
 builder.Configuration.GetSection(Spotless.Application.Configurations.PaymobSettings.SettingsKey));
 
@@ -146,12 +150,17 @@ builder.Services
 
 // Real-time notifier (SignalR) implementation
 builder.Services.AddScoped<Spotless.Application.Interfaces.IRealTimeNotifier, Spotless.API.Services.SignalRRealTimeNotifier>();
+builder.Services.AddScoped<Spotless.Application.Interfaces.IPushNotificationSender, Spotless.API.Services.SignalRPushNotificationSender>();
 
 // AI Service
 builder.Services.AddScoped<Spotless.API.Services.IAiService, Spotless.API.Services.AiService>();
 
 // Background Job Processor (hosted service for message queue consumption)
 builder.Services.AddHostedService<BackgroundJobProcessor>();
+
+// Current User Service
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<Spotless.Application.Interfaces.ICurrentUserService, Spotless.Infrastructure.Services.CurrentUserService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -207,20 +216,6 @@ builder.Services.Configure<ReviewSettings>(
     builder.Configuration.GetSection(ReviewSettings.SectionName));
 builder.Services.Configure<EncryptionSettings>(
     builder.Configuration.GetSection(EncryptionSettings.SettingsKey));
-builder.Services.Configure<SecuritySettings>(
-    builder.Configuration.GetSection(SecuritySettings.SettingsKey));
-builder.Services.Configure<ApiVersioningSettings>(
-    builder.Configuration.GetSection(ApiVersioningSettings.SettingsKey));
-
-builder.Services.AddScoped<IEncryptionService, DataProtectionService>();
-
-builder.Services.AddHealthChecks()
-    .AddDbContextCheck<Spotless.Infrastructure.Context.ApplicationDbContext>()
-    .AddDbContextCheck<Spotless.Infrastructure.Context.IdentityDbContext>()
-    .AddUrlGroup(new Uri("https://accept.paymob.com/"), "Paymob - Accept API");
-
-builder.Services.AddHealthChecksUI()
-    .AddInMemoryStorage();
 
 
 
@@ -232,27 +227,24 @@ if (securitySettings?.Cors?.EnableCors == true)
         options.AddPolicy("DefaultCorsPolicy", policy =>
         {
             var corsSettings = securitySettings.Cors;
+            
+            // Combine config origins with hardcoded defaults to ensure connectivity
+            var origins = new List<string> 
+            { 
+                "http://localhost:5173", 
+                "https://spotless.runasp.net",
+                "https://spotless-project.vercel.app"
+            };
 
             if (corsSettings.AllowedOrigins?.Length > 0)
             {
-                policy.WithOrigins(corsSettings.AllowedOrigins);
-            }
-            else
-            {
-                if (builder.Environment.IsDevelopment())
-                {
-                    policy.AllowAnyOrigin();
-                }
-                // In production, if AllowedOrigins is empty, no origins will be allowed by default, which is secure.
+                origins.AddRange(corsSettings.AllowedOrigins);
             }
 
-            policy.WithMethods(corsSettings.AllowedMethods ?? ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"]);
-            policy.WithHeaders(corsSettings.AllowedHeaders ?? ["Content-Type", "Authorization"]);
-
-            if (corsSettings.AllowCredentials && corsSettings.AllowedOrigins?.Length > 0)
-            {
-                policy.AllowCredentials();
-            }
+            policy.WithOrigins(origins.Distinct().ToArray())
+                  .AllowAnyMethod()
+                  .AllowAnyHeader()
+                  .AllowCredentials();
         });
     });
 }
@@ -276,65 +268,33 @@ catch (Exception ex)
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// 1. CORS (Moved to top to handle preflights/redirects correctly)
+app.UseCors("DefaultCorsPolicy");
 
-// 1. Request/Response Logging (first - to log all requests and responses)
+// 2. Request/Response Logging
 app.UseMiddleware<RequestResponseLoggingMiddleware>();
 
-// 2. Global Exception Handling (catches all exceptions from downstream middleware)
+// 3. Global Exception Handling
 app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
 
-// 3. API Versioning (to handle version routing)
+// 4. API Versioning
 app.UseMiddleware<ApiVersioningMiddleware>();
 
-// 4. HTTPS Redirection
+// 5. HTTPS Redirection
 app.UseHttpsRedirection();
 
-// 5. CORS (must come before authentication)
-if (securitySettings?.Cors?.EnableCors == true)
-{
-    app.UseCors("DefaultCorsPolicy");
-}
-
-// 6. Rate Limiting
-var rateLimitSettings = securitySettings?.RateLimit;
-if (rateLimitSettings?.EnableRateLimit == true)
-{
-    app.UseMiddleware<RateLimitingMiddleware>();
-}
-
-// 7. HTTPS Enforcement
-if (securitySettings?.EnforceHttps == true)
-{
-    app.UseMiddleware<HttpsEnforcementMiddleware>();
-}
-
-// 8. Authentication & Authorization
+// 6. Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Audit middleware should run after authentication so user info is available
-app.UseAuditMiddleware(config =>
-{
-    // You can add further specific configurations here, 
-    // such as ignoring certain paths or response codes.
-    // e.g., config.FilterResponse(c => c.HttpStatusCode == 200);
-});
-
-// 9. Controllers
-app.MapControllers();
-app.MapHub<Spotless.API.Hubs.DriverHub>("/hubs/driver");
-
-app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
-{
-    Predicate = _ => true,
-    ResponseWriter = HealthChecks.UI.Client.UIResponseWriter.WriteHealthCheckUIResponse
-});
 
 app.MapHealthChecksUI(options =>
 {
     options.UIPath = "/healthchecks-ui";
     options.ApiPath = "/healthchecks-api";
 });
+
+app.MapHub<Spotless.API.Hubs.NotificationHub>("/notificationHub");
+app.MapControllers();
 
 
 try

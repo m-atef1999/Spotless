@@ -7,6 +7,7 @@ namespace Spotless.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     public class AiController : ControllerBase
     {
         private readonly IAiService _aiService;

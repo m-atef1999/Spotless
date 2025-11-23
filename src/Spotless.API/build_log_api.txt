@@ -1,0 +1,20 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Spotless.Domain -> C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Domain\bin\Debug\net8.0\Spotless.Domain.dll
+  Spotless.Application -> C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\bin\Debug\net8.0\Spotless.Application.dll
+  Spotless.Infrastructure -> C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Infrastructure\bin\Debug\net8.0\Spotless.Infrastructure.dll
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(91,54): warning CS8601: Possible null reference assignment. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(112,57): error CS1061: 'IOrderRepository' does not contain a definition for 'GetByUserIdAsync' and no accessible extension method 'GetByUserIdAsync' accepting a first argument of type 'IOrderRepository' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(113,95): error CS0117: 'OrderStatus' does not contain a definition for 'Completed' [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(133,54): error CS1061: 'ICartRepository' does not contain a definition for 'GetByUserIdAsync' and no accessible extension method 'GetByUserIdAsync' accepting a first argument of type 'ICartRepository' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+
+Build FAILED.
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(91,54): warning CS8601: Possible null reference assignment. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(112,57): error CS1061: 'IOrderRepository' does not contain a definition for 'GetByUserIdAsync' and no accessible extension method 'GetByUserIdAsync' accepting a first argument of type 'IOrderRepository' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(113,95): error CS0117: 'OrderStatus' does not contain a definition for 'Completed' [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(133,54): error CS1061: 'ICartRepository' does not contain a definition for 'GetByUserIdAsync' and no accessible extension method 'GetByUserIdAsync' accepting a first argument of type 'ICartRepository' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+    1 Warning(s)
+    3 Error(s)
+
+Time Elapsed 00:00:02.14

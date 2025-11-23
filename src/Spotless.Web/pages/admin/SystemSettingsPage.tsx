@@ -29,7 +29,7 @@ interface SystemSettings {
 const SystemSettingsPage: React.FC = () => {
     const [settings, setSettings] = useState<SystemSettings>({
         general: { siteName: '', supportEmail: '', supportPhone: '', maintenanceMode: false },
-        business: { taxRate: 0, serviceFee: 0, currency: 'USD', timezone: 'America/New_York' },
+        business: { taxRate: 0, serviceFee: 0, currency: 'EGP', timezone: 'Africa/Cairo' },
         notifications: { emailNotifications: false, smsNotifications: false, pushNotifications: false },
         payment: { stripeEnabled: false, paypalEnabled: false, cashOnDelivery: false }
     });
@@ -49,7 +49,7 @@ const SystemSettingsPage: React.FC = () => {
             const map = new Map<string, SystemSettingDto>();
             const grouped: SystemSettings = {
                 general: { siteName: '', supportEmail: '', supportPhone: '', maintenanceMode: false },
-                business: { taxRate: 0, serviceFee: 0, currency: 'USD', timezone: 'America/New_York' },
+                business: { taxRate: 0, serviceFee: 0, currency: 'EGP', timezone: 'Africa/Cairo' },
                 notifications: { emailNotifications: false, smsNotifications: false, pushNotifications: false },
                 payment: { stripeEnabled: false, paypalEnabled: false, cashOnDelivery: false }
             };
@@ -236,7 +236,7 @@ const SystemSettingsPage: React.FC = () => {
                                 onChange={(e) => updateBusinessSetting('currency', e.target.value)}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                             >
-                                <option value="USD">USD - US Dollar</option>
+                                <option value="EGP">EGP - Egyptian Pound</option>
                                 <option value="EUR">EUR - Euro</option>
                                 <option value="GBP">GBP - British Pound</option>
                                 <option value="CAD">CAD - Canadian Dollar</option>

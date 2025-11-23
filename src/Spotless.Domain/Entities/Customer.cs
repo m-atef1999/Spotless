@@ -71,5 +71,25 @@ namespace Spotless.Domain.Entities
 
             this.Payments.Add(payment);
         }
+
+        public Payment InitiateTopUp(Money amount, PaymentMethod method)
+        {
+            if (amount.Amount <= 0)
+                throw new ArgumentException("Top-up amount must be positive.", nameof(amount));
+
+            if (amount.Currency != WalletBalance.Currency)
+                throw new InvalidOperationException($"Cannot top-up {amount.Currency}. Wallet currency is {WalletBalance.Currency}.");
+
+            var payment = new Payment(
+                customerId: this.Id,
+                amount: amount,
+                method: method,
+                orderId: null,
+                adminId: null
+            );
+
+            this.Payments.Add(payment);
+            return payment;
+        }
     }
 }

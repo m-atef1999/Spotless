@@ -150,7 +150,7 @@ export const ServiceDetailsPage: React.FC = () => {
                                             <span className="text-sm font-medium">Base Price</span>
                                         </div>
                                         <div className="text-lg font-semibold text-slate-900 dark:text-white">
-                                            ${service.basePrice?.toFixed(2)}
+                                            {service.basePrice?.toFixed(2)} EGP
                                         </div>
                                     </div>
                                 </div>

@@ -14,18 +14,62 @@ interface Message {
 
 export const AiChatWidget: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<Message[]>([
-        {
+    const [messages, setMessages] = useState<Message[]>(() => {
+        if (typeof window === 'undefined') return [{
             id: '1',
             text: "Hi! I'm the Spotless Smart Assistant. Ask me about our services or prices!",
             sender: 'ai',
             timestamp: new Date()
+        }];
+
+        const savedMessages = localStorage.getItem('chat_history');
+        if (savedMessages) {
+            try {
+                const parsed = JSON.parse(savedMessages);
+                return parsed.map((m: any) => ({
+                    ...m,
+                    timestamp: new Date(m.timestamp)
+                }));
+            } catch (e) {
+                console.error('Failed to parse chat history', e);
+            }
         }
-    ]);
+        return [{
+            id: '1',
+            text: "Hi! I'm the Spotless Smart Assistant. Ask me about our services or prices!",
+            sender: 'ai',
+            timestamp: new Date()
+        }];
+    });
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const { addToast } = useToast();
+
+    // Listen for logout event to clear chat
+    useEffect(() => {
+        const handleLogout = () => {
+            localStorage.removeItem('chat_history');
+            setMessages([{
+                id: '1',
+                text: "Hi! I'm the Spotless Smart Assistant. Ask me about our services or prices!",
+                sender: 'ai',
+                timestamp: new Date()
+            }]);
+        };
+
+        window.addEventListener('spotless:logout', handleLogout);
+        return () => window.removeEventListener('spotless:logout', handleLogout);
+    }, []);
+
+
+
+    // Save messages to localStorage whenever they change
+    useEffect(() => {
+        if (messages.length > 0) {
+            localStorage.setItem('chat_history', JSON.stringify(messages));
+        }
+    }, [messages]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -35,12 +79,13 @@ export const AiChatWidget: React.FC = () => {
         scrollToBottom();
     }, [messages, isOpen]);
 
-    const handleSendMessage = async () => {
-        if (!inputValue.trim()) return;
+    const handleSendMessage = async (text?: string) => {
+        const messageText = text || inputValue;
+        if (!messageText.trim()) return;
 
         const userMessage: Message = {
             id: Date.now().toString(),
-            text: inputValue,
+            text: messageText,
             sender: 'user',
             timestamp: new Date()
         };
@@ -87,6 +132,23 @@ export const AiChatWidget: React.FC = () => {
         }
     };
 
+    // Simple Markdown Parser (Bold only for now)
+    const renderMessageText = (text: string) => {
+        const parts = text.split(/(\*\*.*?\*\*)/g);
+        return parts.map((part, index) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+                return <strong key={index}>{part.slice(2, -2)}</strong>;
+            }
+            return part;
+        });
+    };
+
+    const quickReplies = [
+        "Check my wallet balance",
+        "What is my recent order status?",
+        "List available services"
+    ];
+
     return (
         <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end">
             {/* Chat Window */}
@@ -122,14 +184,14 @@ export const AiChatWidget: React.FC = () => {
                                 className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                             >
                                 <div
-                                    className={`max-w-[80%] p-3 rounded-2xl text-sm ${msg.sender === 'user'
+                                    className={`max-w-[85%] p-3 rounded-2xl text-sm ${msg.sender === 'user'
                                         ? 'bg-cyan-500 text-white rounded-br-none'
                                         : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none shadow-sm'
                                         }`}
                                 >
-                                    {msg.text.split('\n').map((line, i) => (
-                                        <p key={i} className={i > 0 ? 'mt-1' : ''}>{line}</p>
-                                    ))}
+                                    <div className="whitespace-pre-wrap">
+                                        {renderMessageText(msg.text)}
+                                    </div>
                                     <p className={`text-[10px] mt-1 ${msg.sender === 'user' ? 'text-cyan-100' : 'text-slate-400'
                                         }`}>
                                         {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -147,6 +209,20 @@ export const AiChatWidget: React.FC = () => {
                         <div ref={messagesEndRef} />
                     </div>
 
+                    {/* Quick Replies */}
+                    <div className="px-4 py-2 bg-slate-50 dark:bg-slate-950/30 border-t border-slate-100 dark:border-slate-800 overflow-x-auto flex gap-2 no-scrollbar">
+                        {quickReplies.map((reply, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => handleSendMessage(reply)}
+                                disabled={isLoading}
+                                className="whitespace-nowrap px-3 py-1.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-cyan-900/20 hover:text-cyan-600 dark:hover:text-cyan-400 hover:border-cyan-200 dark:hover:border-cyan-800 transition-colors"
+                            >
+                                {reply}
+                            </button>
+                        ))}
+                    </div>
+
                     {/* Input Area */}
                     <div className="p-4 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800">
                         <div className="flex items-center gap-2 w-full">
@@ -161,7 +237,7 @@ export const AiChatWidget: React.FC = () => {
                                 />
                             </div>
                             <Button
-                                onClick={handleSendMessage}
+                                onClick={() => handleSendMessage()}
                                 disabled={!inputValue.trim() || isLoading}
                                 size="sm"
                                 className="h-10 w-10 shrink-0 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white shadow-md p-0 flex items-center justify-center"

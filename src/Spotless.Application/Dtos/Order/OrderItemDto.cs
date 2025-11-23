@@ -5,6 +5,7 @@ namespace Spotless.Application.Dtos.Order
             Guid ServiceId,
             decimal PriceAmount,
             string PriceCurrency,
-            int Quantity
+            int Quantity,
+            string ServiceName
         );
 }

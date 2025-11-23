@@ -18,7 +18,6 @@ const registerSchema = z.object({
     phone: z.string().min(10, 'Phone number must be at least 10 digits'),
     street: z.string().min(5, 'Street address is required'),
     city: z.string().min(2, 'City is required'),
-    zipCode: z.string().min(3, 'Zip code is required'),
     country: z.string().min(2, 'Country is required'),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -70,7 +69,7 @@ export const RegisterPage: React.FC = () => {
                 phone: data.phone,
                 street: data.street,
                 city: data.city,
-                zipCode: data.zipCode,
+                zipCode: null, // Optional
                 country: data.country,
                 type: CustomerType.Regular, // Default to Regular (0)
             };
@@ -230,20 +229,13 @@ export const RegisterPage: React.FC = () => {
                         {...register('street')}
                     />
 
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                         <Input
                             label="City"
                             type="text"
                             placeholder="New York"
                             error={errors.city?.message}
                             {...register('city')}
-                        />
-                        <Input
-                            label="Zip Code"
-                            type="text"
-                            placeholder="10001"
-                            error={errors.zipCode?.message}
-                            {...register('zipCode')}
                         />
                         <Input
                             label="Country"

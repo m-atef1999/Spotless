@@ -40,47 +40,50 @@ export const useAuthStore = create<AuthState>()(
                 try {
                     const result = await AuthService.postApiAuthLogin({ requestBody: cmd });
                     const token = result.accessToken;
+                    const role = result.role as 'Admin' | 'Driver' | 'Customer';
 
                     // Store token temporarily to allow profile fetch
-                    set({ token });
+                    set({ token, role });
 
                     // Try to identify user role by fetching profiles
                     try {
-                        const customerProfile = await CustomersService.getApiCustomersMe();
-                        set({
-                            user: customerProfile,
-                            role: 'Customer',
-                            token: token,
-                            isLoading: false
-                        });
-                        return;
-                    } catch {
-                        // Not a customer
+                        if (role === 'Customer') {
+                            const customerProfile = await CustomersService.getApiCustomersMe();
+                            set({
+                                user: customerProfile,
+                                isLoading: false
+                            });
+                        } else if (role === 'Driver') {
+                            const driverProfile = await DriversService.getApiDriversProfile();
+                            set({
+                                user: driverProfile,
+                                isLoading: false
+                            });
+                        } else {
+                            // Fallback: If role is undefined (old backend) or unknown, try fetching customer profile as default
+                            try {
+                                const customerProfile = await CustomersService.getApiCustomersMe();
+                                set({
+                                    user: customerProfile,
+                                    role: 'Customer',
+                                    isLoading: false
+                                });
+                            } catch {
+                                // If that fails, just stop loading. User is authenticated but unknown.
+                                set({ isLoading: false });
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Failed to fetch profile', err);
+                        set({ isLoading: false });
                     }
 
-                    try {
-                        const driverProfile = await DriversService.getApiDriversProfile();
-                        set({
-                            user: driverProfile,
-                            role: 'Driver',
-                            token: token,
-                            isLoading: false
-                        });
-                        return;
-                    } catch {
-                        // Not a driver
+                } catch (error: any) {
+                    let errorMessage = error.message || 'Login failed';
+                    if (error.body && error.body.message) {
+                        errorMessage = error.body.message;
                     }
-
-                    // If both fail, might be Admin or just authenticated without profile
-                    // For now, let's assume Admin if we have a token but no profile matches
-                    set({
-                        token: token,
-                        role: 'Admin', // Fallback for now
-                        isLoading: false
-                    });
-
-                } catch (error) {
-                    set({ error: (error as Error).message || 'Login failed', isLoading: false, token: null, role: null });
+                    set({ error: errorMessage, isLoading: false, token: null, role: null });
                     throw error;
                 }
             },
@@ -96,34 +99,49 @@ export const useAuthStore = create<AuthState>()(
                     });
 
                     const token = result.accessToken;
-                    set({ token });
+                    const role = result.role as 'Admin' | 'Driver' | 'Customer';
+
+                    set({ token, role });
 
                     // Try to identify user role by fetching profiles
                     try {
-                        const customerProfile = await CustomersService.getApiCustomersMe();
-                        set({
-                            user: customerProfile,
-                            role: 'Customer',
-                            token: token,
-                            isLoading: false
-                        });
-                        return;
-                    } catch {
-                        // Not a customer
+                        if (role === 'Customer') {
+                            const customerProfile = await CustomersService.getApiCustomersMe();
+                            set({
+                                user: customerProfile,
+                                isLoading: false
+                            });
+                        } else if (role === 'Driver') {
+                            const driverProfile = await DriversService.getApiDriversProfile();
+                            set({
+                                user: driverProfile,
+                                isLoading: false
+                            });
+                        } else {
+                            // Fallback: If role is undefined (old backend) or unknown, try fetching customer profile as default
+                            try {
+                                const customerProfile = await CustomersService.getApiCustomersMe();
+                                set({
+                                    user: customerProfile,
+                                    role: 'Customer',
+                                    isLoading: false
+                                });
+                            } catch {
+                                // If that fails, just stop loading. User is authenticated but unknown.
+                                set({ isLoading: false });
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Failed to fetch profile', err);
+                        set({ isLoading: false });
                     }
 
-                    // If not a customer, we assume they need to register or something went wrong, 
-                    // but for now let's just set them as authenticated so they can be redirected
-                    // In a real app, you might want to check if they are a driver too, or redirect to a "finish registration" page.
-                    // But for this specific flow, we'll assume they are a customer or just logged in.
-                    set({
-                        token: token,
-                        role: 'Customer', // Default to customer for Google Login for now
-                        isLoading: false
-                    });
-
-                } catch (error) {
-                    set({ error: (error as Error).message || 'Google Login failed', isLoading: false, token: null, role: null });
+                } catch (error: any) {
+                    let errorMessage = error.message || 'Google Login failed';
+                    if (error.body && error.body.message) {
+                        errorMessage = error.body.message;
+                    }
+                    set({ error: errorMessage, isLoading: false, token: null, role: null });
                     throw error;
                 }
             },
@@ -154,12 +172,30 @@ export const useAuthStore = create<AuthState>()(
                 }
             },
 
-            logout: () => set({ user: null, token: null, role: null }),
+            logout: () => {
+                window.dispatchEvent(new Event('spotless:logout'));
+                set({ user: null, token: null, role: null });
+            },
 
             setRole: (role) => set({ role }),
         }),
         {
             name: 'auth-storage',
+            version: 1,
+            migrate: (persistedState: any, version: number) => {
+                if (version === 0) {
+                    // Migration from version 0 (no version) to 1
+                    // For safety, we can just clear the state or try to adapt it
+                    // Here we'll just return the persisted state as is, but the version bump ensures we track it
+                    return persistedState;
+                }
+                return persistedState;
+            },
+            partialize: (state) => ({
+                user: state.user,
+                token: state.token,
+                role: state.role
+            }),
         }
     )
 );

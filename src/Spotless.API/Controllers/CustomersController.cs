@@ -135,7 +135,7 @@ namespace Spotless.API.Controllers
             if (user == null || !user.CustomerId.HasValue)
                 return NotFound(new { Message = "Customer profile not found for this user." });
 
-            var command = new Spotless.Application.Features.Customers.Commands.UpdateCustomerProfile.UpdateCustomerProfileCommand(dto, user.CustomerId.Value);
+            var command = new Spotless.Application.Features.Customers.Commands.UpdateCustomerProfile.UpdateCustomerProfileCommand(dto, user.CustomerId.Value, user.Id);
 
             await _mediator.Send(command);
 
@@ -146,7 +146,7 @@ namespace Spotless.API.Controllers
         /// Tops up customer's wallet balance
         /// </summary>
         [HttpPost("topup")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(Spotless.Application.Features.Payments.Commands.InitiatePayment.InitiatePaymentResult), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> TopUpWallet([FromBody] Spotless.Application.Dtos.Customer.WalletTopUpRequest dto)
@@ -161,9 +161,9 @@ namespace Spotless.API.Controllers
 
             var command = new Spotless.Application.Features.Customers.Commands.TopUpWallet.TopUpWalletCommand(user.CustomerId.Value, dto);
 
-            await _mediator.Send(command);
+            var result = await _mediator.Send(command);
 
-            return Ok(new { Message = "Wallet successfully topped up." });
+            return Ok(result);
         }
         /// <summary>
         /// Retrieves authenticated customer's saved payment methods

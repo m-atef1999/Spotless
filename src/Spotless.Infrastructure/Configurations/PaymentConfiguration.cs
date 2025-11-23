@@ -25,6 +25,8 @@ namespace Spotless.Infrastructure.Configurations
                      .IsRequired();
             });
 
+            builder.Navigation(p => p.Amount).IsRequired();
+
             builder.HasOne(p => p.Order)
                 .WithMany(o => o.Payments)
                 .HasForeignKey(p => p.OrderId)

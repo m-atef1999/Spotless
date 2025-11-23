@@ -12,5 +12,10 @@ namespace Spotless.Infrastructure.Repositories
         {
             return await _dbContext.Drivers.Where(d => d.Status == status).ToListAsync();
         }
+
+        public async Task<Driver?> GetByEmailAsync(string email)
+        {
+            return await _dbContext.Drivers.FirstOrDefaultAsync(d => d.Email == email);
+        }
     }
 }

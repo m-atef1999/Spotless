@@ -35,12 +35,12 @@ namespace Spotless.Infrastructure.Configurations
             builder.OwnsOne(s => s.PricePerUnit, money =>
             {
                 money.Property(m => m.Amount)
-                     .HasColumnName("PricePerUnitAmount")
+                     .HasColumnName("PricePerItem_Amount")
                      .HasColumnType("decimal(18,2)")
                      .IsRequired();
 
                 money.Property(m => m.Currency)
-                     .HasColumnName("PricePerUnitCurrency")
+                     .HasColumnName("PricePerItem_Currency")
                      .HasMaxLength(5)
                      .IsRequired();
             });

@@ -51,7 +51,7 @@ export const DriverDashboard: React.FC = () => {
             setActiveJobs(prev => prev.map(job =>
                 job.id === orderId ? { ...job, status: OrderStatus.Delivered } : job
             ));
-            console.log(`Completing job ${orderId}`);
+
             // TODO: Call API to complete job when endpoint is available
         } catch (error) {
             console.error('Failed to complete job', error);
@@ -76,7 +76,7 @@ export const DriverDashboard: React.FC = () => {
 
     const stats = [
         { label: 'Active Jobs', value: activeJobsCount.toString(), icon: Package, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-        { label: 'Est. Earnings', value: `$${earnings.toFixed(2)}`, icon: DollarSign, color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-900/20' },
+        { label: 'Est. Earnings', value: `${earnings.toFixed(2)} EGP`, icon: DollarSign, color: 'text-green-500', bg: 'bg-green-50 dark:bg-green-900/20' },
         { label: 'Completed Jobs', value: completedJobsCount.toString(), icon: CheckCircle, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
     ];
 
@@ -221,7 +221,7 @@ export const DriverDashboard: React.FC = () => {
                                     <div className="flex items-center gap-4">
                                         <div className="text-right hidden sm:block">
                                             <p className="text-lg font-bold text-slate-900 dark:text-white">
-                                                ${((job.totalPrice || 0) * 0.2).toFixed(2)}
+                                                {((job.totalPrice || 0) * 0.2).toFixed(2)} EGP
                                             </p>
                                             <p className="text-xs text-slate-500">Est. Earnings</p>
                                         </div>

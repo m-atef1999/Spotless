@@ -6,9 +6,31 @@ import App from './App'
 import './index.css'
 
 
+import { OpenAPI } from './lib/api';
+
+const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+const apiUrl = import.meta.env.VITE_API_URL;
+
+if (apiUrl) {
+  OpenAPI.BASE = apiUrl;
+}
+
+// Initialize OpenAPI Token from localStorage
+try {
+  const authStorage = localStorage.getItem('auth-storage');
+  if (authStorage) {
+    const { state } = JSON.parse(authStorage);
+    if (state && state.token) {
+      OpenAPI.TOKEN = state.token;
+    }
+  }
+} catch (e) {
+  console.error("Failed to restore auth token", e);
+}
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID || ''}>
+    <GoogleOAuthProvider clientId={clientId || ''}>
       <BrowserRouter>
         <App />
       </BrowserRouter>

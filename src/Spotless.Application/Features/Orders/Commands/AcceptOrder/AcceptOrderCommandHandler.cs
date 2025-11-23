@@ -8,10 +8,14 @@ namespace Spotless.Application.Features.Orders.Commands.AcceptOrder
 {
     public class AcceptOrderCommandHandler(
         IUnitOfWork unitOfWork,
-        IOrderMapper orderMapper) : IRequestHandler<AcceptOrderCommand, OrderDto>
+        IOrderMapper orderMapper,
+        INotificationService notificationService,
+        IAuthService authService) : IRequestHandler<AcceptOrderCommand, OrderDto>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IOrderMapper _orderMapper = orderMapper;
+        private readonly INotificationService _notificationService = notificationService;
+        private readonly IAuthService _authService = authService;
 
         public async Task<OrderDto> Handle(AcceptOrderCommand request, CancellationToken cancellationToken)
         {
@@ -36,6 +40,13 @@ namespace Spotless.Application.Features.Orders.Commands.AcceptOrder
             order.AssignDriver(request.DriverId);
 
             await _unitOfWork.CommitAsync();
+
+            // Notify Customer
+            var userId = await _authService.GetUserIdByCustomerIdAsync(order.CustomerId);
+            if (userId != null)
+            {
+                await _notificationService.SendPushNotificationAsync(userId, "Order Accepted", $"Your order #{order.Id.ToString().Substring(0, 8)} has been accepted by a driver.");
+            }
 
             return _orderMapper.MapToDto(order);
         }

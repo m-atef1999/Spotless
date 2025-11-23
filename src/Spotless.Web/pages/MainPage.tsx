@@ -4,12 +4,15 @@ import { Search, ArrowRight, Star, Clock, Shield, Sparkles, MapPin, Phone, Mail 
 import { Button } from '../components/ui/Button';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { CategoriesService, ServicesService, type CategoryDto, type ServiceDto, type PagedResponse } from '../lib/api';
+import { useAuthStore } from '../store/authStore';
 import logo from '../assets/logo.png';
 import { AiChatWidget } from '../components/ai/AiChatWidget';
 import { getServiceImage, getCategoryImage } from '../utils/imageUtils';
+import { BackToTop } from '../components/ui/BackToTop';
 
 export const MainPage: React.FC = () => {
     const navigate = useNavigate();
+    const { role, token } = useAuthStore();
     const [categories, setCategories] = useState<CategoryDto[]>([]);
     const [services, setServices] = useState<ServiceDto[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +28,9 @@ export const MainPage: React.FC = () => {
                     ServicesService.getApiServices({ pageNumber: 1, pageSize: 8 })
                 ]);
                 setCategories((categoriesData as PagedResponse).data || []);
-                setServices((servicesData as PagedResponse).data || []);
+                const servicesList = (servicesData as PagedResponse).data || [];
+
+                setServices(servicesList);
             } catch (error) {
                 console.error('Failed to fetch data:', error);
             } finally {
@@ -39,12 +44,45 @@ export const MainPage: React.FC = () => {
         const fetchSuggestions = async () => {
             if (searchQuery.length > 1) {
                 try {
-                    const results = await ServicesService.getApiServices({
+                    // Fetch services with name search
+                    const servicesPromise = ServicesService.getApiServices({
                         pageNumber: 1,
                         pageSize: 5,
                         nameSearchTerm: searchQuery
                     });
-                    setSuggestions((results as PagedResponse).data || []);
+
+                    // Also fetch categories to check for matches
+                    const categoriesPromise = CategoriesService.getApiCategories({
+                        pageNumber: 1,
+                        pageSize: 100 // Fetch more to ensure we find matches
+                    });
+
+                    const [servicesData, categoriesData] = await Promise.all([servicesPromise, categoriesPromise]);
+
+                    let results = (servicesData as PagedResponse).data || [];
+                    const categoriesList = (categoriesData as PagedResponse).data || [];
+
+                    // If no direct service matches, check if search term matches a category
+                    if (results.length === 0) {
+                        const matchedCategory = categoriesList.find(c =>
+                            c.name?.toLowerCase().includes(searchQuery.toLowerCase())
+                        );
+
+                        if (matchedCategory) {
+                            // Since API doesn't support categoryId filter, we'll fetch more services and filter client-side
+                            // or just show the category match itself if we can't filter services easily.
+                            // For now, let's try to fetch services and filter by categoryId if the DTO has it.
+                            const allServices = await ServicesService.getApiServices({
+                                pageNumber: 1,
+                                pageSize: 20 // Fetch a batch to filter
+                            });
+
+                            const servicesList = (allServices as PagedResponse).data || [];
+                            results = servicesList.filter(s => s.categoryId === matchedCategory.id);
+                        }
+                    }
+
+                    setSuggestions(results);
                     setShowSuggestions(true);
                 } catch (error) {
                     console.error('Failed to fetch suggestions:', error);
@@ -70,6 +108,15 @@ export const MainPage: React.FC = () => {
         navigate(`/services?search=${encodeURIComponent(categoryName)}`);
     };
 
+    const handleBookNow = (e: React.MouseEvent, serviceId: string) => {
+        e.stopPropagation(); // Prevent triggering the card click
+        if (token) {
+            navigate(`/customer/new-order?serviceId=${serviceId}`);
+        } else {
+            navigate('/login');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
             {/* Header */}
@@ -85,17 +132,29 @@ export const MainPage: React.FC = () => {
                     <nav className="hidden md:flex items-center gap-8">
                         <a href="#services" className="text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium transition-colors">Services</a>
                         <a href="#how-it-works" className="text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium transition-colors">How it Works</a>
-                        <a href="#pricing" className="text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium transition-colors">Pricing</a>
+                        <a href="#services" className="text-slate-600 dark:text-slate-300 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium transition-colors">Pricing</a>
                     </nav>
 
                     <div className="flex items-center gap-4">
                         <ThemeToggle />
-                        <Link to="/login">
-                            <Button variant="ghost" className="hidden sm:flex">Sign In</Button>
-                        </Link>
-                        <Link to="/register">
-                            <Button>Get Started</Button>
-                        </Link>
+                        {token ? (
+                            <Link to={
+                                role === 'Driver' ? '/driver/dashboard' :
+                                    role === 'Admin' ? '/admin/dashboard' :
+                                        '/customer/dashboard'
+                            }>
+                                <Button>Dashboard</Button>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link to="/login">
+                                    <Button variant="ghost" className="hidden sm:flex">Sign In</Button>
+                                </Link>
+                                <Link to="/register">
+                                    <Button>Get Started</Button>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </header>
@@ -163,7 +222,7 @@ export const MainPage: React.FC = () => {
                                             <div>
                                                 <h4 className="font-medium text-slate-900 dark:text-white">{service.name}</h4>
                                                 <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium">
-                                                    {service.basePrice ? `$${service.basePrice.toFixed(2)}` : 'Price on Request'}
+                                                    {service.basePrice !== undefined && service.basePrice !== null ? `${service.basePrice.toFixed(0)} ${service.currency || 'EGP'}` : 'Price on Request'}
                                                 </p>
                                             </div>
                                         </div>
@@ -175,35 +234,78 @@ export const MainPage: React.FC = () => {
                 </div>
             </section>
 
-            {/* Features Grid */}
-            <section className="py-24 bg-white dark:bg-slate-900" id="how-it-works">
+            {/* Popular Services */}
+            <section className="py-24 bg-white dark:bg-slate-900">
                 <div className="container mx-auto px-4">
-                    <div className="grid md:grid-cols-3 gap-12">
-                        {[
-                            {
-                                icon: Clock,
-                                title: "Quick Turnaround",
-                                description: "Get your clothes back in as little as 24 hours. We value your time."
-                            },
-                            {
-                                icon: Shield,
-                                title: "Premium Care",
-                                description: "Expert handling of all fabric types using eco-friendly cleaning solutions."
-                            },
-                            {
-                                icon: MapPin,
-                                title: "Doorstep Service",
-                                description: "Free pickup and delivery at your scheduled time and location."
-                            }
-                        ].map((feature, index) => (
-                            <div key={index} className="text-center space-y-4 p-6 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-300">
-                                <div className="w-16 h-16 mx-auto bg-cyan-100 dark:bg-cyan-900/30 rounded-2xl flex items-center justify-center text-cyan-600 dark:text-cyan-400">
-                                    <feature.icon className="w-8 h-8" />
+                    <div className="text-center max-w-3xl mx-auto mb-16">
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Most Requested Services</h2>
+                        <p className="text-slate-600 dark:text-slate-400">
+                            From delicate fabrics to everyday wear, we handle it all with care.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        {isLoading ? (
+                            Array(4).fill(0).map((_, i) => (
+                                <div key={i} className="h-80 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse" />
+                            ))
+                        ) : (
+                            services.map((service) => (
+                                <div
+                                    key={service.id}
+                                    className="bg-slate-50 dark:bg-slate-800 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-slate-100 dark:border-slate-700 cursor-pointer group relative flex flex-col"
+                                    onClick={() => navigate(`/services?search=${encodeURIComponent(service.name || '')}`)}
+                                >
+                                    <div className="relative h-48 overflow-hidden">
+                                        <img
+                                            src={getServiceImage(service.name || '')}
+                                            alt={service.name || ''}
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                        />
+                                    </div>
+                                    <div className="p-6 flex-1 flex flex-col">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h3 className="font-bold text-slate-900 dark:text-white line-clamp-2 pr-2">{service.name}</h3>
+                                            <div className="flex flex-col items-end gap-1 shrink-0">
+                                                <span className="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">
+                                                    {service.basePrice !== undefined && service.basePrice !== null ? `${service.basePrice.toFixed(0)} ${service.currency || 'EGP'}` : 'Price on Request'}
+                                                </span>
+                                                {service.maxWeightKg !== undefined && (
+                                                    <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                                        Max {service.maxWeightKg} KG
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2 flex-1">
+                                            {service.description || 'No description available'}
+                                        </p>
+                                        <div className="flex items-center justify-between mt-auto">
+                                            <div className="flex items-center gap-1 text-amber-400">
+                                                <Star className="w-4 h-4 fill-current" />
+                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">4.9</span>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                variant="outline"
+                                                className="hover:bg-cyan-50 dark:hover:bg-slate-700"
+                                                onClick={(e) => handleBookNow(e, service.id!)}
+                                            >
+                                                Book <ArrowRight className="w-3 h-3 ml-1" />
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{feature.title}</h3>
-                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{feature.description}</p>
-                            </div>
-                        ))}
+                            ))
+                        )}
+                    </div>
+
+                    <div className="text-center mt-12">
+                        <Link to="/services">
+                            <Button size="lg" className="rounded-full px-8">
+                                View All Services
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             </section>
@@ -254,64 +356,35 @@ export const MainPage: React.FC = () => {
                 </div>
             </section>
 
-            {/* Popular Services */}
-            <section className="py-24 bg-white dark:bg-slate-900">
+            {/* Features Grid */}
+            <section className="py-24 bg-white dark:bg-slate-900" id="how-it-works">
                 <div className="container mx-auto px-4">
-                    <div className="text-center max-w-3xl mx-auto mb-16">
-                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Most Requested Services</h2>
-                        <p className="text-slate-600 dark:text-slate-400">
-                            From delicate fabrics to everyday wear, we handle it all with care.
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        {isLoading ? (
-                            Array(4).fill(0).map((_, i) => (
-                                <div key={i} className="h-80 bg-slate-200 dark:bg-slate-800 rounded-2xl animate-pulse" />
-                            ))
-                        ) : (
-                            services.slice(0, 4).map((service) => (
-                                <div key={service.id} className="bg-slate-50 dark:bg-slate-800 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-slate-100 dark:border-slate-700">
-                                    <div className="h-48 overflow-hidden">
-                                        <img
-                                            src={getServiceImage(service.name || '')}
-                                            alt={service.name || ''}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    </div>
-                                    <div className="p-6">
-                                        <div className="flex justify-between items-start mb-2">
-                                            <h3 className="font-bold text-slate-900 dark:text-white">{service.name}</h3>
-                                            <span className="bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 text-xs font-bold px-2 py-1 rounded-full">
-                                                {service.basePrice ? `$${service.basePrice.toFixed(2)}` : 'Price on Request'}
-                                            </span>
-                                        </div>
-                                        <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
-                                            {service.description}
-                                        </p>
-                                        <div className="flex items-center justify-between">
-                                            <div className="flex items-center gap-1 text-amber-400">
-                                                <Star className="w-4 h-4 fill-current" />
-                                                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">4.9</span>
-                                            </div>
-                                            <Link to="/login">
-                                                <Button size="sm" variant="outline" className="hover:bg-cyan-50 dark:hover:bg-slate-700">
-                                                    Book <ArrowRight className="w-3 h-3 ml-1" />
-                                                </Button>
-                                            </Link>
-                                        </div>
-                                    </div>
+                    <div className="grid md:grid-cols-3 gap-12">
+                        {[
+                            {
+                                icon: Clock,
+                                title: "Quick Turnaround",
+                                description: "Get your clothes back in as little as 24 hours. We value your time."
+                            },
+                            {
+                                icon: Shield,
+                                title: "Premium Care",
+                                description: "Expert handling of all fabric types using eco-friendly cleaning solutions."
+                            },
+                            {
+                                icon: MapPin,
+                                title: "Doorstep Service",
+                                description: "Free pickup and delivery at your scheduled time and location."
+                            }
+                        ].map((feature, index) => (
+                            <div key={index} className="text-center space-y-4 p-6 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-300">
+                                <div className="w-16 h-16 mx-auto bg-cyan-100 dark:bg-cyan-900/30 rounded-2xl flex items-center justify-center text-cyan-600 dark:text-cyan-400">
+                                    <feature.icon className="w-8 h-8" />
                                 </div>
-                            ))
-                        )}
-                    </div>
-
-                    <div className="text-center mt-12">
-                        <Link to="/services">
-                            <Button size="lg" className="rounded-full px-8">
-                                View All Services
-                            </Button>
-                        </Link>
+                                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{feature.title}</h3>
+                                <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{feature.description}</p>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -402,6 +475,7 @@ export const MainPage: React.FC = () => {
             </footer>
 
             <AiChatWidget />
+            <BackToTop />
         </div>
     );
 };

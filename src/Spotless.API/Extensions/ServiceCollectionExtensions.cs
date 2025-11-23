@@ -213,7 +213,7 @@ namespace Spotless.API.Extensions
 
 
             // Payment Services
-            services.AddScoped<IPaymentGatewayService, PaymentGatewayService>();
+            services.AddHttpClient<IPaymentGatewayService, PaymobService>();
             services.AddScoped<IPaymobSignatureService, PaymobSignatureService>();
 
             // Bind Sms/WhatsApp configuration to DI

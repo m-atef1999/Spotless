@@ -55,7 +55,13 @@ export const NotificationType = {
 } as const;
 
 // Helper functions for status display
-export const getOrderStatusLabel = (status: number): string => {
+export const getOrderStatusLabel = (status: number | string): string => {
+    // Handle string status from backend (due to JsonStringEnumConverter)
+    if (typeof status === 'string') {
+        // Insert space before capital letters and trim
+        return status.replace(/([A-Z])/g, ' $1').trim();
+    }
+
     switch (status) {
         case OrderStatus.PaymentFailed: return 'Payment Failed';
         case OrderStatus.Requested: return 'Requested';
@@ -70,8 +76,18 @@ export const getOrderStatusLabel = (status: number): string => {
     }
 };
 
-export const getOrderStatusColor = (status: number): string => {
-    switch (status) {
+export const getOrderStatusColor = (status: number | string): string => {
+    let statusValue = status;
+
+    // Convert string to number if needed
+    if (typeof status === 'string') {
+        const key = Object.keys(OrderStatus).find(k => k === status);
+        if (key) {
+            statusValue = OrderStatus[key as keyof typeof OrderStatus];
+        }
+    }
+
+    switch (statusValue) {
         case OrderStatus.PaymentFailed: return 'bg-red-100 text-red-800';
         case OrderStatus.Requested: return 'bg-blue-100 text-blue-800';
         case OrderStatus.Confirmed: return 'bg-green-100 text-green-800';

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Package, Calendar, MapPin, ChevronRight, Loader2, AlertCircle } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
@@ -19,24 +19,39 @@ export const MyOrdersPage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { addToast } = useToast();
+    const navigate = useNavigate();
+
+    const [pageSize, setPageSize] = useState(20);
 
     useEffect(() => {
         fetchOrders();
-    }, []);
+    }, [pageSize]);
 
     const fetchOrders = async () => {
         try {
             setIsLoading(true);
-            const response = await OrdersService.getApiOrdersCustomer({ pageNumber: 1, pageSize: 100 });
+            const response = await OrdersService.getApiOrdersCustomer({ pageNumber: 1, pageSize: pageSize });
+
             const data = (response.data as unknown as OrderDto[]) || [];
-            // Sort by date descending
-            const sorted = data.sort((a, b) =>
-                new Date(b.scheduledDate || 0).getTime() - new Date(a.scheduledDate || 0).getTime()
-            );
+
+            // Sort by date descending with safety check
+            const sorted = data.sort((a, b) => {
+                const dateA = a?.scheduledDate ? new Date(a.scheduledDate).getTime() : 0;
+                const dateB = b?.scheduledDate ? new Date(b.scheduledDate).getTime() : 0;
+                return dateB - dateA;
+            });
+
             setOrders(sorted);
+            setError(null);
         } catch (err) {
             console.error('Failed to fetch orders', err);
-            setError('Failed to load your orders. Please try again later.');
+            // Extract meaningful error message
+            let msg = 'Failed to load your orders.';
+            if (err && typeof err === 'object') {
+                if ('body' in err) msg += ` Server: ${(err as any).body}`;
+                else if ('message' in err) msg += ` ${(err as any).message}`;
+            }
+            setError(msg);
         } finally {
             setIsLoading(false);
         }
@@ -65,9 +80,22 @@ export const MyOrdersPage: React.FC = () => {
             <div className="max-w-5xl mx-auto space-y-8">
                 <div className="flex justify-between items-center">
                     <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Orders</h1>
-                    <Link to="/customer/new-order">
-                        <Button>New Order</Button>
-                    </Link>
+                    <div className="flex gap-4 items-center">
+                        <select
+                            value={pageSize}
+                            onChange={(e) => setPageSize(Number(e.target.value))}
+                            className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-cyan-500 outline-none"
+                        >
+                            <option value={20}>Show 20</option>
+                            <option value={40}>Show 40</option>
+                            <option value={60}>Show 60</option>
+                            <option value={80}>Show 80</option>
+                            <option value={100}>Show 100</option>
+                        </select>
+                        <Link to="/customer/new-order">
+                            <Button>New Order</Button>
+                        </Link>
+                    </div>
                 </div>
 
                 {isLoading ? (
@@ -109,17 +137,65 @@ export const MyOrdersPage: React.FC = () => {
                                         </div>
                                         <div className="flex items-center gap-2 text-slate-900 dark:text-white font-medium">
                                             <Calendar className="w-4 h-4 text-slate-400" />
-                                            {order.scheduledDate ? format(new Date(order.scheduledDate), 'PPP p') : 'Not scheduled'}
+                                            {order.scheduledDate ? (
+                                                <div className="flex flex-col">
+                                                    {order.startTime ? (
+                                                        <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+                                                            Pickup Time at {format(new Date(order.scheduledDate), 'MMM d')}, {format(new Date(`2000-01-01T${order.startTime}`), 'h:mm a')}
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-sm text-slate-500">
+                                                            Pickup Time: Not Scheduled
+                                                        </span>
+                                                    )}
+                                                    {order.estimatedDurationHours && order.estimatedDurationHours > 0 && (
+                                                        <span className="text-xs text-slate-500 mt-0.5">
+                                                            Est. Duration: {order.estimatedDurationHours} hrs
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : 'Not scheduled'}
                                         </div>
+
+                                        <div className="flex flex-col gap-1 mt-1">
+                                            {order.items && order.items.length > 0 ? (
+                                                <>
+                                                    {order.items.slice(0, 3).map((item, idx) => (
+                                                        <div key={idx} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 font-semibold">
+                                                            <Package className="w-4 h-4 text-cyan-500" />
+                                                            {item.serviceName || 'Service'}
+                                                        </div>
+                                                    ))}
+                                                    {order.items.length > 3 && (
+                                                        <div className="text-xs text-slate-500 pl-6">
+                                                            and {order.items.length - 3} more...
+                                                        </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 font-semibold">
+                                                    <Package className="w-4 h-4 text-cyan-500" />
+                                                    {order.serviceName || 'Service'}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {order.createdAt && (
+                                            <div className="text-xs text-slate-400 ml-6 mt-1">
+                                                Ordered at: {format(new Date(order.createdAt.endsWith('Z') ? order.createdAt : order.createdAt + 'Z'), 'PP p')}
+                                            </div>
+                                        )}
                                         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
                                             <MapPin className="w-4 h-4" />
-                                            Delivery Address
+                                            <span className="truncate max-w-[200px]" title={order.deliveryAddress || ''}>
+                                                {order.deliveryAddress || 'No address'}
+                                            </span>
                                         </div>
                                     </div>
 
                                     <div className="flex flex-col sm:items-end justify-between gap-4">
                                         <div className="text-lg font-bold text-cyan-600 dark:text-cyan-400">
-                                            ${order.totalPrice?.toFixed(2)}
+                                            {order.totalPrice?.toFixed(2)} EGP
                                         </div>
                                         <div className="flex gap-2">
                                             {canCancel(order.status) && order.id && (
@@ -132,7 +208,12 @@ export const MyOrdersPage: React.FC = () => {
                                                     Cancel
                                                 </Button>
                                             )}
-                                            <Button variant="outline" size="sm" className="group-hover:bg-cyan-50 dark:group-hover:bg-cyan-900/20 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 group-hover:border-cyan-200 dark:group-hover:border-cyan-800">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="group-hover:bg-cyan-50 dark:group-hover:bg-cyan-900/20 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 group-hover:border-cyan-200 dark:group-hover:border-cyan-800"
+                                                onClick={() => navigate(`/customer/orders/${order.id}`)}
+                                            >
                                                 View Details
                                                 <ChevronRight className="w-4 h-4 ml-1" />
                                             </Button>

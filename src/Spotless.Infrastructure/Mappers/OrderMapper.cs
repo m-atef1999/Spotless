@@ -1,4 +1,5 @@
 using Spotless.Application.Dtos.Order;
+using Spotless.Application.Interfaces;
 using Spotless.Application.Mappers;
 using Spotless.Domain.Entities;
 using Spotless.Domain.ValueObjects;
@@ -16,19 +17,20 @@ namespace Spotless.Infrastructure.Mappers
                 ServiceId: item.ServiceId,
                 PriceAmount: item.Price.Amount,
                 PriceCurrency: item.Price.Currency,
-                Quantity: item.Quantity
+                Quantity: item.Quantity,
+                ServiceName: item.Service?.Name ?? "Unknown Service"
             );
         }
 
 
 
-        public Order MapToEntity(CreateOrderDto dto, Guid customerId, Money totalPrice, List<Money> itemPrices)
+        public Order MapToEntity(CreateOrderDto dto, Guid customerId, Money totalPrice, List<PriceCalculationResult> itemPrices)
         {
             var orderItems = dto.Items.Select((itemDto, index) =>
                 new OrderItem(
                     orderId: Guid.Empty,
                     serviceId: itemDto.ServiceId,
-                    price: itemPrices[index],
+                    price: itemPrices[index].UnitPrice,
                     quantity: itemDto.Quantity
                 )
             ).ToList();
@@ -59,6 +61,8 @@ namespace Spotless.Infrastructure.Mappers
                 CustomerId: order.CustomerId,
                 DriverId: order.DriverId,
                 TimeSlotId: order.TimeSlotId,
+                StartTime: order.TimeSlot?.StartTime,
+                EndTime: order.TimeSlot?.EndTime,
                 ScheduledDate: order.ScheduledDate,
 
                 PickupLatitude: order.PickupLocation?.Latitude ?? 0.0m,
@@ -73,7 +77,10 @@ namespace Spotless.Infrastructure.Mappers
 
                 Status: order.Status,
                 PaymentMethod: order.PaymentMethod,
+                ServiceName: order.Items.FirstOrDefault()?.Service?.Name ?? "Unknown Service",
+                CreatedAt: order.OrderDate,
                 OrderDate: order.OrderDate,
+                EstimatedDurationHours: order.Items.Sum(i => (i.Service?.EstimatedDurationHours ?? 0) * i.Quantity),
                 Items: order.Items.Select(MapOrderItemToDto).ToList()
             );
         }

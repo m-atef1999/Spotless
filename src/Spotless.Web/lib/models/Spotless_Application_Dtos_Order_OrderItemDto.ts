@@ -8,5 +8,6 @@ export type Spotless_Application_Dtos_Order_OrderItemDto = {
     priceAmount?: number;
     priceCurrency?: string | null;
     quantity?: number;
+    serviceName?: string;
 };
 

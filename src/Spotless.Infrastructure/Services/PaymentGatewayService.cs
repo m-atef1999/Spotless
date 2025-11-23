@@ -38,19 +38,20 @@ namespace Spotless.Infrastructure.Services
         }
 
         public Task<string> InitiatePaymentAsync(
-            Guid orderId,
+            Guid? orderId,
             Money amount,
             string customerEmail,
             CancellationToken cancellationToken)
         {
 
 
-            Console.WriteLine($"Initiating payment for Order {orderId} of {amount.Amount} {amount.Currency} via {_settings.BaseUrl}");
+            Console.WriteLine($"Initiating payment for Order {orderId?.ToString() ?? "Wallet TopUp"} of {amount.Amount} {amount.Currency} via {_settings.BaseUrl}");
 
 
             string mockTransactionReference = Guid.NewGuid().ToString();
+            string orderParam = orderId.HasValue ? orderId.Value.ToString() : "wallet-topup";
 
-            return Task.FromResult($"https://checkout.gateway.com/pay/{mockTransactionReference}?order={orderId}");
+            return Task.FromResult($"https://checkout.gateway.com/pay/{mockTransactionReference}?order={orderParam}");
         }
 
         public Task<PaymentStatus> VerifyPaymentAsync(string transactionReference, CancellationToken cancellationToken)

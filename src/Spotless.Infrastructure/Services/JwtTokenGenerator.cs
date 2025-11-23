@@ -20,14 +20,22 @@ namespace Spotless.Infrastructure.Services
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
 
             var tokenHandler = new JwtSecurityTokenHandler();
+            var claims = new List<Claim>
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Email, user.Email!),
+                new(ClaimTypes.Name, user.Name),
+                new(ClaimTypes.Role, role)
+            };
+
+            if (user.CustomerId.HasValue)
+            {
+                claims.Add(new Claim("CustomerId", user.CustomerId.Value.ToString()));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new[]
-                {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(ClaimTypes.Role, role)
-            }),
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 Issuer = _jwtSettings.Issuer,
                 Audience = _jwtSettings.Audience,
@@ -56,7 +64,8 @@ namespace Spotless.Infrastructure.Services
                 AccessToken: accessToken,
                 AccessTokenExpiration: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 RefreshToken: refreshToken,
-                RefreshTokenExpiration: DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiryDays)
+                RefreshTokenExpiration: DateTime.UtcNow.AddDays(_jwtSettings.RefreshExpiryDays),
+                Role: role
             );
         }
 

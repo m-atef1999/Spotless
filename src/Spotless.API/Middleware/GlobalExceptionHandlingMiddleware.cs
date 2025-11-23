@@ -24,7 +24,6 @@ namespace Spotless.API.Middleware
                 await HandleExceptionAsync(context, ex);
             }
         }
-
         private static Task HandleExceptionAsync(HttpContext context, Exception exception)
         {
             var response = context.Response;
@@ -85,7 +84,7 @@ namespace Spotless.API.Middleware
                 KeyNotFoundException => exception.Message,
                 ArgumentException => exception.Message,
                 InvalidOperationException => exception.Message,
-                _ => "An error occurred while processing your request."
+                _ => $"An error occurred: {exception.Message} Inner: {exception.InnerException?.Message}" // Temporary for debugging
             };
         }
 

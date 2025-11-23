@@ -51,7 +51,13 @@ namespace Spotless.Infrastructure.Configurations
                     .IsRequired(false)
                     .OnDelete(DeleteBehavior.SetNull);
 
+            builder.HasOne(o => o.TimeSlot)
+                   .WithMany(t => t.Orders)
+                   .HasForeignKey(o => o.TimeSlotId)
+                   .IsRequired();
 
+            builder.Metadata.FindNavigation(nameof(Order.Items))!
+                .SetPropertyAccessMode(PropertyAccessMode.Field);
         }
     }
 }

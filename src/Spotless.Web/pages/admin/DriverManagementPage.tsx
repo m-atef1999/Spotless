@@ -65,9 +65,9 @@ export const DriverManagementPage: React.FC = () => {
         }
     };
 
-    const handleReject = async (driverId: string) => {
+    const handleReject = async (_driverId: string) => {
         // Implement reject logic
-        console.log('Reject driver', driverId);
+
     };
 
     const filteredDrivers = drivers.filter(driver =>

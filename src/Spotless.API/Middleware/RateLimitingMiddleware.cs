@@ -11,6 +11,11 @@ namespace Spotless.API.Middleware
         private readonly int _maxRequests;
         private readonly TimeSpan _timeWindow;
         private readonly ConcurrentDictionary<string, List<DateTime>> _requestHistory;
+        
+        // AI specific limits
+        private readonly int _aiMaxRequests = 15;
+        private readonly TimeSpan _aiTimeWindow = TimeSpan.FromMinutes(1);
+        private readonly ConcurrentDictionary<string, List<DateTime>> _aiRequestHistory;
 
         public RateLimitingMiddleware(
             RequestDelegate next,
@@ -24,71 +29,87 @@ namespace Spotless.API.Middleware
             _maxRequests = rateLimitSettings.MaxRequests;
             _timeWindow = TimeSpan.FromMinutes(rateLimitSettings.TimeWindowMinutes);
             _requestHistory = new ConcurrentDictionary<string, List<DateTime>>();
+            _aiRequestHistory = new ConcurrentDictionary<string, List<DateTime>>();
         }
 
         public async Task InvokeAsync(HttpContext context)
         {
             var clientIp = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
             var now = DateTime.UtcNow;
+            var path = context.Request.Path.Value?.ToLower() ?? string.Empty;
 
-            CleanupOldEntries(clientIp, now);
-
-            var history = _requestHistory.GetOrAdd(clientIp, _ => []);
-
-
-            bool rateLimitExceeded = false;
-
-            lock (history)
+            if (path.StartsWith("/api/ai"))
             {
-
-                history.RemoveAll(t => now - t > _timeWindow);
-
-
-                if (history.Count >= _maxRequests)
+                if (await CheckRateLimitAsync(context, clientIp, now, _aiRequestHistory, _aiMaxRequests, _aiTimeWindow, "AI"))
                 {
-                    rateLimitExceeded = true;
-
-                }
-                else
-                {
-
-                    history.Add(now);
+                    return;
                 }
             }
-
-
-            if (rateLimitExceeded)
+            else
             {
-                _logger.LogWarning(
-                    "Rate limit exceeded for IP {ClientIp}. {Count} requests in the last {WindowMinutes} minutes.",
-                    clientIp,
-                    history.Count,
-                    _timeWindow.TotalMinutes);
-
-                context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                context.Response.Headers["Retry-After"] = _timeWindow.TotalSeconds.ToString();
-
-
-                await context.Response.WriteAsync("Rate limit exceeded. Please try again later.");
-
-                return;
+                if (await CheckRateLimitAsync(context, clientIp, now, _requestHistory, _maxRequests, _timeWindow, "Global"))
+                {
+                    return;
+                }
             }
 
             await _next(context);
         }
 
-        private void CleanupOldEntries(string clientIp, DateTime now)
+        private async Task<bool> CheckRateLimitAsync(
+            HttpContext context, 
+            string clientIp, 
+            DateTime now, 
+            ConcurrentDictionary<string, List<DateTime>> historyDict, 
+            int maxRequests, 
+            TimeSpan timeWindow,
+            string limitType)
         {
-            if (_requestHistory.TryGetValue(clientIp, out var history))
+            CleanupOldEntries(historyDict, clientIp, now, timeWindow);
+
+            var history = historyDict.GetOrAdd(clientIp, _ => []);
+            bool rateLimitExceeded = false;
+
+            lock (history)
+            {
+                if (history.Count >= maxRequests)
+                {
+                    rateLimitExceeded = true;
+                }
+                else
+                {
+                    history.Add(now);
+                }
+            }
+
+            if (rateLimitExceeded)
+            {
+                _logger.LogWarning(
+                    "{LimitType} Rate limit exceeded for IP {ClientIp}. {Count} requests in the last {WindowMinutes} minutes.",
+                    limitType,
+                    clientIp,
+                    history.Count,
+                    timeWindow.TotalMinutes);
+
+                context.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                context.Response.Headers["Retry-After"] = timeWindow.TotalSeconds.ToString();
+                await context.Response.WriteAsync($"{limitType} rate limit exceeded. Please try again later.");
+                return true;
+            }
+
+            return false;
+        }
+
+        private void CleanupOldEntries(ConcurrentDictionary<string, List<DateTime>> historyDict, string clientIp, DateTime now, TimeSpan timeWindow)
+        {
+            if (historyDict.TryGetValue(clientIp, out var history))
             {
                 lock (history)
                 {
-                    history.RemoveAll(t => now - t > _timeWindow);
-
-
+                    history.RemoveAll(t => now - t > timeWindow);
                     if (history.Count == 0)
                     {
-                        _requestHistory.TryRemove(clientIp, out _);
+                        historyDict.TryRemove(clientIp, out _);
                     }
                 }
             }

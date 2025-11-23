@@ -34,7 +34,11 @@ namespace Spotless.Infrastructure.Repositories
             if (statusFilter.HasValue)
                 query = query.Where(o => o.Status == statusFilter.Value);
 
-            return await query.OrderByDescending(o => o.OrderDate).ToListAsync();
+            return await query
+                .Include(o => o.TimeSlot)
+                .Include(o => o.Items).ThenInclude(i => i.Service)
+                .OrderByDescending(o => o.OrderDate)
+                .ToListAsync();
         }
 
         public async Task<Order?> GetOrderWithTrackingInfoAsync(Guid orderId)

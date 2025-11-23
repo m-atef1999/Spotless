@@ -5,5 +5,6 @@ namespace Spotless.Application.Features.Customers.Commands.UpdateCustomerProfile
 {
     public record UpdateCustomerProfileCommand(
         CustomerUpdateRequest Dto,
-        Guid UserId) : IRequest<Unit>;
+        Guid UserId,
+        Guid IdentityUserId) : IRequest<Unit>;
 }

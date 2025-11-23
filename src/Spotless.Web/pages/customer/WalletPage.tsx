@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Wallet, CreditCard, DollarSign, Plus, History, Loader2 } from 'lucide-react';
+import { Wallet, CreditCard, Banknote, Plus, History, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -19,7 +19,7 @@ type TopUpFormValues = z.infer<typeof topUpSchema>;
 
 export const WalletPage: React.FC = () => {
     const [balance, setBalance] = useState<number | null>(null);
-    const [currency, setCurrency] = useState<string>('USD');
+    const [currency, setCurrency] = useState<string>('EGP');
     const [isLoading, setIsLoading] = useState(true);
     const [isProcessing, setIsProcessing] = useState(false);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -38,7 +38,7 @@ export const WalletPage: React.FC = () => {
         try {
             const profile = await CustomersService.getApiCustomersMe();
             setBalance(profile.walletBalance || 0);
-            setCurrency(profile.walletCurrency || 'USD');
+            setCurrency(profile.walletCurrency || 'EGP');
         } catch (err) {
             console.error('Failed to fetch wallet balance', err);
         } finally {
@@ -61,12 +61,26 @@ export const WalletPage: React.FC = () => {
                 paymentMethod: 'CreditCard', // Default to Credit Card for now
             };
 
-            await CustomersService.postApiCustomersTopup({ requestBody: request });
-            setSuccessMessage(`Successfully added $${data.amount} to your wallet.`);
-            reset();
-            fetchBalance(); // Refresh balance
+            const response = await CustomersService.postApiCustomersTopup({ requestBody: request });
+
+            if (response && response.paymentUrl) {
+
+                setSuccessMessage('Redirecting to payment gateway...');
+                window.location.href = response.paymentUrl;
+            } else {
+                console.warn('No payment URL received', response);
+                // Fallback for direct deposit (if backend logic changes back or for testing)
+                setSuccessMessage(`Successfully added ${data.amount} EGP to your wallet.`);
+                reset();
+                fetchBalance(); // Refresh balance
+            }
         } catch (err) {
             console.error('Top-up failed', err);
+            if (err && typeof err === 'object' && 'body' in err) {
+                console.error('Error body:', (err as any).body);
+            }
+            // Log full error object
+
             setError('Failed to process top-up. Please try again.');
         } finally {
             setIsProcessing(false);
@@ -100,7 +114,7 @@ export const WalletPage: React.FC = () => {
                         <div className="relative z-10">
                             <p className="text-cyan-100 font-medium mb-2">Current Balance</p>
                             <div className="text-4xl font-bold mb-6">
-                                ${balance?.toFixed(2)} <span className="text-lg font-normal opacity-80">{currency}</span>
+                                {balance?.toFixed(2)} <span className="text-lg font-normal opacity-80">{currency}</span>
                             </div>
                             <div className="flex items-center gap-2 text-sm bg-white/20 w-fit px-3 py-1 rounded-full backdrop-blur-sm">
                                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
@@ -136,7 +150,7 @@ export const WalletPage: React.FC = () => {
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    icon={<DollarSign className="w-5 h-5" />}
+                                    icon={<Banknote className="w-5 h-5" />}
                                     error={errors.amount?.message}
                                     {...register('amount')}
                                 />
@@ -179,7 +193,7 @@ export const WalletPage: React.FC = () => {
                             <div key={tx.id} className="flex items-center justify-between p-4 rounded-lg bg-slate-50 dark:bg-slate-800/50">
                                 <div className="flex items-center gap-4">
                                     <div className={`p-2 rounded-full ${tx.type === 'credit' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`}>
-                                        {tx.type === 'credit' ? <Plus className="w-4 h-4" /> : <DollarSign className="w-4 h-4" />}
+                                        {tx.type === 'credit' ? <Plus className="w-4 h-4" /> : <Banknote className="w-4 h-4" />}
                                     </div>
                                     <div>
                                         <p className="font-medium text-slate-900 dark:text-white">{tx.description}</p>
@@ -187,7 +201,7 @@ export const WalletPage: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className={`font-bold ${tx.type === 'credit' ? 'text-green-600' : 'text-slate-900 dark:text-white'}`}>
-                                    {tx.type === 'credit' ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
+                                    {tx.type === 'credit' ? '+' : ''}{Math.abs(tx.amount).toFixed(2)} EGP
                                 </div>
                             </div>
                         ))}

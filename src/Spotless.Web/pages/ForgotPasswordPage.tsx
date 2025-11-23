@@ -26,12 +26,12 @@ export const ForgotPasswordPage: React.FC = () => {
         resolver: zodResolver(forgotPasswordSchema),
     });
 
-    const onSubmit = async (data: ForgotPasswordFormData) => {
+    const onSubmit = async () => {
         setIsLoading(true);
         try {
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1500));
-            console.log('Reset password for:', data.email);
+
             setIsSubmitted(true);
         } catch (error) {
             console.error('Failed to send reset email', error);

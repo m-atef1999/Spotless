@@ -28,6 +28,7 @@ namespace Spotless.Infrastructure.Mappers
                 Phone = driver.Phone,
                 VehicleInfo = driver.VehicleInfo,
                 Status = driver.Status.ToString(),
+                UpdatedAt = driver.UpdatedAt,
                 CurrentLocation = locationDto
             };
         }
@@ -35,25 +36,7 @@ namespace Spotless.Infrastructure.Mappers
 
         public IEnumerable<DriverDto> MapToProfileDto(IEnumerable<Driver> drivers)
         {
-            return drivers.Select(driver => new DriverDto
-            {
-                Id = driver.Id,
-                Name = driver.Name,
-                Email = driver.Email,
-                Phone = driver.Phone,
-                VehicleInfo = driver.VehicleInfo,
-                Status = driver.Status.ToString(),
-                CurrentLocation = driver.CurrentLocation != null
-
-                                  && driver.CurrentLocation.Latitude.HasValue
-                                  && driver.CurrentLocation.Longitude.HasValue
-                    ? new LocationDto
-                    {
-                        Latitude = driver.CurrentLocation.Latitude.Value,
-                        Longitude = driver.CurrentLocation.Longitude.Value
-                    }
-                    : null
-            });
+            return drivers.Select(MapToProfileDto);
         }
     }
 }

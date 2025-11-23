@@ -130,6 +130,15 @@ namespace Spotless.API.Controllers
 
         private Guid GetCurrentUserId()
         {
+            // 1. Try to get the Domain Customer ID (added in newer tokens)
+            var customerIdString = User.FindFirst("CustomerId")?.Value;
+            if (!string.IsNullOrEmpty(customerIdString) && Guid.TryParse(customerIdString, out Guid customerId))
+            {
+                return customerId;
+            }
+
+            // 2. Fallback to Identity ID (NameIdentifier) - mostly for Admins or Drivers who don't have a CustomerId
+            // OR for old tokens (which will likely fail FK constraints if used for Customer operations)
             var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userIdString))

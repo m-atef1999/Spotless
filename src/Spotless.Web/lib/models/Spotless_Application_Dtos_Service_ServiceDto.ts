@@ -8,6 +8,8 @@ export type Spotless_Application_Dtos_Service_ServiceDto = {
     name?: string | null;
     description?: string | null;
     basePrice?: number;
+    pricePerUnit?: number;
+    currency?: string | null;
     estimatedDurationHours?: number;
     maxWeightKg?: number;
     isActive?: boolean;

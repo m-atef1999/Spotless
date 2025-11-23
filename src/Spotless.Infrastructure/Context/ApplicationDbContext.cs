@@ -42,6 +42,12 @@ namespace Spotless.Infrastructure.Context
                     a.Property(p => p.Country).HasColumnName("Country");
                     a.Property(p => p.ZipCode).HasColumnName("ZipCode");
                 });
+
+                b.OwnsOne(c => c.WalletBalance, money =>
+                {
+                    money.Property(m => m.Amount).HasColumnName("WalletBalance").HasColumnType("decimal(18,2)");
+                    money.Property(m => m.Currency).HasColumnName("WalletCurrency").HasMaxLength(5);
+                });
             });
             modelBuilder.Entity<Category>(b =>
             {

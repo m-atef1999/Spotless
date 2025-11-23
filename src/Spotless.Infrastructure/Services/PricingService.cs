@@ -22,7 +22,7 @@ namespace Spotless.Infrastructure.Services
                 var service = services.FirstOrDefault(s => s.Id == itemDto.ServiceId) ?? throw new KeyNotFoundException($"Service with ID {itemDto.ServiceId} not found.");
                 var itemPrice = service.PricePerUnit.Multiply(itemDto.Quantity);
 
-                results.Add(new PriceCalculationResult(itemDto.ServiceId, itemPrice));
+                results.Add(new PriceCalculationResult(itemDto.ServiceId, itemPrice, service.PricePerUnit));
             }
 
             return results;

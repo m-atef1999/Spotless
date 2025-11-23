@@ -10,6 +10,8 @@ export type Spotless_Application_Dtos_Order_OrderDto = {
     customerId?: string;
     driverId?: string | null;
     timeSlotId?: string;
+    startTime?: string | null;
+    endTime?: string | null;
     scheduledDate?: string;
     pickupLatitude?: number;
     pickupLongitude?: number;
@@ -21,7 +23,9 @@ export type Spotless_Application_Dtos_Order_OrderDto = {
     currency?: string | null;
     status?: Spotless_Domain_Enums_OrderStatus;
     paymentMethod?: Spotless_Domain_Enums_PaymentMethod;
+    serviceName?: string;
+    createdAt?: string;
     orderDate?: string;
-    items?: Array<Spotless_Application_Dtos_Order_OrderItemDto> | null;
+    estimatedDurationHours?: number;
+    items?: Array<Spotless_Application_Dtos_Order_OrderItemDto>;
 };
-

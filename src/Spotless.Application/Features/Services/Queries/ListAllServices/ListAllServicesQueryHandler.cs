@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Spotless.Application.Dtos.Responses;
 using Spotless.Application.Dtos.Service;
 using Spotless.Application.Interfaces;
@@ -31,7 +32,7 @@ namespace Spotless.Application.Features.Services.Queries.ListAllServices
                 filterExpression,
                 request.Skip,
                 request.PageSize,
-                include: null,
+                include: q => q.Include(s => s.Category),
                 orderBy: q => q.OrderBy(s => s.Name)
             );
 
@@ -46,24 +47,36 @@ namespace Spotless.Application.Features.Services.Queries.ListAllServices
             if (string.IsNullOrEmpty(raw))
                 return service => true;
 
-            // split by whitespace to support multi-word search (handles spaces and tokens in Arabic too)
             var tokens = raw.Split([' '], StringSplitOptions.RemoveEmptyEntries);
 
-            // Build expression: service.Name != null && tokens[0] in Name && tokens[1] in Name && ...
             ParameterExpression param = Expression.Parameter(typeof(Service), "service");
             Expression? body = null;
 
             var nameProp = Expression.Property(param, nameof(Service.Name));
-            var notNull = Expression.NotEqual(nameProp, Expression.Constant(null, typeof(string)));
+            var categoryProp = Expression.Property(param, nameof(Service.Category));
+            var categoryNameProp = Expression.Property(categoryProp, nameof(Category.Name));
+
+            var notNullName = Expression.NotEqual(nameProp, Expression.Constant(null, typeof(string)));
+            var notNullCategory = Expression.NotEqual(categoryProp, Expression.Constant(null, typeof(Category)));
+            var notNullCategoryName = Expression.NotEqual(categoryNameProp, Expression.Constant(null, typeof(string)));
 
             foreach (var token in tokens)
             {
                 var tokenConst = Expression.Constant(token, typeof(string));
                 var containsMethod = typeof(string).GetMethod("Contains", [typeof(string)]);
-                var containsCall = Expression.Call(nameProp, containsMethod!, tokenConst);
 
-                var clause = Expression.AndAlso(notNull, containsCall);
-                body = body == null ? clause : Expression.AndAlso(body, clause);
+                // Name.Contains(token)
+                var nameContains = Expression.Call(nameProp, containsMethod!, tokenConst);
+                var nameClause = Expression.AndAlso(notNullName, nameContains);
+
+                // Category.Name.Contains(token)
+                var categoryContains = Expression.Call(categoryNameProp, containsMethod!, tokenConst);
+                var categoryClause = Expression.AndAlso(notNullCategory, Expression.AndAlso(notNullCategoryName, categoryContains));
+
+                // (Name.Contains(token) OR Category.Name.Contains(token))
+                var tokenClause = Expression.OrElse(nameClause, categoryClause);
+
+                body = body == null ? tokenClause : Expression.AndAlso(body, tokenClause);
             }
 
             var lambda = Expression.Lambda<Func<Service, bool>>(body ?? Expression.Constant(true), param);

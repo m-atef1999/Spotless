@@ -8,6 +8,8 @@ namespace Spotless.Application.Dtos.Order
         Guid? DriverId,
 
         Guid TimeSlotId,
+        TimeSpan? StartTime,
+        TimeSpan? EndTime,
         DateTime ScheduledDate,
 
         decimal PickupLatitude,
@@ -21,7 +23,10 @@ namespace Spotless.Application.Dtos.Order
         string Currency,
         OrderStatus Status,
         PaymentMethod PaymentMethod,
+        string ServiceName,
+        DateTime CreatedAt,
         DateTime OrderDate,
+        decimal EstimatedDurationHours,
         IReadOnlyList<OrderItemDto> Items
     );
 }

@@ -6,6 +6,7 @@ namespace Spotless.Application.Dtos.Authentication
         string AccessToken,
         DateTime AccessTokenExpiration,
         string RefreshToken,
-        DateTime RefreshTokenExpiration
+        DateTime RefreshTokenExpiration,
+        string Role
         );
 }

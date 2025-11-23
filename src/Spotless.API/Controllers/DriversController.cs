@@ -40,6 +40,10 @@ namespace Spotless.API.Controllers
 
             var applicationId = await _mediator.Send(command);
 
+            // Link the new DriverId to the Identity User
+            identityUser.DriverId = applicationId;
+            await _userManager.UpdateAsync(identityUser);
+
             return CreatedAtAction(nameof(Register), new { id = applicationId }, applicationId);
         }
 

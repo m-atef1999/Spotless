@@ -38,4 +38,8 @@
 		<ProjectReference Include="..\Spotless.Infrastructure\Spotless.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Logs\" />
+	</ItemGroup>
+
 </Project>

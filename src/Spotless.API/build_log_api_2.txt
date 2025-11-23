@@ -1,0 +1,22 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Spotless.Domain -> C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Domain\bin\Debug\net8.0\Spotless.Domain.dll
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatResponse.cs(5,23): warning CS8618: Non-nullable property 'Response' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatRequest.cs(5,23): warning CS8618: Non-nullable property 'Message' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+  Spotless.Application -> C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\bin\Debug\net8.0\Spotless.Application.dll
+  Spotless.Infrastructure -> C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Infrastructure\bin\Debug\net8.0\Spotless.Infrastructure.dll
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(91,54): warning CS8601: Possible null reference assignment. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(121,124): error CS1061: 'Order' does not contain a definition for 'TotalAmount' and no accessible extension method 'TotalAmount' accepting a first argument of type 'Order' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(137,87): error CS1061: 'Cart' does not contain a definition for 'TotalAmount' and no accessible extension method 'TotalAmount' accepting a first argument of type 'Cart' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+
+Build FAILED.
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatResponse.cs(5,23): warning CS8618: Non-nullable property 'Response' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatRequest.cs(5,23): warning CS8618: Non-nullable property 'Message' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(91,54): warning CS8601: Possible null reference assignment. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(121,124): error CS1061: 'Order' does not contain a definition for 'TotalAmount' and no accessible extension method 'TotalAmount' accepting a first argument of type 'Order' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Services\AiService.cs(137,87): error CS1061: 'Cart' does not contain a definition for 'TotalAmount' and no accessible extension method 'TotalAmount' accepting a first argument of type 'Cart' could be found (are you missing a using directive or an assembly reference?) [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.API\Spotless.API.csproj]
+    3 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:03.00

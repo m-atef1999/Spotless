@@ -1,4 +1,5 @@
 using Spotless.Application.Dtos.Order;
+using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.ValueObjects;
 
@@ -14,6 +15,6 @@ namespace Spotless.Application.Mappers
         CreateOrderDto dto,
         Guid customerId,
         Money totalPrice,
-        List<Money> itemPrices);
+        List<PriceCalculationResult> itemPrices);
     }
 }

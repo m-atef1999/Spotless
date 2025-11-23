@@ -1,0 +1,9 @@
+
+> Spotless.Web@0.0.0 build
+> tsc -b && vite build
+
+App.tsx(2,10): error TS6133: 'QueryClient' is declared but its value is never read.
+App.tsx(2,44): error TS6133: 'QueryCache' is declared but its value is never read.
+App.tsx(45,1): error TS6133: 'OpenAPI' is declared but its value is never read.
+App.tsx(52,34): error TS2552: Cannot find name 'queryClient'. Did you mean 'QueryClient'?
+contexts/NotificationContext.tsx(16,20): error TS6133: 'user' is declared but its value is never read.

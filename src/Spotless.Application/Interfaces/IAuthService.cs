@@ -19,6 +19,8 @@ namespace Spotless.Application.Interfaces
 
         Task<Guid> CreateUserAsync(string email, string password, string role);
         Task<AuthResult> ExternalLoginAsync(string provider, string idToken);
-
+        Task UpdateUserProfileAsync(Guid userId, string name, Domain.ValueObjects.Address address, string? phoneNumber);
+        Task<string?> GetUserIdByCustomerIdAsync(Guid customerId);
+        Task<List<string>> GetAdminUserIdsAsync();
     }
 }

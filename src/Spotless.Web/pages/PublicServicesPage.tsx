@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
-import { Search, Filter, ArrowRight, LogIn, UserPlus } from 'lucide-react';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
+import { Search, Filter, LogIn, User, Activity } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { ServicesService, type ServiceDto } from '../lib/api';
 import logo from '../assets/logo.png';
 import { getServiceImage } from '../utils/imageUtils';
+import { useAuthStore } from '../store/authStore';
+import { BackToTop } from '../components/ui/BackToTop';
 
 export const PublicServicesPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialSearch = searchParams.get('search') || '';
+    const navigate = useNavigate();
+    const { token } = useAuthStore();
 
     const [services, setServices] = useState<ServiceDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState(initialSearch);
     const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        setSearchQuery(searchParams.get('search') || '');
+    }, [searchParams]);
 
     useEffect(() => {
         const fetchServices = async () => {
@@ -47,6 +55,14 @@ export const PublicServicesPage: React.FC = () => {
         setSearchParams(searchQuery ? { search: searchQuery } : {});
     };
 
+    const handleBookNow = (serviceId?: string) => {
+        if (token) {
+            navigate(`/customer/new-order${serviceId ? `?serviceId=${serviceId}` : ''}`);
+        } else {
+            navigate('/login');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
             {/* Header */}
@@ -61,16 +77,24 @@ export const PublicServicesPage: React.FC = () => {
 
                     <div className="flex items-center gap-4">
                         <ThemeToggle />
-                        <Link to="/login">
-                            <Button variant="ghost" className="hidden sm:flex gap-2">
-                                <LogIn className="w-4 h-4" /> Sign In
-                            </Button>
-                        </Link>
-                        <Link to="/register">
-                            <Button className="gap-2">
-                                <UserPlus className="w-4 h-4" /> Get Started
-                            </Button>
-                        </Link>
+                        {token ? (
+                            <Link to="/customer/dashboard">
+                                <Button>Dashboard</Button>
+                            </Link>
+                        ) : (
+                            <>
+                                <Link to="/login">
+                                    <Button variant="ghost" className="hidden sm:flex gap-2">
+                                        <LogIn className="w-4 h-4" /> Sign In
+                                    </Button>
+                                </Link>
+                                <Link to="/register">
+                                    <Button className="gap-2">
+                                        <User className="w-4 h-4" /> Get Started
+                                    </Button>
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             </header>
@@ -143,28 +167,42 @@ export const PublicServicesPage: React.FC = () => {
                                         alt={service.name || ''}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
-                                    <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1 rounded-full text-sm font-bold text-cyan-600 dark:text-cyan-400 shadow-sm">
-                                        {service.basePrice ? `$${service.basePrice.toFixed(2)}` : 'Price on Request'}
+                                    <div className="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1 rounded-full text-sm font-bold text-cyan-600 dark:text-cyan-400 shadow-sm opacity-0">
+                                        {/* Hidden but kept for potential future use or layout stability if needed, effectively removed from view */}
                                     </div>
                                 </div>
 
                                 <div className="p-6 flex-1 flex flex-col">
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                                        {service.name}
-                                    </h3>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h3 className="text-xl font-bold text-slate-900 dark:text-white line-clamp-2 pr-2">
+                                            {service.name}
+                                        </h3>
+                                        <div className="flex flex-col items-end gap-1 shrink-0">
+                                            <span className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold px-2 py-1 rounded-full whitespace-nowrap">
+                                                {service.basePrice !== undefined && service.basePrice !== null ? `${service.basePrice.toFixed(0)} ${service.currency || 'EGP'}` : 'Price on Request'}
+                                            </span>
+                                            {service.maxWeightKg !== undefined && (
+                                                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                                                    Max {service.maxWeightKg} KG
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
                                     <p className="text-slate-600 dark:text-slate-400 text-sm mb-6 line-clamp-2 flex-1">
                                         {service.description || 'Professional cleaning with premium care.'}
                                     </p>
 
                                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100 dark:border-slate-700">
                                         <span className="text-sm text-slate-500 dark:text-slate-400">
-                                            {service.estimatedDurationHours ? `${service.estimatedDurationHours}h turnaround` : 'Fast turnaround'}
+                                            {service.estimatedDurationHours ? `Est. Time: ${service.estimatedDurationHours}h` : 'Est. Time: 24h'}
                                         </span>
-                                        <Link to="/login">
-                                            <Button size="sm" variant="ghost" className="gap-1 text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 p-0 hover:bg-transparent">
-                                                Book Now <ArrowRight className="w-4 h-4" />
-                                            </Button>
-                                        </Link>
+                                        <Button
+                                            onClick={() => handleBookNow(service.id)}
+                                            className="shadow-lg shadow-cyan-500/20"
+                                        >
+                                            <Activity className="w-4 h-4 mr-2" />
+                                            Book Now
+                                        </Button>
                                     </div>
                                 </div>
                             </div>
@@ -172,6 +210,7 @@ export const PublicServicesPage: React.FC = () => {
                     </div>
                 )}
             </main>
+            <BackToTop />
         </div>
     );
 };

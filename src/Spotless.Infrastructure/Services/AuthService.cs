@@ -5,6 +5,7 @@ using Spotless.Application.Dtos.Authentication;
 using Spotless.Application.Interfaces;
 using Spotless.Domain.Entities;
 using Spotless.Domain.ValueObjects;
+using Spotless.Domain.Enums;
 using Spotless.Infrastructure.Identity;
 
 using System.Net.Http;
@@ -23,24 +24,36 @@ namespace Spotless.Infrastructure.Services
 
         public async Task<AuthResult> RegisterAsync(RegisterRequest request, string role)
         {
-            var user = new ApplicationUser { UserName = request.Email, Email = request.Email, IsActive = true };
+            var address = new Address(
+                request.Street,
+                request.City,
+                request.Country,
+                request.ZipCode
+            );
+
+            var user = new ApplicationUser 
+            { 
+                UserName = request.Email, 
+                Email = request.Email, 
+                IsActive = true,
+                Name = request.Name,
+                Address = address
+            };
             var result = await _userManager.CreateAsync(user, request.Password);
 
             if (!result.Succeeded)
             {
-                throw new Exception("Identity creation failed: " + string.Join(", ", result.Errors.Select(e => e.Description)));
+                throw new ArgumentException(string.Join(", ", result.Errors.Select(e => e.Description)));
             }
 
-            await _userManager.AddToRoleAsync(user, role);
+            var roleResult = await _userManager.AddToRoleAsync(user, role);
+            if (!roleResult.Succeeded)
+            {
+                throw new ArgumentException("Failed to assign role: " + string.Join(", ", roleResult.Errors.Select(e => e.Description)));
+            }
 
             if (role == "Customer")
             {
-                var address = new Address(
-                    request.Street,
-                    request.City,
-                    request.Country,
-                    request.ZipCode
-                );
                 var customer = new Customer(
                     adminId: null,
                     name: request.Name,
@@ -99,8 +112,6 @@ namespace Spotless.Infrastructure.Services
 
         }
 
-
-
         public async Task<AuthResult> RefreshTokenAsync(string refreshToken)
         {
 
@@ -132,6 +143,146 @@ namespace Spotless.Infrastructure.Services
 
             return authResult;
         }
+
+        public async Task<AuthResult> ExternalLoginAsync(string provider, string idToken)
+        {
+            if (string.IsNullOrEmpty(provider) || string.IsNullOrEmpty(idToken))
+                throw new ArgumentException("Provider and idToken must be provided.");
+
+            if (!provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
+                throw new NotSupportedException($"Provider '{provider}' is not supported.");
+
+            string? email = null;
+            string? providerKey = null;
+
+            // 1. Try validating as ID Token (JWT)
+            try
+            {
+                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
+                email = payload.Email;
+                providerKey = payload.Subject; // This is the unique Google User ID
+            }
+            catch (InvalidJwtException)
+            {
+                // 2. If invalid JWT, assume it's an Access Token and try UserInfo endpoint
+                try
+                {
+                    var httpClient = _httpClientFactory.CreateClient();
+                    var request = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/oauth2/v3/userinfo");
+                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", idToken);
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var content = await response.Content.ReadAsStringAsync();
+                        using var doc = JsonDocument.Parse(content);
+                        if (doc.RootElement.TryGetProperty("email", out var emailElement))
+                        {
+                            email = emailElement.GetString();
+                        }
+                        if (doc.RootElement.TryGetProperty("sub", out var subElement))
+                        {
+                            providerKey = subElement.GetString();
+                        }
+                    }
+                }
+                catch
+                {
+                    // Ignore and fall through
+                }
+            }
+
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(providerKey))
+                throw new UnauthorizedAccessException("Invalid Google token or unable to retrieve email/user ID.");
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                // create a local user for this external account
+                var tempPassword = Guid.NewGuid().ToString("N") + "aA!1";
+                var newUserId = await CreateUserAsync(email, tempPassword, "Customer");
+                user = await _userManager.FindByIdAsync(newUserId.ToString());
+
+                // Link the external login immediately for the new user
+                if (user != null)
+                {
+                    var loginInfo = new UserLoginInfo(provider, providerKey, provider);
+                    await _userManager.AddLoginAsync(user, loginInfo);
+                }
+            }
+            else
+            {
+                // Check if user exists but is not linked to Google
+                var logins = await _userManager.GetLoginsAsync(user);
+                var isLinked = logins.Any(l => l.LoginProvider == provider && l.ProviderKey == providerKey);
+
+                if (!isLinked)
+                {
+                    // Automatically link the account
+                    var loginInfo = new UserLoginInfo(provider, providerKey, provider);
+                    var linkResult = await _userManager.AddLoginAsync(user, loginInfo);
+                    
+                    if (!linkResult.Succeeded)
+                    {
+                        // If linking fails, we might want to log it, but for now we can proceed 
+                        // or throw if it's critical. Usually it fails if the login is already used by another user.
+                        // But we already checked by email, so it's the same user.
+                        // Just in case, let's throw to be safe.
+                         throw new Exception("Failed to link Google account: " + string.Join(", ", linkResult.Errors.Select(e => e.Description)));
+                    }
+                }
+            }
+
+            if (user == null)
+                throw new UnauthorizedAccessException("Unable to create or find user for external login.");
+
+            // Ensure Customer record exists
+            if (user.CustomerId == null)
+            {
+                // Try to find existing customer by email
+                var existingCustomer = await _unitOfWork.Customers.GetByEmailAsync(email);
+                
+                if (existingCustomer != null)
+                {
+                    user.CustomerId = existingCustomer.Id;
+                    await _userManager.UpdateAsync(user);
+                }
+                else
+                {
+                    // Create new customer
+                    string name = email.Split('@')[0];
+                    
+                    var customer = new Customer(
+                        adminId: null,
+                        name: name,
+                        phone: null, // Phone is optional
+                        email: email,
+                        address: new Address("Unknown", "Unknown", "Unknown", "00000"), // Use placeholders to pass validation
+                        type: CustomerType.Individual); // Default type
+
+                    await _unitOfWork.Customers.AddAsync(customer);
+                    await _unitOfWork.CommitAsync();
+
+                    user.CustomerId = customer.Id;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? "Customer";
+
+            var refreshToken = _jwtTokenGenerator.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
+            var authResult = _jwtTokenGenerator.GenerateAuthResult(user, role, refreshToken);
+
+            return authResult;
+        }
+
         public async Task<bool> ResetPasswordAsync(string userId, string token, string newPassword)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -299,77 +450,31 @@ namespace Spotless.Infrastructure.Services
             return user.Id;
         }
 
-        public async Task<AuthResult> ExternalLoginAsync(string provider, string idToken)
+        public async Task UpdateUserProfileAsync(Guid userId, string name, Domain.ValueObjects.Address address, string? phoneNumber)
         {
-            if (string.IsNullOrEmpty(provider) || string.IsNullOrEmpty(idToken))
-                throw new ArgumentException("Provider and idToken must be provided.");
-
-            if (!provider.Equals("Google", StringComparison.OrdinalIgnoreCase))
-                throw new NotSupportedException($"Provider '{provider}' is not supported.");
-
-            string? email = null;
-
-            // 1. Try validating as ID Token (JWT)
-            try
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user != null)
             {
-                var payload = await GoogleJsonWebSignature.ValidateAsync(idToken);
-                email = payload.Email;
+                user.Name = name;
+                user.Address = address;
+                if (phoneNumber != null) user.PhoneNumber = phoneNumber;
+
+                await _userManager.UpdateAsync(user);
             }
-            catch (InvalidJwtException)
-            {
-                // 2. If invalid JWT, assume it's an Access Token and try UserInfo endpoint
-                try
-                {
-                    var httpClient = _httpClientFactory.CreateClient();
-                    var request = new HttpRequestMessage(HttpMethod.Get, "https://www.googleapis.com/oauth2/v3/userinfo");
-                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", idToken);
-
-                    var response = await httpClient.SendAsync(request);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        using var doc = JsonDocument.Parse(content);
-                        if (doc.RootElement.TryGetProperty("email", out var emailElement))
-                        {
-                            email = emailElement.GetString();
-                        }
-                    }
-                }
-                catch
-                {
-                    // Ignore and fall through
-                }
-            }
-
-            if (string.IsNullOrEmpty(email))
-                throw new UnauthorizedAccessException("Invalid Google token or unable to retrieve email.");
-
-            var user = await _userManager.FindByEmailAsync(email);
-
-            if (user == null)
-            {
-                // create a local user for this external account
-                var tempPassword = Guid.NewGuid().ToString("N") + "aA!1";
-                var newUserId = await CreateUserAsync(email, tempPassword, "Customer");
-                user = await _userManager.FindByIdAsync(newUserId.ToString());
-            }
-
-            if (user == null)
-                throw new UnauthorizedAccessException("Unable to create or find user for external login.");
-
-            var roles = await _userManager.GetRolesAsync(user);
-            var role = roles.FirstOrDefault() ?? "Customer";
-
-            var refreshToken = _jwtTokenGenerator.GenerateRefreshToken();
-
-            user.RefreshToken = refreshToken;
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
-
-            var authResult = _jwtTokenGenerator.GenerateAuthResult(user, role, refreshToken);
-
-            return authResult;
         }
+
+        public async Task<string?> GetUserIdByCustomerIdAsync(Guid customerId)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.CustomerId == customerId);
+            return user?.Id.ToString();
+        }
+
+        public async Task<List<string>> GetAdminUserIdsAsync()
+        {
+            var admins = await _userManager.GetUsersInRoleAsync("Admin");
+            return admins.Select(u => u.Id.ToString()).ToList();
+        }
+
     }
 
 }

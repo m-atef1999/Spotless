@@ -1,0 +1,16 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Spotless.Domain -> C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Domain\bin\Debug\net8.0\Spotless.Domain.dll
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatResponse.cs(5,23): warning CS8618: Non-nullable property 'Response' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatRequest.cs(5,23): warning CS8618: Non-nullable property 'Message' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Features\Drivers\Commands\SubmitDriverApplicationCommand\SubmitDriverApplicationCommandHandler.cs(19,59): error CS0117: 'DriverStatus' does not contain a definition for 'Rejected' [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+
+Build FAILED.
+
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatResponse.cs(5,23): warning CS8618: Non-nullable property 'Response' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Dtos\Ai\ChatRequest.cs(5,23): warning CS8618: Non-nullable property 'Message' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the property as nullable. [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Features\Drivers\Commands\SubmitDriverApplicationCommand\SubmitDriverApplicationCommandHandler.cs(19,59): error CS0117: 'DriverStatus' does not contain a definition for 'Rejected' [C:\Users\egysc\Documents\Work\GitHub\Spotless\src\Spotless.Application\Spotless.Application.csproj]
+    2 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.98

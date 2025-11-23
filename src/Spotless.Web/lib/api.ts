@@ -1,25 +1,3 @@
-/* API Client Configuration and Exports */
-import { OpenAPI } from './core/OpenAPI';
-
-// Configure API base URL from environment
-OpenAPI.BASE = import.meta.env.VITE_API_BASE_URL || 'https://localhost:7140';
-
-// Configure auth token - will be set dynamically by auth store
-OpenAPI.TOKEN = async () => {
-  // Get token from localStorage (zustand persist)
-  const authStorage = localStorage.getItem('auth-storage');
-  if (!authStorage) return undefined;
-
-  try {
-    const { state } = JSON.parse(authStorage);
-    return state?.token || undefined;
-  } catch {
-    return undefined;
-  }
-};
-
-// ============================================================================
-// SERVICES - Use these for API calls
 // ============================================================================
 export { AdminsService } from './services/AdminsService';
 export { AnalyticsService } from './services/AnalyticsService';

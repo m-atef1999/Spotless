@@ -7,7 +7,7 @@ export type Spotless_Application_Dtos_Authentication_AuthResult = {
     email?: string | null;
     accessToken?: string | null;
     accessTokenExpiration?: string;
-    refreshToken?: string | null;
-    refreshTokenExpiration?: string;
+    refreshToken: string;
+    refreshTokenExpiration: string;
+    role: string;
 };
-

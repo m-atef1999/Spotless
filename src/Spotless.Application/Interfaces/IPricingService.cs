@@ -6,7 +6,8 @@ namespace Spotless.Application.Interfaces
 {
     public record PriceCalculationResult(
         Guid ServiceId,
-        Money Price
+        Money Price,
+        Money UnitPrice
     );
 
     public interface IPricingService
