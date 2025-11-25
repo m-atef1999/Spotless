@@ -82,7 +82,7 @@ Key features:
 │   ├── Spotless.Application/      → Application Layer   (CQRS, MediatR, DTOs, Validation)
 │   ├── Spotless.Domain/           → Domain Layer        (Entities, Rules, Events)
 │   ├── Spotless.Infrastructure/   → Infrastructure      (EF Core, Repositories, Migrations)
-│   ├── Frontend/                  → React + Vite + Tailwind Frontend
+│   ├── Spotless.Web/                  → React + Vite + Tailwind Frontend
 │   │
 │   └── Spotless.sln               → Solution file
 │
@@ -101,7 +101,7 @@ Key features:
 | **Application**        | `Spotless.Application`    | Contains use cases (CQRS), handlers, DTOs, interfaces, validation, and mapping. No EF or domain logic.     |
 | **Domain**             | `Spotless.Domain`         | Pure business logic: entities, enums, value objects, domain rules, domain events. Framework-independent.   |
 | **Infrastructure**     | `Spotless.Infrastructure` | EF Core DbContext, repositories, migrations, external services, and persistence implementations.           |
-| **Frontend**           | `Frontend`                | React + Vite + Tailwind app structure, handles UI components, pages, routing, and frontend business logic. |
+| **Frontend**           | `Spotless.Web`                | React + Vite + Tailwind app structure, handles UI components, pages, routing, and frontend business logic. |
 
 ---
 
@@ -145,7 +145,7 @@ Backend runs on your configured ports.
 ### Navigate to the frontend
 
 ```bash
-cd src/Frontend
+cd src/Spotless.Web
 ```
 
 ### Install dependencies
@@ -170,7 +170,7 @@ http://localhost:5173
 
 ## 🔧 Environment Configuration (Optional)
 
-Create a `.env` file in `src/Frontend`:
+Create a `.env` file in `src/Spotless.Web`:
 
 ```
 VITE_API_BASE_URL=https://localhost:5001
