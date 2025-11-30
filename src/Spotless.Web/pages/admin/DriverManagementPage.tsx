@@ -1,194 +1,254 @@
-import React, { useState, useEffect } from 'react';
-import { Check, X, Search, MoreVertical, Truck } from 'lucide-react';
-import { DashboardLayout } from '../../layouts/DashboardLayout';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { type DriverDto } from '../../lib/api';
+import React, { useState } from "react";
+import {
+  Search,
+  Filter,
+  User,
+  AlertTriangle,
+  Truck,
+  RefreshCw,
+} from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { DashboardLayout } from "../../layouts/DashboardLayout";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
+import { DriversService } from "../../lib/api";
+import { useToast } from "../../components/ui/Toast";
 
-// Mock data since API endpoint for listing drivers is missing
-const MOCK_DRIVERS: DriverDto[] = [
-    {
-        id: '1',
-        name: 'John Smith',
-        email: 'john.smith@example.com',
-        phone: '+1 (555) 123-4567',
-        vehicleInfo: '2019 Toyota Prius',
-        status: 'Active',
-    },
-    {
-        id: '2',
-        name: 'Sarah Johnson',
-        email: 'sarah.j@example.com',
-        phone: '+1 (555) 987-6543',
-        vehicleInfo: '2021 Honda Civic',
-        status: 'Pending',
-    },
-    {
-        id: '3',
-        name: 'Michael Brown',
-        email: 'm.brown@example.com',
-        phone: '+1 (555) 456-7890',
-        vehicleInfo: '2020 Ford Fusion',
-        status: 'Active',
-    },
-];
+import { useDebounce } from "../../hooks/useDebounce";
 
 export const DriverManagementPage: React.FC = () => {
-    const [drivers, setDrivers] = useState<DriverDto[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [processingId, setProcessingId] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const debouncedSearch = useDebounce(searchTerm, 500);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize] = useState(10);
+  const queryClient = useQueryClient();
+  const { addToast } = useToast();
 
-    useEffect(() => {
-        // Simulate API fetch
-        setTimeout(() => {
-            setDrivers(MOCK_DRIVERS);
-            setIsLoading(false);
-        }, 1000);
-    }, []);
+  const {
+    data: drivers = [],
+    isLoading,
+    refetch,
+  } = useQuery<any[], Error>({
+    queryKey: ["drivers", pageNumber, debouncedSearch],
+    queryFn: async () => {
+      try {
+        const response = await DriversService.getApiDrivers({
+          pageNumber,
+          pageSize,
+          searchTerm: debouncedSearch || undefined,
+        });
+        const data = response.data;
+        return Array.isArray(data) ? data : (data?.data || []);
+      } catch (err) {
+        console.error("Failed to load drivers", err);
+        addToast("Failed to load drivers. Server error.", "error");
+        return [];
+      }
+    },
+    staleTime: 10000,
+  });
 
-    const handleApprove = async (driverId: string) => {
-        if (!driverId) return;
-        setProcessingId(driverId);
-        try {
-            // In a real scenario, we would call the API
-            // await apiClient.approve(driverId, new ApproveDriverRequest({ password: 'DefaultPassword123!' }));
+  const revokeAccessMutation = useMutation({
+    mutationFn: async (driverId: string) => {
+      await DriversService.postApiDriversAdminRevoke({ driverId });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["drivers"] });
+      addToast("Driver access revoked successfully", "success");
+    },
+    onError: () => {
+      addToast("Failed to revoke access. Please try again.", "error");
+    },
+  });
 
-            // Update local state to reflect change
-            setDrivers(prev => prev.map(d =>
-                d.id === driverId ? { ...d, status: 'Active' } : d
-            ));
-        } catch (error) {
-            console.error('Failed to approve driver', error);
-        } finally {
-            setProcessingId(null);
-        }
-    };
+  const handleRevokeAccess = (driverId: string, driverName: string) => {
+    if (
+      !window.confirm(
+        `Are you sure you want to revoke access for driver ${driverName}? This action cannot be undone easily.`
+      )
+    ) {
+      return;
+    }
+    revokeAccessMutation.mutate(driverId);
+  };
 
-    const handleReject = async (_driverId: string) => {
-        // Implement reject logic
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "Online":
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
+            Online
+          </span>
+        );
+      case "Offline":
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
+            Offline
+          </span>
+        );
+      case "Busy":
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
+            Busy
+          </span>
+        );
+      default:
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
+            {status}
+          </span>
+        );
+    }
+  };
 
-    };
-
-    const filteredDrivers = drivers.filter(driver =>
-        driver.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        driver.email?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    return (
-        <DashboardLayout role="Admin">
-            <div className="space-y-8">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-                            Driver Management
-                        </h1>
-                        <p className="text-slate-500 dark:text-slate-400 mt-1">
-                            Manage driver applications and active fleet.
-                        </p>
-                    </div>
-                    <div className="w-full sm:w-72">
-                        <Input
-                            placeholder="Search drivers..."
-                            icon={<Search className="w-5 h-5" />}
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                    </div>
-                </div>
-
-                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Driver</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Contact</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vehicle</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
-                                {isLoading ? (
-                                    <tr>
-                                        <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                                            Loading drivers...
-                                        </td>
-                                    </tr>
-                                ) : filteredDrivers.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                                            No drivers found.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    filteredDrivers.map((driver) => (
-                                        <tr key={driver.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 bg-cyan-100 dark:bg-cyan-900/30 rounded-full flex items-center justify-center text-cyan-600 dark:text-cyan-400 font-bold">
-                                                        {driver.name?.charAt(0)}
-                                                    </div>
-                                                    <div>
-                                                        <div className="font-medium text-slate-900 dark:text-white">{driver.name}</div>
-                                                        <div className="text-xs text-slate-500">ID: {driver.id}</div>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-sm text-slate-600 dark:text-slate-300">{driver.email}</div>
-                                                <div className="text-sm text-slate-500">{driver.phone}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
-                                                    <Truck className="w-4 h-4 text-slate-400" />
-                                                    {driver.vehicleInfo}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${driver.status === 'Active'
-                                                    ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                                                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                                    }`}>
-                                                    {driver.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                {driver.status === 'Pending' ? (
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() => handleApprove(driver.id!)}
-                                                            isLoading={processingId === driver.id}
-                                                            className="bg-green-600 hover:bg-green-700 text-white"
-                                                        >
-                                                            <Check className="w-4 h-4 mr-1" />
-                                                            Approve
-                                                        </Button>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="outline"
-                                                            onClick={() => handleReject(driver.id!)}
-                                                            className="text-red-600 hover:bg-red-50 border-red-200"
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </Button>
-                                                    </div>
-                                                ) : (
-                                                    <Button size="sm" variant="ghost">
-                                                        <MoreVertical className="w-4 h-4" />
-                                                    </Button>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+  return (
+    <DashboardLayout role="Admin">
+      <div className="space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Driver Management
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1">
+              Manage active drivers and their access.
+            </p>
+          </div>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <div className="w-full sm:w-64">
+              <Input
+                placeholder="Search drivers..."
+                icon={<Search className="w-5 h-5" />}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-        </DashboardLayout>
-    );
+            <Button variant="outline" className="shrink-0">
+              <Filter className="w-4 h-4 mr-2" />
+              Filter
+            </Button>
+            <Button onClick={() => refetch()} variant="outline" size="icon">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Driver
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Phone
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Vehicle
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
+                {isLoading ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-8 text-center text-slate-500"
+                    >
+                      Loading drivers...
+                    </td>
+                  </tr>
+                ) : drivers.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={6}
+                      className="px-6 py-8 text-center text-slate-500"
+                    >
+                      No drivers found.
+                    </td>
+                  </tr>
+                ) : (
+                  drivers.map((driver: any) => (
+                    <tr
+                      key={driver.id}
+                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    >
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-slate-400" />
+                          <span className="font-medium text-slate-900 dark:text-white">
+                            {driver.name}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                        {driver.email}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                        {driver.phone}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">
+                        <div className="flex items-center gap-2">
+                          <Truck className="w-4 h-4 text-slate-400" />
+                          {driver.vehicleInfo}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        {getStatusBadge(driver.status)}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                          onClick={() =>
+                            handleRevokeAccess(driver.id, driver.name)
+                          }
+                          isLoading={
+                            revokeAccessMutation.isPending &&
+                            revokeAccessMutation.variables === driver.id
+                          }
+                        >
+                          <AlertTriangle className="w-4 h-4 mr-1" />
+                          Revoke
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between">
+          <Button
+            variant="outline"
+            onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
+            disabled={pageNumber === 1 || isLoading}
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-slate-500">Page {pageNumber}</span>
+          <Button
+            variant="outline"
+            onClick={() => setPageNumber((p) => p + 1)}
+            disabled={drivers.length < pageSize || isLoading}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </DashboardLayout>
+  );
 };

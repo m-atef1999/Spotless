@@ -23,6 +23,8 @@ namespace Spotless.API.Controllers
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IPaginationService _paginationService = paginationService;
 
+        
+        
         /// <summary>
         /// Lists all customers (Admin only)
         /// </summary>

@@ -19,6 +19,8 @@ namespace Spotless.API.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
+        
+        
         /// <summary>
         /// Creates a new laundry order
         /// </summary>
@@ -118,14 +120,52 @@ namespace Spotless.API.Controllers
         [HttpPost("{id}/cancel")]
         [ProducesResponseType(typeof(OrderDto), 200)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(409)]
         public async Task<IActionResult> CancelOrder(Guid id)
         {
             var customerId = GetCurrentUserId();
             var command = new CancelOrderCommand(id, customerId);
             var result = await _mediator.Send(command);
             return Ok(result);
+        }
+
+        /// <summary>
+        /// Lists all orders for admin with filtering
+        /// </summary>
+        [HttpGet("admin")]
+        [Authorize(Roles = "Admin")]
+        [ProducesResponseType(typeof(PagedResponse<OrderDto>), 200)]
+        public async Task<IActionResult> GetOrdersAdmin(
+            [FromQuery] int? pageNumber,
+            [FromQuery] int? pageSize,
+            [FromQuery] Spotless.Domain.Enums.OrderStatus? status,
+            [FromQuery] string? searchTerm)
+        {
+            pageNumber ??= 1;
+            pageSize ??= 10;
+
+            var query = new Spotless.Application.Features.Orders.Queries.GetOrdersAdmin.GetOrdersAdminQuery(
+                pageNumber.Value,
+                pageSize.Value,
+                status,
+                searchTerm);
+
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Updates order status (Admin only)
+        /// </summary>
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}/status")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] Spotless.Domain.Enums.OrderStatus newStatus)
+        {
+            var command = new Spotless.Application.Features.Orders.Commands.UpdateOrderStatus.UpdateOrderStatusCommand(id, newStatus);
+            await _mediator.Send(command);
+            return NoContent();
         }
 
         private Guid GetCurrentUserId()

@@ -4,16 +4,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Identity
 {
-    /// <inheritdoc />
+    ///// <inheritdoc />
     public partial class DeploymentBuild : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
 
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CategoriesService, type CategoryDto, type PagedResponse } from '../../lib/api';
 import { useToast } from '../../components/ui/Toast';
 import { Modal } from '../../components/ui/Modal';
+import { DashboardLayout } from '../../layouts/DashboardLayout';
 
 export function CategoryManagementPage() {
     const [categories, setCategories] = useState<CategoryDto[]>([]);
@@ -87,51 +88,51 @@ export function CategoryManagementPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
-            <div className="max-w-7xl mx-auto">
+        <DashboardLayout role="Admin">
+            <div className="space-y-8">
                 {/* Header */}
-                <div className="mb-8 flex justify-between items-center">
+                <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900">Category Management</h1>
-                        <p className="text-gray-600 mt-2">Manage service categories</p>
+                        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Category Management</h1>
+                        <p className="text-slate-500 dark:text-slate-400 mt-1">Manage service categories</p>
                     </div>
                     <button
                         onClick={handleCreate}
-                        className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                        className="bg-cyan-600 text-white px-6 py-2 rounded-xl hover:bg-cyan-700 transition-colors font-medium"
                     >
                         + Add Category
                     </button>
                 </div>
 
                 {/* Categories Grid */}
-                <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
                     {loading ? (
                         <div className="flex items-center justify-center h-64">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-600"></div>
                         </div>
                     ) : categories.length === 0 ? (
                         <div className="text-center py-12">
-                            <p className="text-gray-500 text-lg">No categories found</p>
+                            <p className="text-slate-500 text-lg">No categories found</p>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                             {categories.map((category) => (
-                                <div key={category.id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                                    <h3 className="text-lg font-semibold text-gray-900 mb-2">{category.name}</h3>
-                                    <p className="text-gray-600 text-sm mb-4">{category.description || 'No description'}</p>
-                                    <div className="text-sm text-gray-500 mb-4">
+                                <div key={category.id} className="border border-slate-200 dark:border-slate-800 rounded-xl p-6 hover:shadow-md transition-shadow bg-slate-50 dark:bg-slate-800/50">
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{category.name}</h3>
+                                    <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2">{category.description || 'No description'}</p>
+                                    <div className="text-sm text-slate-500 dark:text-slate-500 mb-4">
                                         Services: {category.serviceCount || 0}
                                     </div>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => handleEdit(category)}
-                                            className="flex-1 bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition-colors"
+                                            className="flex-1 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-900/30 transition-colors font-medium text-sm"
                                         >
                                             Edit
                                         </button>
                                         <button
                                             onClick={() => handleDelete(category.id!)}
-                                            className="flex-1 bg-red-100 text-red-700 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors"
+                                            className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors font-medium text-sm"
                                         >
                                             Delete
                                         </button>
@@ -146,31 +147,31 @@ export function CategoryManagementPage() {
                 {
                     showModal && (
                         <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-                            <div className="p-6">
-                                <h2 className="text-2xl font-bold mb-4">
+                            <div className="p-6 bg-white dark:bg-slate-900">
+                                <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
                                     {editingCategory ? 'Edit Category' : 'Create Category'}
                                 </h2>
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                             Category Name
                                         </label>
                                         <input
                                             type="text"
                                             value={formData.name}
                                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                                             placeholder="Enter category name"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                             Description
                                         </label>
                                         <textarea
                                             value={formData.description}
                                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                                             rows={4}
                                             placeholder="Enter category description"
                                         />
@@ -178,13 +179,13 @@ export function CategoryManagementPage() {
                                     <div className="flex gap-2 pt-4">
                                         <button
                                             onClick={handleSubmit}
-                                            className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+                                            className="flex-1 bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors font-medium"
                                         >
                                             {editingCategory ? 'Update' : 'Create'}
                                         </button>
                                         <button
                                             onClick={() => setShowModal(false)}
-                                            className="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors"
+                                            className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium"
                                         >
                                             Cancel
                                         </button>
@@ -195,7 +196,7 @@ export function CategoryManagementPage() {
                     )
                 }
             </div >
-        </div >
+        </DashboardLayout>
     );
 }
 

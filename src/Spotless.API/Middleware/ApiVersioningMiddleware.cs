@@ -17,9 +17,13 @@ namespace Spotless.API.Middleware
             var request = context.Request;
             var path = request.Path.Value ?? string.Empty;
 
+            
+            
             // Check if request is to API endpoints
             if (path.StartsWith("/api/", StringComparison.OrdinalIgnoreCase))
             {
+                
+                
                 // Extract version from path (e.g., /api/v1/...)
                 var pathSegments = path.Split('/', StringSplitOptions.RemoveEmptyEntries);
                 

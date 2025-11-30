@@ -5,7 +5,6 @@ namespace Spotless.Application.Features.Drivers.Commands.ApproveDriverApplicatio
 
     public record ApproveDriverApplicationCommand(
         Guid ApplicationId,
-        string Password,
         Guid AdminId
     ) : IRequest<Guid>;
 }

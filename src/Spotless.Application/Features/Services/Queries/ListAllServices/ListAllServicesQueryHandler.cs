@@ -44,43 +44,10 @@ namespace Spotless.Application.Features.Services.Queries.ListAllServices
         private Expression<Func<Service, bool>> BuildFilterExpression(ListServicesQuery request)
         {
             var raw = request.NameSearchTerm?.Trim();
-            if (string.IsNullOrEmpty(raw))
-                return service => true;
-
-            var tokens = raw.Split([' '], StringSplitOptions.RemoveEmptyEntries);
-
-            ParameterExpression param = Expression.Parameter(typeof(Service), "service");
-            Expression? body = null;
-
-            var nameProp = Expression.Property(param, nameof(Service.Name));
-            var categoryProp = Expression.Property(param, nameof(Service.Category));
-            var categoryNameProp = Expression.Property(categoryProp, nameof(Category.Name));
-
-            var notNullName = Expression.NotEqual(nameProp, Expression.Constant(null, typeof(string)));
-            var notNullCategory = Expression.NotEqual(categoryProp, Expression.Constant(null, typeof(Category)));
-            var notNullCategoryName = Expression.NotEqual(categoryNameProp, Expression.Constant(null, typeof(string)));
-
-            foreach (var token in tokens)
-            {
-                var tokenConst = Expression.Constant(token, typeof(string));
-                var containsMethod = typeof(string).GetMethod("Contains", [typeof(string)]);
-
-                // Name.Contains(token)
-                var nameContains = Expression.Call(nameProp, containsMethod!, tokenConst);
-                var nameClause = Expression.AndAlso(notNullName, nameContains);
-
-                // Category.Name.Contains(token)
-                var categoryContains = Expression.Call(categoryNameProp, containsMethod!, tokenConst);
-                var categoryClause = Expression.AndAlso(notNullCategory, Expression.AndAlso(notNullCategoryName, categoryContains));
-
-                // (Name.Contains(token) OR Category.Name.Contains(token))
-                var tokenClause = Expression.OrElse(nameClause, categoryClause);
-
-                body = body == null ? tokenClause : Expression.AndAlso(body, tokenClause);
-            }
-
-            var lambda = Expression.Lambda<Func<Service, bool>>(body ?? Expression.Constant(true), param);
-            return lambda;
+                var searchTerm = request.NameSearchTerm?.Trim().ToLowerInvariant();
+                return service =>
+                    string.IsNullOrEmpty(searchTerm) ||
+                    (service.Name != null && service.Name.ToLowerInvariant().Contains(searchTerm));
         }
     }
 }

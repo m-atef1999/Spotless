@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Identity.Migrations
 {
-    /// <inheritdoc />
+    ///// <inheritdoc />
     public partial class InitialIdentityMigration : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
@@ -228,7 +228,7 @@ namespace Spotless.Infrastructure.Identity.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

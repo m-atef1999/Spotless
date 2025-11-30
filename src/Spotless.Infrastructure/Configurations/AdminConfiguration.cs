@@ -21,10 +21,11 @@ namespace Spotless.Infrastructure.Configurations
 
 
 
-            builder.HasMany(a => a.Drivers)
-                    .WithOne()
-                    .HasForeignKey(d => d.AdminId)
-                    .OnDelete(DeleteBehavior.SetNull);
+            builder.Property(a => a.Role)
+                   .HasConversion<string>();
+
+            builder.Property(a => a.AdminRole)
+                   .HasConversion<string>();
 
 
 

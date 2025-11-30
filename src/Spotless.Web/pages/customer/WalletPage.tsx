@@ -76,12 +76,29 @@ export const WalletPage: React.FC = () => {
             }
         } catch (err) {
             console.error('Top-up failed', err);
-            if (err && typeof err === 'object' && 'body' in err) {
-                console.error('Error body:', (err as any).body);
-            }
-            // Log full error object
+            let msg = 'Failed to process top-up. Please try again.';
 
-            setError('Failed to process top-up. Please try again.');
+            if (err) {
+                if (typeof err === 'string') {
+                    msg = err;
+                } else if (typeof err === 'object') {
+                    const errorObj = err as any;
+                    if (errorObj.body && typeof errorObj.body === 'string') {
+                        msg = errorObj.body;
+                    } else if (errorObj.body && errorObj.body.message) {
+                        msg = errorObj.body.message;
+                    } else if (errorObj.message) {
+                        msg = errorObj.message;
+                    } else {
+                        try {
+                            msg += ` Server: ${JSON.stringify(err)}`;
+                        } catch {
+                            msg += ' (Unknown error format)';
+                        }
+                    }
+                }
+            }
+            setError(msg);
         } finally {
             setIsProcessing(false);
         }

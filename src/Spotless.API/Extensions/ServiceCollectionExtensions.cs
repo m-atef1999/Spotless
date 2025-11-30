@@ -115,6 +115,7 @@ namespace Spotless.API.Extensions
             services.AddScoped<ISmsService, DummySmsService>();
             services.AddScoped<IMessageSender>(sp =>
             {
+                
                 // Choose implementation based on configuration - default to Dummy for prototype
                 var smsSettings = sp.GetRequiredService<IConfiguration>().GetSection(SmsSettings.SettingsKey).Get<SmsSettings>();
                 if (smsSettings != null && smsSettings.Provider == "Twilio")

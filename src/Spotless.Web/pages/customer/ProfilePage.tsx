@@ -294,24 +294,26 @@ export const ProfilePage: React.FC = () => {
                         </div>
 
                         {/* Driver Application Section */}
-                        <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white overflow-hidden relative">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                        {(user as any)?.role !== 'Driver' && (
+                            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-xl p-6 text-white overflow-hidden relative">
+                                <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
 
-                            <div className="relative z-10">
-                                <h3 className="text-xl font-bold mb-2">Become a Driver</h3>
-                                <p className="text-slate-300 mb-6 max-w-lg">
-                                    Join our fleet of professional drivers and earn money on your own schedule.
-                                    Apply now to start your journey with Spotless.
-                                </p>
+                                <div className="relative z-10">
+                                    <h3 className="text-xl font-bold mb-2">Become a Driver</h3>
+                                    <p className="text-slate-300 mb-6 max-w-lg">
+                                        Join our fleet of professional drivers and earn money on your own schedule.
+                                        Apply now to start your journey with Spotless.
+                                    </p>
 
-                                <DriverApplicationForm
-                                    initialName={profile?.name || ''}
-                                    initialEmail={profile?.email || ''}
-                                    initialPhone={profile?.phone || ''}
-                                    driverProfile={driverProfile}
-                                />
+                                    <DriverApplicationForm
+                                        initialName={profile?.name || ''}
+                                        initialEmail={profile?.email || ''}
+                                        initialPhone={profile?.phone || ''}
+                                        driverProfile={driverProfile}
+                                    />
+                                </div>
                             </div>
-                        </div>
+                        )}
 
                         {/* Security Section */}
                         <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
@@ -386,6 +388,7 @@ const DriverApplicationForm: React.FC<{
     const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
     const registerDriver = useAuthStore((state) => state.registerDriver);
+    const switchRole = useAuthStore((state) => state.switchRole);
 
     const [vehicleInfo, setVehicleInfo] = useState('');
 
@@ -452,8 +455,9 @@ const DriverApplicationForm: React.FC<{
                 );
             }
             // If cooldown passed, show apply button (fall through)
-        } else if (driverProfile.status !== 'Offline' && driverProfile.status !== 'Busy') {
-            // Assuming other statuses mean approved/active
+            // If cooldown passed, show apply button (fall through)
+        } else {
+            // All other statuses mean approved/active (Offline, Available, Busy, etc.)
             return (
                 <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4 text-green-200 flex flex-col sm:flex-row items-start sm:items-center gap-4 justify-between">
                     <div className="flex items-center gap-3">
@@ -465,11 +469,12 @@ const DriverApplicationForm: React.FC<{
                             <p className="text-sm opacity-80">You are now a registered driver.</p>
                         </div>
                     </div>
-                    <a href="/driver/dashboard">
-                        <Button className="bg-green-600 hover:bg-green-500 text-white border-none whitespace-nowrap">
-                            Go to Dashboard
-                        </Button>
-                    </a>
+                    <Button
+                        onClick={() => switchRole()}
+                        className="bg-green-600 hover:bg-green-500 text-white border-none whitespace-nowrap"
+                    >
+                        Go to Dashboard
+                    </Button>
                 </div>
             );
         }
@@ -492,6 +497,7 @@ const DriverApplicationForm: React.FC<{
     if (!isExpanded) {
         return (
             <Button
+                variant="ghost"
                 onClick={() => setIsExpanded(true)}
                 className="bg-white text-slate-900 hover:bg-slate-100 border-none"
             >
@@ -508,7 +514,7 @@ const DriverApplicationForm: React.FC<{
                     placeholder="e.g. 2020 Toyota Camry - Silver"
                     value={vehicleInfo}
                     onChange={(e) => setVehicleInfo(e.target.value)}
-                    className="bg-slate-900/50 border-slate-700 text-white placeholder:text-slate-500"
+                    className="bg-white/10 border-white/20 text-white placeholder:text-slate-400 focus:border-cyan-500 focus:ring-cyan-500/20"
                 />
                 <p className="text-xs text-slate-400 mt-1">Please provide Make, Model, Year, and Color.</p>
             </div>

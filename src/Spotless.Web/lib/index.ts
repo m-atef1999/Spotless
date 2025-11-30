@@ -31,9 +31,11 @@ export type { Spotless_Application_Dtos_Customer_CustomerUpdateRequest } from '.
 export type { Spotless_Application_Dtos_Customer_WalletTopUpRequest } from './models/Spotless_Application_Dtos_Customer_WalletTopUpRequest';
 export type { Spotless_Application_Dtos_Driver_ApproveDriverRequest } from './models/Spotless_Application_Dtos_Driver_ApproveDriverRequest';
 export type { Spotless_Application_Dtos_Driver_DriverApplicationRequest } from './models/Spotless_Application_Dtos_Driver_DriverApplicationRequest';
+export type { Spotless_Application_Dtos_Driver_DriverApplicationDto } from './models/Spotless_Application_Dtos_Driver_DriverApplicationDto';
 export type { Spotless_Application_Dtos_Driver_DriverDto } from './models/Spotless_Application_Dtos_Driver_DriverDto';
 export type { Spotless_Application_Dtos_Driver_DriverStatusUpdateDto } from './models/Spotless_Application_Dtos_Driver_DriverStatusUpdateDto';
 export type { Spotless_Application_Dtos_Driver_DriverUpdateRequest } from './models/Spotless_Application_Dtos_Driver_DriverUpdateRequest';
+export type { Spotless_Application_Dtos_Driver_DriverEarningsDto } from './models/Spotless_Application_Dtos_Driver_DriverEarningsDto';
 export type { Spotless_Application_Dtos_LocationDto } from './models/Spotless_Application_Dtos_LocationDto';
 export type { Spotless_Application_Dtos_Notification_NotificationDto } from './models/Spotless_Application_Dtos_Notification_NotificationDto';
 export type { Spotless_Application_Dtos_Order_CreateOrderDto } from './models/Spotless_Application_Dtos_Order_CreateOrderDto';

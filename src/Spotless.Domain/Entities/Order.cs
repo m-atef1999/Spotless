@@ -10,6 +10,7 @@ namespace Spotless.Domain.Entities
 
         public Guid CustomerId { get; private set; }
         public Guid? DriverId { get; private set; }
+        public virtual Driver? Driver { get; private set; }
         public virtual ICollection<Payment> Payments { get; set; } = [];
 
         public Guid? AdminId { get; private set; }
@@ -70,6 +71,11 @@ namespace Spotless.Domain.Entities
             { OrderStatus.InCleaning, new List<OrderStatus> { OrderStatus.OutForDelivery, OrderStatus.Cancelled } },
             { OrderStatus.OutForDelivery, new List<OrderStatus> { OrderStatus.Delivered, OrderStatus.Cancelled } }
         };
+
+        public void UpdateStatus(OrderStatus newStatus)
+        {
+            SetStatus(newStatus);
+        }
 
         public void SetStatus(OrderStatus newStatus)
         {

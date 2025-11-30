@@ -4,41 +4,26 @@ using Spotless.Domain.Enums;
 
 namespace Spotless.Application.Features.Drivers.Commands.ApproveDriverApplication
 {
-    public class ApproveDriverApplicationCommandHandler(IUnitOfWork unitOfWork, IAuthService identityService) : IRequestHandler<ApproveDriverApplicationCommand, Guid>
+    public class ApproveDriverApplicationCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<ApproveDriverApplicationCommand, Guid>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
-        private readonly IAuthService _identityService = identityService;
 
         public async Task<Guid> Handle(ApproveDriverApplicationCommand request, CancellationToken cancellationToken)
         {
+            var application = await _unitOfWork.DriverApplications.GetByIdAsync(request.ApplicationId) 
+                ?? throw new KeyNotFoundException($"Driver application with ID {request.ApplicationId} not found.");
 
-            var driver = await _unitOfWork.Drivers.GetByIdAsync(request.ApplicationId) ?? throw new KeyNotFoundException($"Driver application with ID {request.ApplicationId} not found.");
-            if (driver.Status != DriverStatus.PendingApproval && driver.Status != DriverStatus.Offline)
+            if (application.Status != DriverApplicationStatus.Submitted)
             {
-                throw new InvalidOperationException($"Driver with ID {request.ApplicationId} cannot be approved. Current status is {driver.Status}.");
+                throw new InvalidOperationException($"Application cannot be approved. Current status is {application.Status}.");
             }
 
-
-            Guid userId = await _identityService.CreateUserAsync(
-                driver.Email,
-                request.Password,
-                UserRole.Driver.ToString());
-
-
-            driver.SetIdentityId(userId);
-
-
-
-            driver.SetAdminId(request.AdminId);
-
-
-            driver.UpdateStatus(DriverStatus.Offline);
-
-
-            await _unitOfWork.Drivers.UpdateAsync(driver);
+            application.Approve(request.AdminId);
+            
+            await _unitOfWork.DriverApplications.UpdateAsync(application);
             await _unitOfWork.CommitAsync();
 
-            return driver.Id;
+            return application.Id;
         }
     }
 }

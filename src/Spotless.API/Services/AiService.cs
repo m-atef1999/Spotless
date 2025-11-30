@@ -50,6 +50,7 @@ namespace Spotless.API.Services
         {
             _logger.LogWarning($"[AiService] Processing message: {userMessage}");
             
+            
             // Prioritize Environment Variable for Security
             var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
             
@@ -59,6 +60,9 @@ namespace Spotless.API.Services
                 apiKey = _configuration["Gemini:ApiKey"];
             }
 
+            
+            
+            
             // Hybrid approach: Try Gemini if key exists, otherwise fallback to local logic
             if (!string.IsNullOrEmpty(apiKey))
             {
@@ -71,6 +75,8 @@ namespace Spotless.API.Services
                 {
                     _logger.LogWarning($"[AiService] Gemini API Error: {ex.Message}");
                     _logger.LogError(ex, "Gemini API failed. Falling back to local logic.");
+                    
+                    
                     // Fallback if API fails
                     return await GetLocalResponseAsync(userMessage);
                 }
@@ -131,7 +137,12 @@ namespace Spotless.API.Services
                         contentElem.TryGetProperty("parts", out var parts) && 
                         parts.GetArrayLength() > 0)
                     {
-                        var reply = parts[0].GetProperty("text").GetString();
+                        var reply = parts[0].GetProperty("text").GetString() ?? string.Empty;
+                        if (string.IsNullOrWhiteSpace(reply))
+                        {
+                            reply = "I'm sorry — I couldn't get a proper response right now. Try again later.";
+                        }
+
                         return new ChatResponse { Response = reply };
                     }
                 }

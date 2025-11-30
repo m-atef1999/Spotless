@@ -4,10 +4,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
+    
     /// <inheritdoc />
     public partial class CodeRefactor : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
@@ -37,7 +39,7 @@ namespace Spotless.Infrastructure.Migrations.Application
                 nullable: true);
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(

@@ -36,6 +36,8 @@ namespace Spotless.API.Controllers
             return user.CustomerId.Value;
         }
 
+        
+        
         /// <summary>
         /// Retrieves authenticated customer's shopping cart
         /// </summary>

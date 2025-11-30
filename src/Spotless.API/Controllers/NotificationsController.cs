@@ -16,6 +16,8 @@ namespace Spotless.API.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
+        
+        
         /// <summary>
         /// Retrieves notifications for the authenticated user
         /// </summary>

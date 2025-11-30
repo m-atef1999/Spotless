@@ -5,6 +5,8 @@ namespace Spotless.API.Hubs
 {
     public class NotificationHub : Hub
     {
+        
+        
         // Map UserId to ConnectionId
         private static readonly ConcurrentDictionary<string, string> _userConnections = new();
 

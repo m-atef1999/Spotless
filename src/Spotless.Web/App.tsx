@@ -41,6 +41,7 @@ import { ServiceDetailsPage } from './pages/customer/ServiceDetailsPage';
 import { DriverStatusPage } from './pages/driver/DriverStatusPage';
 import { AdminUsersPage } from './pages/admin/AdminUsersPage';
 import { DriverApplicationsPage } from './pages/admin/DriverApplicationsPage';
+import { NotificationsPage } from './pages/NotificationsPage';
 import { DebugPanel } from './components/dev/DebugPanel';
 import { NotificationProvider } from './contexts/NotificationContext';
 
@@ -48,108 +49,130 @@ import { useEffect } from 'react';
 import { useAuthStore } from './store/authStore';
 import { OpenAPI } from './lib/api';
 
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
+
 const queryClient = new QueryClient();
 
 function App() {
   const { token, fetchProfile } = useAuthStore();
 
   useEffect(() => {
+    console.log('App: Token updated', token ? 'Present' : 'Missing');
     if (token) {
       OpenAPI.TOKEN = token;
       fetchProfile();
+    } else {
+      OpenAPI.TOKEN = undefined;
     }
   }, [token]);
 
+  // Listen for global logout events (triggered by 401s)
+  useEffect(() => {
+    const handleLogout = () => {
+      console.log('App: Global logout triggered');
+      // Clear any local state if needed
+      window.location.href = '/login';
+    };
+
+    window.addEventListener('spotless:logout', handleLogout);
+    return () => window.removeEventListener('spotless:logout', handleLogout);
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <NotificationProvider>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/driver/apply" element={<DriverApplicationPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/services" element={<PublicServicesPage />} />
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ToastProvider>
+          <NotificationProvider>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/driver/apply" element={<DriverApplicationPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/services" element={<PublicServicesPage />} />
 
-            {/* Protected Customer Routes */}
-            <Route
-              path="/customer/*"
-              element={
-                <ProtectedRoute allowedRoles={['Customer']}>
-                  <Routes>
-                    <Route path="dashboard" element={<CustomerDashboard />} />
-                    <Route path="new-order" element={<NewOrderPage />} />
-                    <Route path="orders" element={<MyOrdersPage />} />
-                    <Route path="orders/:id" element={<OrderDetailsPage />} />
-                    <Route path="profile" element={<ProfilePage />} />
-                    <Route path="wallet" element={<WalletPage />} />
-                    <Route path="services" element={<ServicesPage />} />
+              {/* Protected Customer Routes */}
+              <Route
+                path="/customer/*"
+                element={
+                  <ProtectedRoute allowedRoles={['Customer']}>
+                    <Routes>
+                      <Route path="dashboard" element={<CustomerDashboard />} />
+                      <Route path="new-order" element={<NewOrderPage />} />
+                      <Route path="orders" element={<MyOrdersPage />} />
+                      <Route path="orders/:id" element={<OrderDetailsPage />} />
+                      <Route path="profile" element={<ProfilePage />} />
+                      <Route path="wallet" element={<WalletPage />} />
+                      <Route path="services" element={<ServicesPage />} />
 
-                    <Route path="payment-methods" element={<PaymentMethodsPage />} />
-                    <Route path="cart" element={<CartPage />} />
-                    <Route path="services/:id" element={<ServiceDetailsPage />} />
-                    <Route path="create-review" element={<CreateReviewPage />} />
-                    <Route path="settings" element={<ProfilePage />} />
-                    <Route path="*" element={<Navigate to="dashboard" replace />} />
-                  </Routes>
-                </ProtectedRoute>
-              }
-            />
+                      <Route path="payment-methods" element={<PaymentMethodsPage />} />
+                      <Route path="cart" element={<CartPage />} />
+                      <Route path="services/:id" element={<ServiceDetailsPage />} />
+                      <Route path="create-review" element={<CreateReviewPage />} />
+                      <Route path="settings" element={<ProfilePage />} />
+                      <Route path="notifications" element={<NotificationsPage />} />
+                      <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Protected Driver Routes */}
-            <Route
-              path="/driver/*"
-              element={
-                <ProtectedRoute allowedRoles={['Driver']}>
-                  <Routes>
-                    <Route path="dashboard" element={<DriverDashboard />} />
-                    <Route path="profile" element={<DriverProfilePage />} />
-                    <Route path="location" element={<LocationPage />} />
-                    <Route path="earnings" element={<EarningsPage />} />
-                    <Route path="available-orders" element={<AvailableOrdersPage />} />
-                    <Route path="order-history" element={<OrderHistoryPage />} />
-                    <Route path="status" element={<DriverStatusPage />} />
-                    <Route path="*" element={<Navigate to="dashboard" replace />} />
-                  </Routes>
-                </ProtectedRoute>
-              }
-            />
+              {/* Protected Driver Routes */}
+              <Route
+                path="/driver/*"
+                element={
+                  <ProtectedRoute allowedRoles={['Driver']}>
+                    <Routes>
+                      <Route path="dashboard" element={<DriverDashboard />} />
+                      <Route path="profile" element={<DriverProfilePage />} />
+                      <Route path="location" element={<LocationPage />} />
+                      <Route path="earnings" element={<EarningsPage />} />
+                      <Route path="available-orders" element={<AvailableOrdersPage />} />
+                      <Route path="order-history" element={<OrderHistoryPage />} />
+                      <Route path="status" element={<DriverStatusPage />} />
+                      <Route path="notifications" element={<NotificationsPage />} />
+                      <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Protected Admin Routes */}
-            <Route
-              path="/admin/*"
-              element={
-                <ProtectedRoute allowedRoles={['Admin']}>
-                  <Routes>
-                    <Route path="dashboard" element={<AdminDashboardPage />} />
-                    <Route path="drivers" element={<DriverManagementPage />} />
-                    <Route path="orders" element={<OrderManagementPage />} />
-                    <Route path="services" element={<ServiceManagementPage />} />
-                    <Route path="reviews" element={<ReviewsManagementPage />} />
-                    <Route path="customers" element={<CustomerManagementPage />} />
-                    <Route path="categories" element={<CategoryManagementPage />} />
-                    <Route path="analytics" element={<AnalyticsPage />} />
-                    <Route path="settings" element={<SystemSettingsPage />} />
-                    <Route path="audit-logs" element={<AuditLogsPage />} />
-                    <Route path="users" element={<AdminUsersPage />} />
-                    <Route path="driver-applications" element={<DriverApplicationsPage />} />
-                    <Route path="*" element={<Navigate to="dashboard" replace />} />
-                  </Routes>
-                </ProtectedRoute>
-              }
-            />
+              {/* Protected Admin Routes */}
+              <Route
+                path="/admin/*"
+                element={
+                  <ProtectedRoute allowedRoles={['Admin']}>
+                    <Routes>
+                      <Route path="dashboard" element={<AdminDashboardPage />} />
+                      <Route path="drivers" element={<DriverManagementPage />} />
+                      <Route path="orders" element={<OrderManagementPage />} />
+                      <Route path="services" element={<ServiceManagementPage />} />
+                      <Route path="reviews" element={<ReviewsManagementPage />} />
+                      <Route path="customers" element={<CustomerManagementPage />} />
+                      <Route path="categories" element={<CategoryManagementPage />} />
+                      <Route path="analytics" element={<AnalyticsPage />} />
+                      <Route path="settings" element={<SystemSettingsPage />} />
+                      <Route path="audit-logs" element={<AuditLogsPage />} />
+                      <Route path="users" element={<AdminUsersPage />} />
+                      <Route path="driver-applications" element={<DriverApplicationsPage />} />
+                      <Route path="notifications" element={<NotificationsPage />} />
+                      <Route path="*" element={<Navigate to="dashboard" replace />} />
+                    </Routes>
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Default Route */}
-            <Route path="/" element={<MainPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </NotificationProvider>
-      </ToastProvider>
-      <Toaster position="top-right" />
-      <DebugPanel />
-    </QueryClientProvider>
+              {/* Default Route */}
+              <Route path="/" element={<MainPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </NotificationProvider>
+        </ToastProvider>
+        <Toaster position="top-right" />
+        <DebugPanel />
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

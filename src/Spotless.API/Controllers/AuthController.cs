@@ -26,6 +26,9 @@ namespace Spotless.API.Controllers
         private readonly Microsoft.AspNetCore.Identity.UserManager<Spotless.Infrastructure.Identity.ApplicationUser> _userManager = userManager;
         private readonly Spotless.Application.Interfaces.IAuthService _authService = authService;
 
+        
+        
+        
         /// <summary>
         /// Authenticates user and returns JWT token
         /// </summary>

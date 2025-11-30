@@ -50,8 +50,16 @@ namespace Spotless.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Order>> GetAvailableOrdersForDriverAsync(Guid driverId)
         {
+            var activeStatuses = new[] 
+            { 
+                OrderStatus.DriverAssigned, 
+                OrderStatus.PickedUp, 
+                OrderStatus.InCleaning, 
+                OrderStatus.OutForDelivery 
+            };
+
             return await _dbContext.Orders
-                                   .Where(o => o.DriverId == driverId && o.Status == OrderStatus.PickedUp)
+                                   .Where(o => o.DriverId == driverId && activeStatuses.Contains(o.Status))
                                    .ToListAsync();
         }
 
@@ -72,6 +80,8 @@ namespace Spotless.Infrastructure.Repositories
 
         public async Task AddOrderWithSlotLockAsync(Order order, Guid timeSlotId, DateTime scheduledDate, int maxCapacity)
         {
+            
+            
             // Use a serializable transaction to avoid race conditions / overbooking under concurrency.
             // This is a simple prototype approach; for scale consider Redis-based distributed locks.
             await using var tx = await _dbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.Serializable);
@@ -122,6 +132,53 @@ namespace Spotless.Infrastructure.Repositories
                 await _dbContext.SaveChangesAsync();
                 return true;
             });
+        }
+
+
+        public async Task<(IReadOnlyList<Order> Items, int TotalCount)> GetOrdersForAdminAsync(int pageNumber, int pageSize, OrderStatus? status, string? searchTerm)
+        {
+            var query = _dbContext.Orders.AsQueryable();
+
+            // Apply Status Filter
+            if (status.HasValue)
+            {
+                query = query.Where(o => o.Status == status.Value);
+            }
+
+            // Apply Search Filter
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var term = searchTerm.Trim().ToLower();
+                
+                if (Guid.TryParse(term, out var searchId))
+                {
+                    // Exact match for ID
+                    query = query.Where(o => o.Id == searchId);
+                }
+                else
+                {
+                    // Search by Service Name (via Items) or Customer Name
+
+                    query = query.Where(o => 
+                        o.Items.Any(i => i.Service.Name.ToLower().Contains(term)) ||
+                        o.Customer.Name.ToLower().Contains(term)
+                    );
+                }
+            }
+
+            // Get Total Count before pagination
+            var totalCount = await query.CountAsync();
+
+            // Apply Sorting and Pagination
+            var items = await query
+                .Include(o => o.Customer)
+                .Include(o => o.Items).ThenInclude(i => i.Service)
+                .OrderByDescending(o => o.OrderDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
         }
     }
 }

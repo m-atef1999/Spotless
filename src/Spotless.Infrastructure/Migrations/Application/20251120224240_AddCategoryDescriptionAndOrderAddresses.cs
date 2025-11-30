@@ -1,12 +1,16 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
+    
     /// <inheritdoc />
     public partial class AddCategoryDescriptionAndOrderAddresses : Migration
     {
+        
+        
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -29,6 +33,8 @@ namespace Spotless.Infrastructure.Migrations.Application
                 nullable: true);
         }
 
+        
+        
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {

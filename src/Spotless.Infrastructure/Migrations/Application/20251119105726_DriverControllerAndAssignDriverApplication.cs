@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
+    
     /// <inheritdoc />
     public partial class DriverControllerAndAssignDriverApplication : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -51,7 +53,7 @@ namespace Spotless.Infrastructure.Migrations.Application
                 column: "OrderId");
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

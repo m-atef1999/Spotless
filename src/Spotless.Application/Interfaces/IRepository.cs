@@ -34,5 +34,6 @@ namespace Spotless.Application.Interfaces
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
         Task<bool> ExistsAsync(Guid id);
+        Task SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

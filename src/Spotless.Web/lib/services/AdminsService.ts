@@ -41,21 +41,34 @@ export class AdminsService {
      * @returns Spotless_Application_Dtos_Admin_AdminDashboardDto Success
      * @throws ApiError
      */
-    public static getApiAdminsDashboard({
-        pageNumber,
-        pageSize,
-    }: {
-        pageNumber?: number,
-        pageSize?: number,
-    }): CancelablePromise<Spotless_Application_Dtos_Admin_AdminDashboardDto> {
+    public static getApiAdminsDashboard(): CancelablePromise<Spotless_Application_Dtos_Admin_AdminDashboardDto> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/admins/dashboard',
-            query: {
-                'pageNumber': pageNumber,
-                'pageSize': pageSize,
-            },
             errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+            },
+        });
+    }
+
+    /**
+     * Creates a new admin user
+     * @returns any Success
+     * @throws ApiError
+     */
+    public static postApiAdmins({
+        requestBody,
+    }: {
+        requestBody?: any, // Should be CreateAdminDto
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/admins',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad Request`,
                 401: `Unauthorized`,
                 403: `Forbidden`,
             },

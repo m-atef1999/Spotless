@@ -51,6 +51,7 @@ export type {
 
   // Driver
   Spotless_Application_Dtos_Driver_DriverDto as DriverDto,
+  Spotless_Application_Dtos_Driver_DriverApplicationDto as DriverApplicationDto,
   Spotless_Application_Dtos_Driver_DriverApplicationRequest as DriverApplicationRequest,
   Spotless_Application_Dtos_Driver_DriverStatusUpdateDto as DriverStatusUpdateDto,
   Spotless_Application_Dtos_Driver_DriverUpdateRequest as DriverUpdateRequest,

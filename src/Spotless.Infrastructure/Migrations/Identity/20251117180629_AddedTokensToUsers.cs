@@ -5,10 +5,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Identity
 {
-    /// <inheritdoc />
+    ///// <inheritdoc />
     public partial class AddedTokensToUsers : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
@@ -27,7 +27,7 @@ namespace Spotless.Infrastructure.Migrations.Identity
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(

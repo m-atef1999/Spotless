@@ -19,6 +19,8 @@ interface AuthState {
     isLoading: boolean;
     error: string | null;
 
+    canSwitchRole: boolean;
+
     login: (cmd: LoginCommand) => Promise<void>;
     loginWithGoogle: (token: string) => Promise<void>;
     registerCustomer: (cmd: RegisterCustomerCommand) => Promise<void>;
@@ -26,6 +28,8 @@ interface AuthState {
     logout: () => void;
     setRole: (role: 'Admin' | 'Driver' | 'Customer') => void;
     fetchProfile: () => Promise<void>;
+    checkDriverAccess: () => Promise<void>;
+    switchRole: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -36,6 +40,7 @@ export const useAuthStore = create<AuthState>()(
             role: null,
             isLoading: false,
             error: null,
+            canSwitchRole: false,
 
             login: async (cmd) => {
                 set({ isLoading: true, error: null });
@@ -58,11 +63,14 @@ export const useAuthStore = create<AuthState>()(
                                 user: customerProfile,
                                 isLoading: false
                             });
+                            // Check if they are also a driver
+                            get().checkDriverAccess();
                         } else if (role === 'Driver') {
                             const driverProfile = await DriversService.getApiDriversProfile();
                             set({
                                 user: driverProfile,
-                                isLoading: false
+                                isLoading: false,
+                                canSwitchRole: true // Drivers are implicitly customers too usually, or we can check
                             });
                         } else {
                             // Fallback: If role is undefined (old backend) or unknown, try fetching customer profile as default
@@ -73,6 +81,7 @@ export const useAuthStore = create<AuthState>()(
                                     role: 'Customer',
                                     isLoading: false
                                 });
+                                get().checkDriverAccess();
                             } catch {
                                 // If that fails, just stop loading. User is authenticated but unknown.
                                 set({ isLoading: false });
@@ -119,11 +128,13 @@ export const useAuthStore = create<AuthState>()(
                                 user: customerProfile,
                                 isLoading: false
                             });
+                            get().checkDriverAccess();
                         } else if (role === 'Driver') {
                             const driverProfile = await DriversService.getApiDriversProfile();
                             set({
                                 user: driverProfile,
-                                isLoading: false
+                                isLoading: false,
+                                canSwitchRole: true
                             });
                         } else {
                             // Fallback: If role is undefined (old backend) or unknown, try fetching customer profile as default
@@ -134,6 +145,7 @@ export const useAuthStore = create<AuthState>()(
                                     role: 'Customer',
                                     isLoading: false
                                 });
+                                get().checkDriverAccess();
                             } catch {
                                 // If that fails, just stop loading. User is authenticated but unknown.
                                 set({ isLoading: false });
@@ -182,10 +194,11 @@ export const useAuthStore = create<AuthState>()(
 
             logout: () => {
                 window.dispatchEvent(new Event('spotless:logout'));
-                set({ user: null, token: null, role: null });
+                set({ user: null, token: null, role: null, canSwitchRole: false });
             },
 
             setRole: (role) => set({ role }),
+
             fetchProfile: async () => {
                 const { token, role } = get();
                 if (!token) return;
@@ -195,23 +208,54 @@ export const useAuthStore = create<AuthState>()(
                     if (role === 'Customer') {
                         const customerProfile = await CustomersService.getApiCustomersMe();
                         set({ user: customerProfile, isLoading: false });
+                        get().checkDriverAccess();
                     } else if (role === 'Driver') {
                         const driverProfile = await DriversService.getApiDriversProfile();
-                        set({ user: driverProfile, isLoading: false });
+                        set({ user: driverProfile, isLoading: false, canSwitchRole: true });
                     } else {
                         // Fallback
                         try {
                             const customerProfile = await CustomersService.getApiCustomersMe();
                             set({ user: customerProfile, role: 'Customer', isLoading: false });
+                            get().checkDriverAccess();
                         } catch {
                             set({ isLoading: false });
                         }
                     }
-                } catch (error) {
+                } catch (error: any) {
                     console.error('Failed to fetch profile', error);
                     set({ isLoading: false });
+
+                    // Auto-logout if token is invalid (401)
+                    if (error.status === 401 || (error.body && error.body.status === 401)) {
+                        get().logout();
+                    }
                 }
             },
+
+            checkDriverAccess: async () => {
+                try {
+                    // Try to fetch driver profile to see if they are also a driver
+                    await DriversService.getApiDriversProfile();
+                    set({ canSwitchRole: true });
+                } catch {
+                    set({ canSwitchRole: false });
+                }
+            },
+
+            switchRole: () => {
+                const { role, canSwitchRole } = get();
+                if (!canSwitchRole) return;
+
+                if (role === 'Customer') {
+                    set({ role: 'Driver' });
+                    // Optionally force refresh profile/dashboard
+                    window.location.href = '/driver/dashboard';
+                } else if (role === 'Driver') {
+                    set({ role: 'Customer' });
+                    window.location.href = '/customer/dashboard';
+                }
+            }
         }),
         {
             name: 'auth-storage',
@@ -225,7 +269,8 @@ export const useAuthStore = create<AuthState>()(
             partialize: (state) => ({
                 user: state.user,
                 token: state.token,
-                role: state.role
+                role: state.role,
+                canSwitchRole: state.canSwitchRole
             }),
         }
     )

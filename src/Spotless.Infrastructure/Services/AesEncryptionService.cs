@@ -6,8 +6,14 @@ using System.Text;
 
 namespace Spotless.Infrastructure.Services
 {
+    
+    
     /// <summary>
+    
     /// Secure AES-256-GCM encryption service (Recommended standard)
+    
+    
+    
     /// Provides authenticated encryption with random nonce for every operation.
     /// </summary>
     public class AesEncryptionService : IEncryptionService

@@ -31,12 +31,8 @@ namespace Spotless.Infrastructure.Configurations
 
 
 
-            builder.Property(d => d.VehicleInfo).HasMaxLength(500);
-
-            builder.HasMany(d => d.Orders)
-                    .WithOne()
-                    .HasForeignKey(o => o.DriverId)
-                    .OnDelete(DeleteBehavior.SetNull);
+            builder.Property(d => d.Role)
+                   .HasConversion<string>();
 
 
             builder.HasOne<Admin>()

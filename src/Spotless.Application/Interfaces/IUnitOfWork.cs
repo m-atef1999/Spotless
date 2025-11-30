@@ -1,3 +1,5 @@
+using Spotless.Domain.Entities;
+
 namespace Spotless.Application.Interfaces
 {
     public interface IUnitOfWork : IDisposable
@@ -16,6 +18,7 @@ namespace Spotless.Application.Interfaces
         IAuditLogRepository AuditLogs { get; }
         ISystemSettingRepository SystemSettings { get; }
         IPaymentMethodRepository PaymentMethods { get; }
+        IRepository<DriverApplication> DriverApplications { get; }
 
         Task<int> CommitAsync();
         Task RollbackAsync();

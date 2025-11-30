@@ -14,6 +14,9 @@ namespace Spotless.API.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
+        
+        
+        
         /// <summary>
         /// Retrieves system settings with optional category filter (Admin only)
         /// </summary>

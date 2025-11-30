@@ -5,10 +5,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
     /// <inheritdoc />
     public partial class AddCartAndServiceMaxWeight : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<decimal>(
@@ -74,7 +75,7 @@ namespace Spotless.Infrastructure.Migrations.Application
                 column: "ServiceId");
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

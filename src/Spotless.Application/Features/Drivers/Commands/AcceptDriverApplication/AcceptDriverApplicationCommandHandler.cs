@@ -19,15 +19,24 @@ namespace Spotless.Application.Features.Drivers.Commands.AcceptDriverApplication
             if (application.Status != Domain.Enums.OrderDriverApplicationStatus.Applied)
                 throw new InvalidOperationException("Application is not in an applied state.");
 
+            
+            
             // Reuse AssignDriver command to perform checks and assignment
             var assignCommand = new AssignDriverCommand(application.OrderId, application.DriverId, request.AdminId);
 
             await _mediator.Send(assignCommand);
 
+            
+            
+            
+            
             // Mark this application as accepted
             application.Accept();
             await _unitOfWork.OrderDriverApplications.UpdateAsync(application);
 
+            
+            
+            
             // Auto-reject other applications for the same order
             var others = (await _unitOfWork.OrderDriverApplications.GetByOrderIdAsync(application.OrderId))
                             .Where(a => a.Id != application.Id && a.Status == Domain.Enums.OrderDriverApplicationStatus.Applied)

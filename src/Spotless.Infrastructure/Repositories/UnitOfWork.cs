@@ -2,6 +2,8 @@ using Spotless.Application.Interfaces;
 using Spotless.Infrastructure.Context;
 
 
+using Spotless.Domain.Entities;
+
 namespace Spotless.Infrastructure.Repositories
 {
     public class UnitOfWork : IUnitOfWork
@@ -21,6 +23,7 @@ namespace Spotless.Infrastructure.Repositories
         public IAuditLogRepository AuditLogs { get; }
         public ISystemSettingRepository SystemSettings { get; }
         public IPaymentMethodRepository PaymentMethods { get; }
+        public IRepository<DriverApplication> DriverApplications { get; }
 
 
 
@@ -41,6 +44,7 @@ namespace Spotless.Infrastructure.Repositories
             AuditLogs = new AuditLogRepository(_dbContext);
             SystemSettings = new SystemSettingRepository(_dbContext);
             PaymentMethods = new PaymentMethodRepository(_dbContext);
+            DriverApplications = new BaseRepository<DriverApplication>(_dbContext);
 
         }
 

@@ -14,6 +14,8 @@ namespace Spotless.API.Controllers
     {
         private readonly IMediator _mediator = mediator;
 
+        
+        
         /// <summary>
         /// Retrieves audit logs with optional filtering and pagination (Admin only)
         /// </summary>

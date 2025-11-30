@@ -1,13 +1,15 @@
-using Microsoft.Extensions.Logging;
-using Spotless.Application.Configurations;
-using Spotless.Application.Interfaces;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using Spotless.Application.Configurations;
+using Spotless.Application.Interfaces;
 
 namespace Spotless.Infrastructure.Services
 {
@@ -15,15 +17,21 @@ namespace Spotless.Infrastructure.Services
     /// RabbitMQ-based message broker for decoupled async processing.
     /// Implements lazy connection initialization to handle cases where RabbitMQ is unavailable.
     /// </summary>
-    public class RabbitMqMessageBroker(IOptions<RabbitMqSettings> settings, ILogger<RabbitMqMessageBroker> logger) : IMessageBroker, IDisposable
+    public class RabbitMqMessageBroker : IMessageBroker, IDisposable
     {
-        private IConnection? _connection = null;
-        private IModel? _channel = null;
-        private readonly RabbitMqSettings _settings = settings.Value;
-        private readonly ILogger<RabbitMqMessageBroker> _logger = logger;
+        private IConnection? _connection;
+        private IModel? _channel;
+        private readonly RabbitMqSettings _settings;
+        private readonly ILogger<RabbitMqMessageBroker> _logger;
         private bool _connectionInitialized = false;
         private bool _connectionFailed = false;
         private readonly object _lockObject = new();
+
+        public RabbitMqMessageBroker(IOptions<RabbitMqSettings> settings, ILogger<RabbitMqMessageBroker> logger)
+        {
+            _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
 
         /// <summary>
         /// Lazily initializes the RabbitMQ connection on first use.
@@ -58,7 +66,7 @@ namespace Spotless.Infrastructure.Services
                     _channel = _connection.CreateModel();
 
                     // Set QoS: prefetch only 1 message at a time to ensure fair distribution
-                    _channel!.BasicQos(0, 1, false);
+                    _channel.BasicQos(0, 1, false);
 
                     _connectionInitialized = true;
                     _logger.LogInformation("RabbitMQ connection established at {HostName}:{Port}", _settings.HostName, _settings.Port);
@@ -75,6 +83,12 @@ namespace Spotless.Infrastructure.Services
 
         public async Task PublishAsync<T>(string queueName, T message) where T : class
         {
+            if (string.IsNullOrWhiteSpace(queueName))
+                throw new ArgumentException("Queue name must be provided", nameof(queueName));
+
+            if (message == null)
+                throw new ArgumentNullException(nameof(message));
+
             try
             {
                 if (!EnsureConnected())
@@ -96,7 +110,7 @@ namespace Spotless.Infrastructure.Services
                 var json = JsonSerializer.Serialize(message);
                 var body = Encoding.UTF8.GetBytes(json);
 
-                var properties = _channel!.CreateBasicProperties();
+                var properties = _channel.CreateBasicProperties();
                 properties.Persistent = true;
                 properties.ContentType = "application/json";
                 properties.Headers = new Dictionary<string, object>
@@ -104,7 +118,7 @@ namespace Spotless.Infrastructure.Services
                     { "x-timestamp", DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() }
                 };
 
-                _channel!.BasicPublish(
+                _channel.BasicPublish(
                     exchange: string.Empty,
                     routingKey: queueName,
                     basicProperties: properties,
@@ -123,6 +137,12 @@ namespace Spotless.Infrastructure.Services
 
         public async Task SubscribeAsync<T>(string queueName, Func<T, Task> handler, CancellationToken cancellationToken = default) where T : class
         {
+            if (string.IsNullOrWhiteSpace(queueName))
+                throw new ArgumentException("Queue name must be provided", nameof(queueName));
+
+            if (handler == null)
+                throw new ArgumentNullException(nameof(handler));
+
             try
             {
                 if (!EnsureConnected())
@@ -141,7 +161,7 @@ namespace Spotless.Infrastructure.Services
                     arguments: null
                 );
 
-                var consumer = new AsyncEventingBasicConsumer(_channel!);
+                var consumer = new AsyncEventingBasicConsumer(_channel);
 
                 consumer.Received += async (model, ea) =>
                 {
@@ -154,19 +174,24 @@ namespace Spotless.Infrastructure.Services
                         if (message != null)
                         {
                             await handler(message);
-                            _channel!.BasicAck(ea.DeliveryTag, false);
+                            _channel.BasicAck(ea.DeliveryTag, false);
                             _logger.LogInformation("Message processed from queue {QueueName}, type: {MessageType}", queueName, typeof(T).Name);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Received null/invalid message from queue {QueueName}", queueName);
+                            _channel.BasicNack(ea.DeliveryTag, false, false);
                         }
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError(ex, "Error processing message from queue {QueueName}", queueName);
                         // Reject and requeue on error
-                        _channel!.BasicNack(ea.DeliveryTag, false, true);
+                        _channel.BasicNack(ea.DeliveryTag, false, true);
                     }
                 };
 
-                _channel!.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
+                _channel.BasicConsume(queue: queueName, autoAck: false, consumer: consumer);
                 _logger.LogInformation("Subscribed to queue {QueueName}", queueName);
 
                 await Task.CompletedTask;
@@ -182,6 +207,18 @@ namespace Spotless.Infrastructure.Services
         {
             try
             {
+                try
+                {
+                    _channel?.Close();
+                }
+                catch { }
+
+                try
+                {
+                    _connection?.Close();
+                }
+                catch { }
+
                 _channel?.Dispose();
                 _connection?.Dispose();
                 _logger.LogInformation("RabbitMQ connection closed");

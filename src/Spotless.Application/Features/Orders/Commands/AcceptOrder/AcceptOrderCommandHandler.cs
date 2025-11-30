@@ -19,6 +19,10 @@ namespace Spotless.Application.Features.Orders.Commands.AcceptOrder
 
         public async Task<OrderDto> Handle(AcceptOrderCommand request, CancellationToken cancellationToken)
         {
+            
+            
+            
+            
             // Get the order
             var order = await _unitOfWork.Orders.GetByIdAsync(request.OrderId)
                 ?? throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
@@ -30,17 +34,23 @@ namespace Spotless.Application.Features.Orders.Commands.AcceptOrder
                     $"Order cannot be accepted. Current status is {order.Status}. Only orders with 'Confirmed' status can be accepted.");
             }
 
+            
             // Check if order already has a driver
             if (order.DriverId.HasValue)
             {
                 throw new InvalidOperationException("This order has already been assigned to a driver.");
             }
 
+            
+            
+            
             // Assign driver to order
             order.AssignDriver(request.DriverId);
 
             await _unitOfWork.CommitAsync();
 
+            
+            
             // Notify Customer
             var userId = await _authService.GetUserIdByCustomerIdAsync(order.CustomerId);
             if (userId != null)

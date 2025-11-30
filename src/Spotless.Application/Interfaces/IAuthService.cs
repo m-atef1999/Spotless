@@ -22,5 +22,10 @@ namespace Spotless.Application.Interfaces
         Task UpdateUserProfileAsync(Guid userId, string name, Domain.ValueObjects.Address address, string? phoneNumber);
         Task<string?> GetUserIdByCustomerIdAsync(Guid customerId);
         Task<List<string>> GetAdminUserIdsAsync();
+        Task AddRoleAsync(string userId, string role);
+        Task RemoveRoleAsync(string userId, string role);
+        Task LinkAdminAsync(Guid userId, Guid adminId);
+        Task<bool> UserExistsAsync(string email);
+        Task<string?> GetUserIdByDriverIdAsync(Guid driverId);
     }
 }

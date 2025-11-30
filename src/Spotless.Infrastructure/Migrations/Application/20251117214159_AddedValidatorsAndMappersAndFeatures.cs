@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
+    
     /// <inheritdoc />
     public partial class AddedValidatorsAndMappersAndFeatures : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
@@ -24,7 +26,7 @@ namespace Spotless.Infrastructure.Migrations.Application
                 table: "Services");
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<Guid>(

@@ -10,6 +10,7 @@ import type { Spotless_Application_Dtos_Driver_DriverUpdateRequest } from '../mo
 import type { Spotless_Application_Dtos_LocationDto } from '../models/Spotless_Application_Dtos_LocationDto';
 import type { Spotless_Application_Dtos_Order_OrderDto } from '../models/Spotless_Application_Dtos_Order_OrderDto';
 import type { Spotless_Application_Features_Drivers_Commands_AssignDriver_AssignDriverCommand } from '../models/Spotless_Application_Features_Drivers_Commands_AssignDriver_AssignDriverCommand';
+import type { Spotless_Application_Dtos_Driver_DriverEarningsDto } from '../models/Spotless_Application_Dtos_Driver_DriverEarningsDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -166,6 +167,18 @@ export class DriversService {
         });
     }
     /**
+     * Retrieves driver's earnings
+     * @returns Spotless_Application_Dtos_Driver_DriverEarningsDto Success
+     * @throws ApiError
+     */
+    public static getApiDriversEarnings(): CancelablePromise<Spotless_Application_Dtos_Driver_DriverEarningsDto> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/Drivers/earnings',
+        });
+    }
+
+    /**
      * @returns any Success
      * @throws ApiError
      */
@@ -213,6 +226,110 @@ export class DriversService {
             url: '/api/Drivers/admin/assign',
             body: requestBody,
             mediaType: 'application/json',
+        });
+    }
+
+    /**
+     * Retrieves driver applications (Admin)
+     * @returns any Success
+     * @throws ApiError
+     */
+    public static getApiDriversAdminApplications({
+        pageNumber,
+        pageSize,
+        status,
+    }: {
+        pageNumber?: number,
+        pageSize?: number,
+        status?: 'Submitted' | 'Approved' | 'Rejected',
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/Drivers/admin/applications',
+            query: {
+                'pageNumber': pageNumber,
+                'pageSize': pageSize,
+                'status': status,
+            },
+        });
+    }
+
+    /**
+     * Rejects driver application (Admin)
+     * @returns void
+     * @throws ApiError
+     */
+    public static postApiDriversAdminRegistrationsReject({
+        applicationId,
+        requestBody,
+    }: {
+        applicationId: string,
+        requestBody: string,
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/Drivers/admin/registrations/{applicationId}/reject',
+            path: {
+                'applicationId': applicationId,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+        });
+    }
+
+    /**
+     * Lists all drivers with optional filtering (Admin)
+     * @returns Spotless_Application_Dtos_Responses_PagedResponse_1<Spotless_Application_Dtos_Driver_DriverDto> Success
+     * @throws ApiError
+     */
+    public static getApiDrivers({
+        pageNumber,
+        pageSize,
+        status,
+        searchTerm,
+    }: {
+        pageNumber?: number,
+        pageSize?: number,
+        status?: number,
+        searchTerm?: string,
+    }): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/Drivers',
+            query: {
+                'pageNumber': pageNumber,
+                'pageSize': pageSize,
+                'status': status,
+                'searchTerm': searchTerm,
+            },
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+            },
+        });
+    }
+
+    /**
+     * Revokes driver access (Admin only)
+     * @returns void Success
+     * @throws ApiError
+     */
+    public static postApiDriversAdminRevoke({
+        driverId,
+    }: {
+        driverId: string,
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/Drivers/admin/{driverId}/revoke',
+            path: {
+                'driverId': driverId,
+            },
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
         });
     }
 }

@@ -22,6 +22,7 @@ namespace Spotless.Infrastructure.Context
         public DbSet<TimeSlot> TimeSlots => Set<TimeSlot>();
         public DbSet<Review> Reviews => Set<Review>();
         public DbSet<OrderDriverApplication> OrderDriverApplications => Set<OrderDriverApplication>();
+        public DbSet<DriverApplication> DriverApplications => Set<DriverApplication>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
@@ -76,6 +77,9 @@ namespace Spotless.Infrastructure.Context
                     p.Property(m => m.Currency).HasColumnName("PricePerUnit_Currency").HasMaxLength(3);
                 });
 
+                
+                
+                
                 // Configure MaxWeightKg precision to avoid truncation warnings
                 b.Property(s => s.MaxWeightKg).HasColumnType("decimal(10,2)");
             });

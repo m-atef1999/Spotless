@@ -5,6 +5,7 @@ namespace Spotless.Application.Dtos.Order
     public record OrderDto(
         Guid Id,
         Guid CustomerId,
+        string CustomerName,
         Guid? DriverId,
 
         Guid TimeSlotId,

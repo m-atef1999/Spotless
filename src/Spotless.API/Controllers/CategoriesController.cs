@@ -17,6 +17,7 @@ namespace Spotless.API.Controllers
         private readonly IMediator _mediator = mediator;
         private readonly IPaginationService _paginationService = paginationService;
 
+        
         /// <summary>
         /// Lists all service categories with pagination
         /// </summary>

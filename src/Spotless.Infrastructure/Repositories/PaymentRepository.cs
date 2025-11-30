@@ -23,5 +23,26 @@ namespace Spotless.Infrastructure.Repositories
                             p.PaymentDate < endDate)
                 .ToListAsync();
         }
+
+        public async Task<decimal> GetTotalRevenueAsync()
+        {
+            return await _dbContext.Payments
+                .Where(p => p.Status == PaymentStatus.Completed)
+                .SumAsync(p => p.Amount.Amount);
+        }
+
+        public async Task<(decimal Total, string Currency)> GetRevenueSummaryAsync(DateTime startDate, DateTime endDate)
+        {
+            var result = await _dbContext.Payments
+                .Where(p => p.Status == PaymentStatus.Completed &&
+                            p.PaymentDate >= startDate &&
+                            p.PaymentDate < endDate)
+                .GroupBy(p => p.Amount.Currency)
+                .Select(g => new { Currency = g.Key, Total = g.Sum(p => p.Amount.Amount) })
+                .OrderByDescending(x => x.Total)
+                .FirstOrDefaultAsync();
+
+            return (result?.Total ?? 0m, result?.Currency ?? "EGP");
+        }
     }
 }

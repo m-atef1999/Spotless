@@ -4,10 +4,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
+    
+    
     /// <inheritdoc />
     public partial class DeploymentBuild : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<decimal>(
@@ -19,7 +22,7 @@ namespace Spotless.Infrastructure.Migrations.Application
                 oldType: "decimal(18,2)");
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<decimal>(

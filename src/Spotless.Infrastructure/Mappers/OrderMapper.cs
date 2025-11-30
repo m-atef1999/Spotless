@@ -59,6 +59,7 @@ namespace Spotless.Infrastructure.Mappers
             return new OrderDto(
                 Id: order.Id,
                 CustomerId: order.CustomerId,
+                CustomerName: order.Customer?.Name ?? "Unknown",
                 DriverId: order.DriverId,
                 TimeSlotId: order.TimeSlotId,
                 StartTime: order.TimeSlot?.StartTime,

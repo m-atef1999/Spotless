@@ -17,6 +17,7 @@ namespace Spotless.API.Controllers
             _aiService = aiService;
         }
 
+        
         /// <summary>
         /// Chat with Spotless AI Assistant
         /// </summary>

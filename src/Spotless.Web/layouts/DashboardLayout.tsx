@@ -7,10 +7,21 @@ import {
     User,
     Bell,
     LayoutDashboard,
-    PlusCircle,
-    History,
-    CreditCard,
-    Settings
+    Settings,
+    Package,
+    Calendar,
+    DollarSign,
+    Users,
+    FileText,
+    List,
+    Star,
+    BarChart,
+    Shield,
+    Truck,
+    Grid,
+    MapPin,
+    Activity,
+    Repeat
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import logo from '../logos/spotless_logo.png';
@@ -46,7 +57,7 @@ const mockNotifications: NotificationDto[] = [
 ];
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role }) => {
-    const { logout, user } = useAuthStore();
+    const { logout, user, canSwitchRole, switchRole } = useAuthStore();
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -172,24 +183,35 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
         }
     };
 
-    const menuItems = {
+    const menuItems: Record<string, { icon: React.ElementType; label: string; href: string }[]> = {
         Customer: [
             { icon: LayoutDashboard, label: 'Overview', href: '/customer/dashboard' },
-            { icon: PlusCircle, label: 'New Order', href: '/customer/new-order' },
-            { icon: History, label: 'My Orders', href: '/customer/orders' },
-            { icon: CreditCard, label: 'Wallet', href: '/customer/wallet' },
+            { icon: Package, label: 'My Orders', href: '/customer/orders' },
+            { icon: Calendar, label: 'New Order', href: '/customer/new-order' },
+            { icon: DollarSign, label: 'Wallet', href: '/customer/wallet' },
             { icon: Settings, label: 'Settings', href: '/customer/settings' },
         ],
         Driver: [
             { icon: LayoutDashboard, label: 'Dashboard', href: '/driver/dashboard' },
-            { icon: History, label: 'Job History', href: '/driver/jobs' },
-            { icon: CreditCard, label: 'Earnings', href: '/driver/earnings' },
-            { icon: Settings, label: 'Settings', href: '/driver/settings' },
+            { icon: Package, label: 'Available Orders', href: '/driver/available-orders' },
+            { icon: Calendar, label: 'Order History', href: '/driver/order-history' },
+            { icon: DollarSign, label: 'Earnings', href: '/driver/earnings' },
+            { icon: MapPin, label: 'Location', href: '/driver/location' },
+            { icon: Activity, label: 'Status', href: '/driver/status' },
+            { icon: User, label: 'Profile', href: '/driver/profile' },
         ],
         Admin: [
             { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
-            { icon: User, label: 'Users', href: '/admin/users' },
-            { icon: History, label: 'All Orders', href: '/admin/orders' },
+            { icon: Truck, label: 'Drivers', href: '/admin/drivers' },
+            { icon: FileText, label: 'Driver Applications', href: '/admin/driver-applications' },
+            { icon: Package, label: 'Orders', href: '/admin/orders' },
+            { icon: Grid, label: 'Services', href: '/admin/services' },
+            { icon: List, label: 'Categories', href: '/admin/categories' },
+            { icon: Users, label: 'Customers', href: '/admin/customers' },
+            { icon: Star, label: 'Reviews', href: '/admin/reviews' },
+            { icon: BarChart, label: 'Analytics', href: '/admin/analytics' },
+            { icon: Shield, label: 'Audit Logs', href: '/admin/audit-logs' },
+            { icon: Users, label: 'Users', href: '/admin/users' },
             { icon: Settings, label: 'Settings', href: '/admin/settings' },
         ]
     };
@@ -289,6 +311,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
 
                 {/* User Profile & Logout */}
                 <div className="p-4 border-t border-slate-100 dark:border-slate-800">
+                    {isSidebarOpen && canSwitchRole && (
+                        <button
+                            onClick={() => switchRole()}
+                            className="w-full mb-3 flex items-center gap-3 px-3 py-2 rounded-lg bg-cyan-50 dark:bg-cyan-900/10 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-900/20 transition-colors"
+                        >
+                            <Repeat className="w-4 h-4" />
+                            <span className="text-sm font-medium">Switch View</span>
+                        </button>
+                    )}
                     <div className={`flex items-center gap-3 ${!isSidebarOpen && 'justify-center'}`}>
                         <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                             <User className="w-5 h-5 text-slate-500" />
@@ -375,6 +406,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
                                                 </div>
                                             ))
                                         )}
+                                    </div>
+                                    <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-center">
+                                        <Link
+                                            to={`/${role.toLowerCase()}/notifications`}
+                                            className="text-xs font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300"
+                                        >
+                                            View All Notifications
+                                        </Link>
                                     </div>
                                 </div>
                             </div>

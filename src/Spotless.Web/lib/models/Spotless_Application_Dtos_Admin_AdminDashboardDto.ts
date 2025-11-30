@@ -11,5 +11,6 @@ export type Spotless_Application_Dtos_Admin_AdminDashboardDto = {
     numberOfActiveCleaners?: number;
     newRegistrationsToday?: number;
     pendingBookings?: number;
+    totalRevenue?: number;
 };
 

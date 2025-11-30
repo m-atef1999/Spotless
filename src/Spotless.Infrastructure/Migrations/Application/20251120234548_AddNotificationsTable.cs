@@ -1,13 +1,18 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
+    
+    
     /// <inheritdoc />
     public partial class AddNotificationsTable : Migration
     {
+        
+        
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -30,6 +35,8 @@ namespace Spotless.Infrastructure.Migrations.Application
                 });
         }
 
+        
+        
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {

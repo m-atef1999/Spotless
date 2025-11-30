@@ -17,10 +17,7 @@ namespace Spotless.Application.Validation
                 .NotEmpty().WithMessage("The Admin ID is required to track which administrator approved the application.");
 
 
-            RuleFor(x => x.Password)
-                .NotEmpty().WithMessage("A password is required to create the driver's identity.")
-                .MinimumLength(8).WithMessage("The initial password must be at least 8 characters long.")
-                .MaximumLength(50).WithMessage("Password cannot exceed 50 characters.");
+
 
         }
     }

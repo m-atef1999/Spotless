@@ -15,6 +15,8 @@ namespace Spotless.API.Controllers
         private readonly CachedTimeSlotService _timeSlotService = timeSlotService;
         private readonly ApplicationDbContext _context = context;
 
+        
+        
         /// <summary>
         /// Lists all available time slots
         /// </summary>
@@ -72,13 +74,6 @@ namespace Spotless.API.Controllers
                 }
                 else
                 {
-                    // Update existing slot properties using reflection or direct assignment if setters were public
-                    // Since setters are private, we might need to use backing fields or just leave it if it exists.
-                    // However, to fix "bad data", we really want to update it.
-                    // But TimeSlot setters are private!
-                    // We can use Entry().CurrentValues.SetValues if we map it, but let's try to just ensure they exist first.
-                    // If the user has "bad" slots, they might be named differently?
-                    // If we can't update, we at least ensure the default names exist.
                 }
             }
             

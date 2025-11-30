@@ -92,9 +92,6 @@ namespace Spotless.Infrastructure.Services
                 throw new UnauthorizedAccessException("Invalid credentials.");
             }
 
-            if (user == null)
-                throw new UnauthorizedAccessException("Invalid credentials.");
-
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "Unknown";
 
@@ -123,9 +120,6 @@ namespace Spotless.Infrastructure.Services
 
                 throw new UnauthorizedAccessException("Invalid or expired refresh token.");
             }
-
-            if (user == null)
-                throw new UnauthorizedAccessException("Invalid or expired refresh token.");
 
             var roles = await _userManager.GetRolesAsync(user);
             var role = roles.FirstOrDefault() ?? "Unknown";
@@ -205,11 +199,6 @@ namespace Spotless.Infrastructure.Services
                 user = await _userManager.FindByIdAsync(newUserId.ToString());
 
                 // Link the external login immediately for the new user
-                if (user != null)
-                {
-                    var loginInfo = new UserLoginInfo(provider, providerKey, provider);
-                    await _userManager.AddLoginAsync(user, loginInfo);
-                }
             }
             else
             {
@@ -475,6 +464,45 @@ namespace Spotless.Infrastructure.Services
             return admins.Select(u => u.Id.ToString()).ToList();
         }
 
+        public async Task AddRoleAsync(string userId, string role)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                await _userManager.AddToRoleAsync(user, role);
+            }
+        }
+
+        public async Task RemoveRoleAsync(string userId, string role)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                await _userManager.RemoveFromRoleAsync(user, role);
+            }
+        }
+
+        public async Task LinkAdminAsync(Guid userId, Guid adminId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user != null)
+            {
+                user.AdminId = adminId;
+                await _userManager.UpdateAsync(user);
+            }
+        }
+
+        public async Task<bool> UserExistsAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            return user != null;
+        }
+
+        public async Task<string?> GetUserIdByDriverIdAsync(Guid driverId)
+        {
+            var user = await _userManager.Users.FirstOrDefaultAsync(u => u.DriverId == driverId);
+            return user?.Id.ToString();
+        }
     }
 
 }

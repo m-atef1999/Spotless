@@ -45,6 +45,12 @@ namespace Spotless.Infrastructure.Configurations
                 money.Property(m => m.Currency).HasColumnName("WalletCurrency").HasMaxLength(5);
             });
 
+            builder.Property(c => c.Type)
+                   .HasConversion<string>();
+
+            builder.Property(c => c.Role)
+                   .HasConversion<string>();
+
             builder.HasMany(c => c.Orders)
                     .WithOne(o => o.Customer)
                     .HasForeignKey(o => o.CustomerId)

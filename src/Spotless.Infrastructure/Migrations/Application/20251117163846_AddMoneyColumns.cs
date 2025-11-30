@@ -4,10 +4,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
-    /// <inheritdoc />
+    
+    ///// <inheritdoc />
     public partial class AddMoneyColumns : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
@@ -96,7 +97,7 @@ namespace Spotless.Infrastructure.Migrations.Application
                 onDelete: ReferentialAction.Cascade);
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(

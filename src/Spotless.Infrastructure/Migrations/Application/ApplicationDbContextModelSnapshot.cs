@@ -28,8 +28,9 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AdminRole")
-                        .HasColumnType("int");
+                    b.Property<string>("AdminRole")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -43,8 +44,9 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -217,11 +219,13 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -262,8 +266,9 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.Property<string>("Phone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Role")
-                        .HasColumnType("int");
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -273,8 +278,7 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                     b.Property<string>("VehicleInfo")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -286,6 +290,41 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .HasDatabaseName("IX_Driver_Email_Unique");
 
                     b.ToTable("Drivers", (string)null);
+                });
+
+            modelBuilder.Entity("Spotless.Domain.Entities.DriverApplication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RejectionReason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ReviewedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("VehicleInfo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("DriverApplications");
                 });
 
             modelBuilder.Entity("Spotless.Domain.Entities.Notification", b =>
@@ -838,8 +877,7 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                 {
                     b.HasOne("Spotless.Domain.Entities.Admin", null)
                         .WithMany("Drivers")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("AdminId");
 
                     b.OwnsOne("Spotless.Domain.ValueObjects.Location", "CurrentLocation", b1 =>
                         {
@@ -866,6 +904,17 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Spotless.Domain.Entities.DriverApplication", b =>
+                {
+                    b.HasOne("Spotless.Domain.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
             modelBuilder.Entity("Spotless.Domain.Entities.Order", b =>
                 {
                     b.HasOne("Spotless.Domain.Entities.Admin", null)
@@ -879,7 +928,7 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Spotless.Domain.Entities.Driver", null)
+                    b.HasOne("Spotless.Domain.Entities.Driver", "Driver")
                         .WithMany("Orders")
                         .HasForeignKey("DriverId")
                         .OnDelete(DeleteBehavior.SetNull);
@@ -963,6 +1012,8 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                     b.Navigation("DeliveryLocation")
                         .IsRequired();
+
+                    b.Navigation("Driver");
 
                     b.Navigation("PickupLocation")
                         .IsRequired();

@@ -13,7 +13,8 @@ namespace Spotless.Application.Dtos.Admin
         IReadOnlyList<MostUsedServiceDto> MostUsedServices,
         int NumberOfActiveCleaners,
         int NewRegistrationsToday,
-        int PendingBookings
+        int PendingBookings,
+        decimal TotalRevenue
     );
 }
 

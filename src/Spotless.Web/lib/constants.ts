@@ -64,6 +64,18 @@ export const NotificationType = {
     Promotion: 11,
 } as const;
 
+// DriverStatus enum values
+// Backend: Available=0, DriverAssigned=1, OnRoute=2, Busy=3, Offline=4, PendingApproval=5, Rejected=6
+export const DriverStatus = {
+    Available: 0,
+    DriverAssigned: 1,
+    OnRoute: 2,
+    Busy: 3,
+    Offline: 4,
+    PendingApproval: 5,
+    Rejected: 6,
+} as const;
+
 // Helper functions for status display
 export const getOrderStatusLabel = (status: number | string): string => {
     // Handle string status from backend (due to JsonStringEnumConverter)

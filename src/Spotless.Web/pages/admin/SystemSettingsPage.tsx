@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SystemSettingsService, type SystemSettingDto } from '../../lib/api';
+import { DashboardLayout } from '../../layouts/DashboardLayout';
 
 interface SystemSettings {
     general: {
@@ -140,54 +141,54 @@ const SystemSettingsPage: React.FC = () => {
     };
 
     return (
-        <div className="p-6 max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold text-gray-900">System Settings</h1>
-                <button
-                    onClick={handleSave}
-                    disabled={loading}
-                    className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition-colors"
-                >
-                    {loading ? 'Saving...' : 'Save Changes'}
-                </button>
-            </div>
-
-            {saveSuccess && (
-                <div className="mb-6 bg-green-50 border border-green-200 rounded-lg p-4">
-                    <p className="text-green-800">Settings saved successfully!</p>
-                </div>
-            )}
-
+        <DashboardLayout role="Admin">
             <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold text-slate-900 dark:text-white">System Settings</h1>
+                    <button
+                        onClick={handleSave}
+                        disabled={loading}
+                        className="bg-cyan-600 text-white px-6 py-2 rounded-xl hover:bg-cyan-700 disabled:bg-slate-400 transition-colors font-medium"
+                    >
+                        {loading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                </div>
+
+                {saveSuccess && (
+                    <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
+                        <p className="text-green-800 dark:text-green-400 font-medium">Settings saved successfully!</p>
+                    </div>
+                )}
+
                 {/* General Settings */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">General Settings</h2>
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">General Settings</h2>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Site Name</label>
                             <input
                                 type="text"
                                 value={settings.general.siteName}
                                 onChange={(e) => updateGeneralSetting('siteName', e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Support Email</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Support Email</label>
                             <input
                                 type="email"
                                 value={settings.general.supportEmail}
                                 onChange={(e) => updateGeneralSetting('supportEmail', e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Support Phone</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Support Phone</label>
                             <input
                                 type="tel"
                                 value={settings.general.supportPhone}
                                 onChange={(e) => updateGeneralSetting('supportPhone', e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                             />
                         </div>
                         <div className="flex items-center">
@@ -196,9 +197,9 @@ const SystemSettingsPage: React.FC = () => {
                                 id="maintenanceMode"
                                 checked={settings.general.maintenanceMode}
                                 onChange={(e) => updateGeneralSetting('maintenanceMode', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
                             />
-                            <label htmlFor="maintenanceMode" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="maintenanceMode" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
                                 Enable Maintenance Mode
                             </label>
                         </div>
@@ -206,35 +207,35 @@ const SystemSettingsPage: React.FC = () => {
                 </div>
 
                 {/* Business Settings */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Business Settings</h2>
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Business Settings</h2>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Tax Rate (%)</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tax Rate (%)</label>
                             <input
                                 type="number"
                                 step="0.1"
                                 value={settings.business.taxRate}
                                 onChange={(e) => updateBusinessSetting('taxRate', parseFloat(e.target.value))}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Service Fee (%)</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Service Fee (%)</label>
                             <input
                                 type="number"
                                 step="0.1"
                                 value={settings.business.serviceFee}
                                 onChange={(e) => updateBusinessSetting('serviceFee', parseFloat(e.target.value))}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Currency</label>
                             <select
                                 value={settings.business.currency}
                                 onChange={(e) => updateBusinessSetting('currency', e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                             >
                                 <option value="EGP">EGP - Egyptian Pound</option>
                                 <option value="EUR">EUR - Euro</option>
@@ -243,12 +244,13 @@ const SystemSettingsPage: React.FC = () => {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Timezone</label>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Timezone</label>
                             <select
                                 value={settings.business.timezone}
                                 onChange={(e) => updateBusinessSetting('timezone', e.target.value)}
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
                             >
+                                <option value="Africa/Cairo">Cairo (GMT+2)</option>
                                 <option value="America/New_York">Eastern Time</option>
                                 <option value="America/Chicago">Central Time</option>
                                 <option value="America/Denver">Mountain Time</option>
@@ -259,8 +261,8 @@ const SystemSettingsPage: React.FC = () => {
                 </div>
 
                 {/* Notification Settings */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Notification Settings</h2>
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Notification Settings</h2>
                     <div className="space-y-3">
                         <div className="flex items-center">
                             <input
@@ -268,9 +270,9 @@ const SystemSettingsPage: React.FC = () => {
                                 id="emailNotifications"
                                 checked={settings.notifications.emailNotifications}
                                 onChange={(e) => updateNotificationSetting('emailNotifications', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
                             />
-                            <label htmlFor="emailNotifications" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="emailNotifications" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
                                 Enable Email Notifications
                             </label>
                         </div>
@@ -280,9 +282,9 @@ const SystemSettingsPage: React.FC = () => {
                                 id="smsNotifications"
                                 checked={settings.notifications.smsNotifications}
                                 onChange={(e) => updateNotificationSetting('smsNotifications', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
                             />
-                            <label htmlFor="smsNotifications" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="smsNotifications" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
                                 Enable SMS Notifications
                             </label>
                         </div>
@@ -292,9 +294,9 @@ const SystemSettingsPage: React.FC = () => {
                                 id="pushNotifications"
                                 checked={settings.notifications.pushNotifications}
                                 onChange={(e) => updateNotificationSetting('pushNotifications', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
                             />
-                            <label htmlFor="pushNotifications" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="pushNotifications" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
                                 Enable Push Notifications
                             </label>
                         </div>
@@ -302,8 +304,8 @@ const SystemSettingsPage: React.FC = () => {
                 </div>
 
                 {/* Payment Settings */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold text-gray-900 mb-4">Payment Settings</h2>
+                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">Payment Settings</h2>
                     <div className="space-y-3">
                         <div className="flex items-center">
                             <input
@@ -311,9 +313,9 @@ const SystemSettingsPage: React.FC = () => {
                                 id="stripeEnabled"
                                 checked={settings.payment.stripeEnabled}
                                 onChange={(e) => updatePaymentSetting('stripeEnabled', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
                             />
-                            <label htmlFor="stripeEnabled" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="stripeEnabled" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
                                 Enable Stripe Payments
                             </label>
                         </div>
@@ -323,9 +325,9 @@ const SystemSettingsPage: React.FC = () => {
                                 id="paypalEnabled"
                                 checked={settings.payment.paypalEnabled}
                                 onChange={(e) => updatePaymentSetting('paypalEnabled', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
                             />
-                            <label htmlFor="paypalEnabled" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="paypalEnabled" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
                                 Enable PayPal Payments
                             </label>
                         </div>
@@ -335,16 +337,16 @@ const SystemSettingsPage: React.FC = () => {
                                 id="cashOnDelivery"
                                 checked={settings.payment.cashOnDelivery}
                                 onChange={(e) => updatePaymentSetting('cashOnDelivery', e.target.checked)}
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                className="h-4 w-4 text-cyan-600 focus:ring-cyan-500 border-slate-300 rounded"
                             />
-                            <label htmlFor="cashOnDelivery" className="ml-2 block text-sm text-gray-900">
+                            <label htmlFor="cashOnDelivery" className="ml-2 block text-sm text-slate-700 dark:text-slate-300">
                                 Enable Cash on Delivery
                             </label>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 };
 

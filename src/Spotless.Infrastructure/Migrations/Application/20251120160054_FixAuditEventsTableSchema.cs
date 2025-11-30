@@ -4,11 +4,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Migrations.Application
 {
+    
+    
+    
+    
     /// <inheritdoc />
     public partial class FixAuditEventsTableSchema : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            
             // Check if AuditEvents table exists, if not create it
             migrationBuilder.Sql(@"
                 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'AuditEvents')
@@ -54,6 +59,8 @@ namespace Spotless.Infrastructure.Migrations.Application
             ");
         }
 
+        
+        
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {

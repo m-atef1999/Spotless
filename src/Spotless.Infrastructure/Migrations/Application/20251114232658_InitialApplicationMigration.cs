@@ -5,10 +5,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Spotless.Infrastructure.Configurations.Migrations.Application
 {
-    /// <inheritdoc />
+    
+    ///// <inheritdoc />
     public partial class InitialApplicationMigration : Migration
     {
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -416,7 +417,7 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                 column: "ServiceId");
         }
 
-        /// <inheritdoc />
+        ///// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(

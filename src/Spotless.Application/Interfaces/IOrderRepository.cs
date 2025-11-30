@@ -19,5 +19,7 @@ namespace Spotless.Application.Interfaces
         /// Creates an order using Redis-based distributed locking for safe concurrent time-slot booking.
         /// </summary>
         Task AddOrderWithRedisLockAsync(Spotless.Domain.Entities.Order order, Guid timeSlotId, DateTime scheduledDate, int maxCapacity);
+
+        Task<(IReadOnlyList<Order> Items, int TotalCount)> GetOrdersForAdminAsync(int pageNumber, int pageSize, OrderStatus? status, string? searchTerm);
     }
 }

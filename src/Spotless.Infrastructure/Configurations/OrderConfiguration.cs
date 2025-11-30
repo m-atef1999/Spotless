@@ -45,7 +45,7 @@ namespace Spotless.Infrastructure.Configurations
 
 
 
-            builder.HasOne<Driver>()
+            builder.HasOne(o => o.Driver)
                     .WithMany(d => d.Orders)
                     .HasForeignKey(o => o.DriverId)
                     .IsRequired(false)

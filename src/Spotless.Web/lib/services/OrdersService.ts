@@ -95,4 +95,61 @@ export class OrdersService {
             },
         });
     }
+    /**
+     * Updates the status of an order (Admin only)
+     * @returns Spotless_Application_Dtos_Order_OrderDto Success
+     * @throws ApiError
+     */
+    public static putApiOrdersStatus({
+        id,
+        status,
+    }: {
+        id: string,
+        status: number,
+    }): CancelablePromise<Spotless_Application_Dtos_Order_OrderDto> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/orders/{id}/status',
+            path: {
+                'id': id,
+            },
+            body: status,
+            mediaType: 'application/json',
+            errors: {
+                404: `Not Found`,
+            },
+        });
+    }
+
+    /**
+     * Lists all orders for admin with filtering
+     * @returns Spotless_Application_Dtos_Responses_PagedResponse_1<Spotless_Application_Dtos_Order_OrderDto> Success
+     * @throws ApiError
+     */
+    public static getApiOrdersAdmin({
+        pageNumber,
+        pageSize,
+        status,
+        searchTerm,
+    }: {
+        pageNumber?: number,
+        pageSize?: number,
+        status?: number,
+        searchTerm?: string,
+    }): CancelablePromise<Spotless_Application_Dtos_Responses_PagedResponse_1> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/orders/admin',
+            query: {
+                'pageNumber': pageNumber,
+                'pageSize': pageSize,
+                'status': status,
+                'searchTerm': searchTerm,
+            },
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+            },
+        });
+    }
 }
