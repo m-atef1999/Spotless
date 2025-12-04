@@ -93,9 +93,100 @@ export function OrderHistoryPage() {
                                                 {order.totalPrice ? `${order.totalPrice} ${order.currency || 'EGP'}` : 'N/A'}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
-                                                    {getStatusLabel(order.status)}
-                                                </span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(order.status)}`}>
+                                                        {getStatusLabel(order.status)}
+                                                    </span>
+                                                    {order.status === OrderStatus.DriverAssigned && (
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (confirm('Mark as Picked Up?')) {
+                                                                    try {
+                                                                        await DriversService.putApiDriversOrdersStatus({
+                                                                            orderId: order.id!,
+                                                                            requestBody: OrderStatus.PickedUp
+                                                                        });
+                                                                        // Refresh
+                                                                        const data = await DriversService.getApiDriversOrders();
+                                                                        setOrders(data || []);
+                                                                    } catch (e) {
+                                                                        console.error(e);
+                                                                        addToast('Failed to update status', 'error');
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded hover:bg-blue-200"
+                                                        >
+                                                            Pick Up
+                                                        </button>
+                                                    )}
+                                                    {order.status === OrderStatus.PickedUp && (
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (confirm('Mark as In Cleaning?')) {
+                                                                    try {
+                                                                        await DriversService.putApiDriversOrdersStatus({
+                                                                            orderId: order.id!,
+                                                                            requestBody: OrderStatus.InCleaning
+                                                                        });
+                                                                        const data = await DriversService.getApiDriversOrders();
+                                                                        setOrders(data || []);
+                                                                    } catch (e) {
+                                                                        console.error(e);
+                                                                        addToast('Failed to update status', 'error');
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded hover:bg-purple-200"
+                                                        >
+                                                            Start Cleaning
+                                                        </button>
+                                                    )}
+                                                    {order.status === OrderStatus.InCleaning && (
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (confirm('Mark as Out For Delivery?')) {
+                                                                    try {
+                                                                        await DriversService.putApiDriversOrdersStatus({
+                                                                            orderId: order.id!,
+                                                                            requestBody: OrderStatus.OutForDelivery
+                                                                        });
+                                                                        const data = await DriversService.getApiDriversOrders();
+                                                                        setOrders(data || []);
+                                                                    } catch (e) {
+                                                                        console.error(e);
+                                                                        addToast('Failed to update status', 'error');
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded hover:bg-orange-200"
+                                                        >
+                                                            Deliver
+                                                        </button>
+                                                    )}
+                                                    {order.status === OrderStatus.OutForDelivery && (
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (confirm('Mark as Delivered?')) {
+                                                                    try {
+                                                                        await DriversService.putApiDriversOrdersStatus({
+                                                                            orderId: order.id!,
+                                                                            requestBody: OrderStatus.Delivered
+                                                                        });
+                                                                        const data = await DriversService.getApiDriversOrders();
+                                                                        setOrders(data || []);
+                                                                    } catch (e) {
+                                                                        console.error(e);
+                                                                        addToast('Failed to update status', 'error');
+                                                                    }
+                                                                }
+                                                            }}
+                                                            className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200"
+                                                        >
+                                                            Complete
+                                                        </button>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
                                     ))}

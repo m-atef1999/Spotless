@@ -30,6 +30,7 @@ import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { NotificationsService, type NotificationDto } from '../lib/api';
 import { NotificationType } from '../lib/constants';
 import { BackToTop } from '../components/ui/BackToTop';
+import { NotificationCenter } from '../components/ui/NotificationCenter';
 
 
 interface DashboardLayoutProps {
@@ -364,60 +365,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
 
                     <div className="flex items-center gap-4">
                         <ThemeToggle />
-                        <div className="relative group h-full flex items-center">
-                            <button className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 relative">
-                                <Bell className="w-6 h-6" />
-                                {unreadCount > 0 && (
-                                    <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-                                )}
-                            </button>
-                            {/* Notification Dropdown - Added pt-4 to bridge the gap for hover */}
-                            <div className="absolute right-0 top-full pt-4 w-80 hidden group-hover:block z-50">
-                                <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-4 animate-fade-in-up">
-                                    <div className="flex justify-between items-center mb-3">
-                                        <h3 className="font-bold text-slate-900 dark:text-white">Notifications</h3>
-                                        {unreadCount > 0 && (
-                                            <span className="text-xs text-cyan-600 dark:text-cyan-400 font-medium">
-                                                {unreadCount} new
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                                        {notifications.length === 0 ? (
-                                            <p className="text-sm text-slate-500 text-center py-4">No notifications</p>
-                                        ) : (
-                                            notifications.map((notification) => (
-                                                <div
-                                                    key={notification.id}
-                                                    onClick={() => handleNotificationClick(notification)}
-                                                    className={`flex items-start gap-3 p-2 rounded-lg transition-colors cursor-pointer ${notification.isRead
-                                                        ? 'opacity-60 hover:bg-slate-50 dark:hover:bg-slate-800'
-                                                        : 'bg-cyan-50/50 dark:bg-cyan-900/10 hover:bg-cyan-50 dark:hover:bg-cyan-900/20'
-                                                        }`}
-                                                >
-                                                    <div className={`w-2 h-2 mt-2 rounded-full shrink-0 ${getNotificationColor(notification.type, notification.title)}`} />
-                                                    <div>
-                                                        <p className="text-sm text-slate-900 dark:text-white font-medium">{notification.title}</p>
-                                                        <p className="text-xs text-slate-500 line-clamp-2">{notification.message}</p>
-                                                        <p className="text-[10px] text-slate-400 mt-1">
-                                                            {new Date(notification.createdAt || '').toLocaleDateString()}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        )}
-                                    </div>
-                                    <div className="pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-center">
-                                        <Link
-                                            to={`/${role.toLowerCase()}/notifications`}
-                                            className="text-xs font-medium text-cyan-600 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300"
-                                        >
-                                            View All Notifications
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <NotificationCenter />
                     </div>
                 </header>
 
@@ -432,6 +380,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
                 </main>
             </div>
             <BackToTop />
-        </div>
+        </div >
     );
 };

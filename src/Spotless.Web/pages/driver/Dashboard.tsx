@@ -5,7 +5,7 @@ import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { DriversService, OrdersService } from '../../lib/api';
 import type { Spotless_Application_Dtos_Order_OrderDto as OrderDto } from '../../lib/models/Spotless_Application_Dtos_Order_OrderDto';
-import { OrderStatus, DriverStatus } from '../../lib/constants';
+import { OrderStatus } from '../../lib/constants';
 import { useAuthStore } from '../../store/authStore';
 import { usePolling } from '../../hooks/usePolling';
 
@@ -14,14 +14,16 @@ export const DriverDashboard: React.FC = () => {
     const [activeJobs, setActiveJobs] = useState<OrderDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isStatusLoading, setIsStatusLoading] = useState(false);
-    const [driverStatus, setDriverStatus] = useState<number>(DriverStatus.Available);
+    const [driverStatus, setDriverStatus] = useState<string>('Offline');
 
     const fetchData = async () => {
         try {
-            const myOrders = await DriversService.getApiDriversOrders();
+            const [myOrders, profile] = await Promise.all([
+                DriversService.getApiDriversOrders(),
+                DriversService.getApiDriversProfile()
+            ]);
             setActiveJobs(myOrders || []);
-            // Also fetch driver status if possible, or infer from user profile if available
-            // For now assuming Available if viewing dashboard, but should ideally fetch from backend
+            setDriverStatus(profile.status || 'Offline');
         } catch (error) {
             console.error('Failed to fetch driver data', error);
         } finally {
@@ -35,23 +37,43 @@ export const DriverDashboard: React.FC = () => {
 
     usePolling(fetchData, 30000);
 
-    const handleGoOffline = async () => {
-        setIsStatusLoading(true);
-        try {
-            await DriversService.putApiDriversStatus({ requestBody: { status: 'Offline' } });
-            setDriverStatus(DriverStatus.Offline);
-        } catch (error) {
-            console.error('Failed to update status', error);
-        } finally {
-            setIsStatusLoading(false);
-        }
-    };
+    // Real-time status updates
+    useEffect(() => {
+        const apiUrl = import.meta.env.VITE_API_URL || 'https://spotless.runasp.net';
+        const baseUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
 
-    const handleGoOnline = async () => {
+        import('@microsoft/signalr').then(signalR => {
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl(`${baseUrl}/driverHub`, {
+                    accessTokenFactory: () => localStorage.getItem('token') || ''
+                })
+                .withAutomaticReconnect()
+                .build();
+
+            connection.start()
+                .then(() => {
+                    console.log('DriverHub Connected (Dashboard)');
+                    connection.on('DriverAvailabilityUpdated', (_userId: string, newStatus: string) => {
+                        setDriverStatus(newStatus);
+                    });
+                })
+                .catch(err => console.error('DriverHub Connection Error: ', err));
+
+            return () => {
+                connection.stop();
+            };
+        });
+    }, []);
+
+    const handleToggleStatus = async () => {
+        const newStatus = driverStatus === 'Available' ? 'Offline' : 'Available';
         setIsStatusLoading(true);
         try {
-            await DriversService.putApiDriversStatus({ requestBody: { status: 'Available' } });
-            setDriverStatus(DriverStatus.Available);
+            await DriversService.putApiDriversStatus({
+                requestBody: { status: newStatus }
+            });
+            // Optimistic update
+            setDriverStatus(newStatus);
         } catch (error) {
             console.error('Failed to update status', error);
         } finally {
@@ -121,10 +143,10 @@ export const DriverDashboard: React.FC = () => {
                         </p>
                     </div>
                     <div className="flex gap-3">
-                        {driverStatus === DriverStatus.Available ? (
+                        {driverStatus === 'Available' ? (
                             <Button
                                 variant="outline"
-                                onClick={handleGoOffline}
+                                onClick={handleToggleStatus}
                                 isLoading={isStatusLoading}
                                 className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                             >
@@ -133,7 +155,7 @@ export const DriverDashboard: React.FC = () => {
                             </Button>
                         ) : (
                             <Button
-                                onClick={handleGoOnline}
+                                onClick={handleToggleStatus}
                                 isLoading={isStatusLoading}
                                 className="bg-green-600 hover:bg-green-700 text-white"
                             >

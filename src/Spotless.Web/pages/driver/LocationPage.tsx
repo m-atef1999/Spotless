@@ -7,7 +7,10 @@ import { Map } from '../../components/ui/Map';
 
 export const LocationPage: React.FC = () => {
     const [isUpdating, setIsUpdating] = useState(false);
-    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
+    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(() => {
+        const saved = localStorage.getItem('driverLocation');
+        return saved ? JSON.parse(saved) : null;
+    });
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -24,7 +27,9 @@ export const LocationPage: React.FC = () => {
         navigator.geolocation.getCurrentPosition(
             async (position) => {
                 const { latitude, longitude } = position.coords;
-                setLocation({ lat: latitude, lng: longitude });
+                const newLocation = { lat: latitude, lng: longitude };
+                setLocation(newLocation);
+                localStorage.setItem('driverLocation', JSON.stringify(newLocation));
 
                 try {
                     await DriversService.putApiDriversLocation({

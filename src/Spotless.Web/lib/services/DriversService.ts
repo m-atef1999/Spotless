@@ -332,4 +332,53 @@ export class DriversService {
             },
         });
     }
+    /**
+     * Accepts an order for the authenticated driver
+     * @returns Spotless_Application_Dtos_Order_OrderDto Success
+     * @throws ApiError
+     */
+    public static postApiDriversAccept({
+        orderId,
+    }: {
+        orderId: string,
+    }): CancelablePromise<Spotless_Application_Dtos_Order_OrderDto> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/Drivers/accept/{orderId}',
+            path: {
+                'orderId': orderId,
+            },
+            errors: {
+                400: `Bad Request`,
+                404: `Not Found`,
+            },
+        });
+    }
+
+    /**
+     * Updates order status (Driver)
+     * @returns void Success
+     * @throws ApiError
+     */
+    public static putApiDriversOrdersStatus({
+        orderId,
+        requestBody,
+    }: {
+        orderId: string,
+        requestBody: number,
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/Drivers/orders/{orderId}/status',
+            path: {
+                'orderId': orderId,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad Request`,
+                404: `Not Found`,
+            },
+        });
+    }
 }

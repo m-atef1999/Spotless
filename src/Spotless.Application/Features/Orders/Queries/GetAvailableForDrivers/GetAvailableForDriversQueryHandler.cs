@@ -14,7 +14,7 @@ namespace Spotless.Application.Features.Orders.Queries.GetAvailableForDrivers
 
         public async Task<IReadOnlyList<OrderDto>> Handle(GetAvailableForDriversQuery request, CancellationToken cancellationToken)
         {
-            var orders = await _unitOfWork.Orders.GetAsync(o => o.Status == OrderStatus.Confirmed && !o.DriverId.HasValue);
+            var orders = await _unitOfWork.Orders.GetAsync(o => (o.Status == OrderStatus.Confirmed || o.Status == OrderStatus.Requested) && !o.DriverId.HasValue);
 
             return _orderMapper.MapToDto(orders).ToList();
         }

@@ -289,7 +289,83 @@ namespace Spotless.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Accepts an order for the authenticated driver
+        /// </summary>
+        [HttpPost("accept/{orderId:guid}")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Spotless.Application.Dtos.Order.OrderDto))]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AcceptOrder(Guid orderId)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null)
+                return NotFound(new { Message = "User not found." });
+
+            try
+            {
+                var driverId = await EnsureDriverProfileAsync(user);
+                var command = new Spotless.Application.Features.Orders.Commands.AcceptOrder.AcceptOrderCommand(orderId, driverId);
+                var orderDto = await _mediator.Send(command);
+                return Ok(orderDto);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
+
         // --- Driver Registration Endpoints ---
+
+        /// <summary>
+        /// Updates order status (Driver)
+        /// </summary>
+        [HttpPut("orders/{orderId:guid}/status")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateOrderStatus(Guid orderId, [FromBody] Spotless.Domain.Enums.OrderStatus newStatus)
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null)
+                return NotFound(new { Message = "User not found." });
+
+            try
+            {
+                var driverId = await EnsureDriverProfileAsync(user);
+                
+                // Verify order belongs to driver
+                var order = await _unitOfWork.Orders.GetByIdAsync(orderId);
+                if (order == null) return NotFound(new { Message = "Order not found." });
+                
+                if (order.DriverId != driverId)
+                    return Unauthorized(new { Message = "You are not assigned to this order." });
+
+                var command = new Spotless.Application.Features.Orders.Commands.UpdateOrderStatus.UpdateOrderStatusCommand(orderId, newStatus);
+                await _mediator.Send(command);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { Message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
 
         [Authorize(Roles = "Admin")]
         [HttpPost("admin/registrations/{applicationId:guid}/approve")]

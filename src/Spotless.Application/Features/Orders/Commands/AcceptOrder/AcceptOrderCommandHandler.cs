@@ -28,10 +28,10 @@ namespace Spotless.Application.Features.Orders.Commands.AcceptOrder
                 ?? throw new KeyNotFoundException($"Order with ID {request.OrderId} not found.");
 
             // Verify order is available for assignment
-            if (order.Status != OrderStatus.Confirmed)
+            if (order.Status != OrderStatus.Confirmed && order.Status != OrderStatus.Requested)
             {
                 throw new InvalidOperationException(
-                    $"Order cannot be accepted. Current status is {order.Status}. Only orders with 'Confirmed' status can be accepted.");
+                    $"Order cannot be accepted. Current status is {order.Status}. Only orders with 'Confirmed' or 'Requested' status can be accepted.");
             }
 
             

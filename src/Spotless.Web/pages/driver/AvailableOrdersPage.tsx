@@ -28,8 +28,9 @@ export const AvailableOrdersPage: React.FC = () => {
     usePolling(fetchAvailableJobs, 15000);
 
     const handleAcceptJob = async (orderId: string) => {
+        console.log('Accepting job:', orderId);
         try {
-            await DriversService.postApiDriversApply({ orderId });
+            await DriversService.postApiDriversAccept({ orderId });
             // Refresh data
             fetchAvailableJobs();
         } catch (error) {
