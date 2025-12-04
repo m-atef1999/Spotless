@@ -44,7 +44,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
             const handleNotification = (data: any) => {
                 console.log('Context: Notification received', data);
                 const message = data.Message || data.message;
-                const title = data.Title || data.title;
+
 
                 if (message) {
                     addToast(message, 'success');
