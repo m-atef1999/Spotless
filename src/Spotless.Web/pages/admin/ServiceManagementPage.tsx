@@ -14,6 +14,7 @@ interface ServiceFormData {
     price: number;
     categoryId: string;
     estimatedDurationHours: number;
+    maxWeightKg: number;
     imageUrl: string;
 }
 
@@ -27,6 +28,7 @@ export const ServiceManagementPage: React.FC = () => {
         price: 0,
         categoryId: '',
         estimatedDurationHours: 2,
+        maxWeightKg: 50,
         imageUrl: '',
     });
     const queryClient = useQueryClient();
@@ -67,7 +69,7 @@ export const ServiceManagementPage: React.FC = () => {
                     pricePerUnitAmount: data.price,
                     pricePerUnitCurrency: 'EGP',
                     estimatedDurationHours: data.estimatedDurationHours,
-                    maxWeightKg: 50,
+                    maxWeightKg: data.maxWeightKg,
                     imageUrl: data.imageUrl || undefined,
                 }
             });
@@ -92,6 +94,8 @@ export const ServiceManagementPage: React.FC = () => {
                     pricePerUnitValue: data.price,
                     pricePerUnitCurrency: 'EGP',
                     estimatedDurationHours: data.estimatedDurationHours,
+                    maxWeightKg: data.maxWeightKg,
+                    categoryId: data.categoryId,
                     imageUrl: data.imageUrl || undefined,
                 }
             });
@@ -127,6 +131,7 @@ export const ServiceManagementPage: React.FC = () => {
             price: 0,
             categoryId: categories.length > 0 ? categories[0].id : '',
             estimatedDurationHours: 2,
+            maxWeightKg: 50,
             imageUrl: '',
         });
         if (categories.length === 0) {
@@ -144,6 +149,7 @@ export const ServiceManagementPage: React.FC = () => {
             price: service.basePrice || 0,
             categoryId: service.categoryId || '',
             estimatedDurationHours: service.estimatedDurationHours || 2,
+            maxWeightKg: service.maxWeightKg || 50,
             imageUrl: service.imageUrl || '',
         });
         setShowModal(true);
@@ -337,7 +343,20 @@ export const ServiceManagementPage: React.FC = () => {
                         </div>
                     </div>
 
-                    {!editingService && (
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                                Max Weight (kg)
+                            </label>
+                            <input
+                                type="number"
+                                value={formData.maxWeightKg}
+                                onChange={(e) => setFormData({ ...formData, maxWeightKg: parseInt(e.target.value) || 50 })}
+                                className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500"
+                                placeholder="50"
+                                min="1"
+                            />
+                        </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                                 Category *
@@ -352,7 +371,7 @@ export const ServiceManagementPage: React.FC = () => {
                                 ))}
                             </select>
                         </div>
-                    )}
+                    </div>
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">

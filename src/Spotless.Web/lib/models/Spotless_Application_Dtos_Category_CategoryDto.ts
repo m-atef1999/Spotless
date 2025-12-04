@@ -8,5 +8,7 @@ export type Spotless_Application_Dtos_Category_CategoryDto = {
     description?: string | null;
     price?: number;
     serviceCount?: number;
+    imageUrl?: string | null;
+    imageData?: string | null;
 };
 

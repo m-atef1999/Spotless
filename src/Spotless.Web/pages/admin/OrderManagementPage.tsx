@@ -115,57 +115,75 @@ export const OrderManagementPage: React.FC = () => {
     setActionMenuOrderId(null);
   };
 
-  const getStatusBadge = (status: number) => {
-    switch (status) {
-      case OrderStatus.PaymentFailed:
+  const getStatusBadge = (status: number | string) => {
+    // Convert status to string for consistent matching (backend may send string or number)
+    const statusStr = typeof status === 'string' ? status : String(status);
+
+    // Map numeric values to string names
+    const statusMap: Record<string, string> = {
+      '0': 'PaymentFailed',
+      '1': 'Requested',
+      '2': 'Confirmed',
+      '3': 'DriverAssigned',
+      '4': 'PickedUp',
+      '5': 'InCleaning',
+      '6': 'OutForDelivery',
+      '7': 'Delivered',
+      '8': 'Cancelled',
+    };
+
+    const normalizedStatus = statusMap[statusStr] || statusStr;
+
+    switch (normalizedStatus) {
+      case 'PaymentFailed':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             Payment Failed
           </span>
         );
-      case OrderStatus.Requested:
+      case 'Requested':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400">
             Pending
           </span>
         );
-      case OrderStatus.Confirmed:
+      case 'Confirmed':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
             Confirmed
           </span>
         );
-      case OrderStatus.DriverAssigned:
+      case 'DriverAssigned':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400">
             Driver Assigned
           </span>
         );
-      case OrderStatus.PickedUp:
+      case 'PickedUp':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400">
             Picked Up
           </span>
         );
-      case OrderStatus.InCleaning:
+      case 'InCleaning':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
             In Progress
           </span>
         );
-      case OrderStatus.OutForDelivery:
+      case 'OutForDelivery':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400">
             Out for Delivery
           </span>
         );
-      case OrderStatus.Delivered:
+      case 'Delivered':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
             Completed
           </span>
         );
-      case OrderStatus.Cancelled:
+      case 'Cancelled':
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
             Cancelled
@@ -174,7 +192,7 @@ export const OrderManagementPage: React.FC = () => {
       default:
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
-            Status {status}
+            {normalizedStatus}
           </span>
         );
     }
