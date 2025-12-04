@@ -66,7 +66,11 @@ const AnalyticsPage: React.FC = () => {
                     { name: 'Pending', value: data.pendingOrders || 0 },
                     { name: 'Cancelled', value: data.cancelledOrders || 0 }
                 ],
-                topServices: [] // Missing from DTO
+                topServices: (data.topServices || []).map(s => ({
+                    name: s.serviceName || 'Unknown Service',
+                    orders: s.orderCount || 0,
+                    revenue: 0 // Revenue per service not available yet
+                }))
             };
             setAnalytics(transformedData);
         } catch (error) {

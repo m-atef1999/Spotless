@@ -47,6 +47,9 @@ namespace Spotless.Application.Features.Analytics.Queries.GetAdminDashboard
                 .Where(o => o.OrderDate >= startOfMonth)
                 .Sum(o => o.TotalPrice.Amount);
 
+            // Get top 5 most used services from completed orders
+            var topServices = await _unitOfWork.Orders.GetMostUsedServicesAsync(1, 5);
+
             return new AdminDashboardDto
             {
                 TotalOrders = totalOrders,
@@ -59,7 +62,8 @@ namespace Spotless.Application.Features.Analytics.Queries.GetAdminDashboard
                 TotalRevenue = totalRevenue,
                 MonthlyRevenue = monthlyRevenue,
                 TotalServices = allServices.Count,
-                TotalCategories = allCategories.Count
+                TotalCategories = allCategories.Count,
+                TopServices = topServices
             };
         }
     }
