@@ -11,6 +11,9 @@ namespace Spotless.Application.Features.Drivers.Queries.GetDriverEarnings
 
         public async Task<DriverEarningsDto> Handle(GetDriverEarningsQuery request, CancellationToken cancellationToken)
         {
+            // Get the driver to retrieve their actual rating
+            var driver = await _unitOfWork.Drivers.GetByIdAsync(request.DriverId);
+            
             // Get all orders completed by this driver
             var orders = await _unitOfWork.Orders.GetAsync(o => o.DriverId == request.DriverId && o.Status == OrderStatus.Delivered);
 
@@ -20,8 +23,8 @@ namespace Spotless.Application.Features.Drivers.Queries.GetDriverEarnings
             // Placeholder for pending payments (could be calculated based on payout status if that existed)
             var pendingPayments = totalEarnings; 
 
-            // Placeholder for rating
-            var averageRating = 5.0;
+            // Use actual rating from driver entity
+            var averageRating = driver?.AverageRating ?? 0.0;
 
             return new DriverEarningsDto
             {

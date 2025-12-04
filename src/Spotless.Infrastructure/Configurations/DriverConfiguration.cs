@@ -17,6 +17,12 @@ namespace Spotless.Infrastructure.Configurations
                 location.Property(l => l.Longitude).HasColumnName("CurrentLongitude").HasColumnType("decimal(11,8)").IsRequired(false);
             });
 
+            builder.Property(d => d.AverageRating)
+                   .HasDefaultValue(0.0);
+
+            builder.Property(d => d.NumberOfReviews)
+                   .HasDefaultValue(0);
+
             builder.Property(d => d.Email)
                     .IsRequired()
                     .HasMaxLength(256);

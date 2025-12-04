@@ -83,7 +83,7 @@ export function EarningsPage() {
                             </div>
                             <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-6 border border-gray-100 dark:border-slate-700">
                                 <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Average Rating</div>
-                                <div className="text-3xl font-bold text-yellow-600">⭐ {earnings.averageRating}</div>
+                                <div className="text-3xl font-bold text-yellow-600">⭐ {earnings.averageRating.toFixed(1)}</div>
                             </div>
                         </div>
 

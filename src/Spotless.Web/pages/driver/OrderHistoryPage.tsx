@@ -1,17 +1,18 @@
 import { useState, useEffect } from 'react';
-import { DriversService, ServicesService, type OrderDto, type ServiceDto } from '../../lib/api';
+import { DriversService, ServicesService, ReviewsService, type OrderDto, type ServiceDto, type ReviewDto } from '../../lib/api';
 import { OrderStatus } from '../../lib/constants';
 import { useToast } from '../../components/ui/Toast';
 import { useAuthStore } from '../../store/authStore';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
-import { X, MapPin, Clock, Package, DollarSign, Scale } from 'lucide-react';
+import { X, MapPin, Clock, Package, DollarSign, Scale, Star } from 'lucide-react';
 
 export function OrderHistoryPage() {
     const [orders, setOrders] = useState<OrderDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedOrder, setSelectedOrder] = useState<OrderDto | null>(null);
     const [servicesMap, setServicesMap] = useState<Record<string, ServiceDto>>({});
+    const [reviewsMap, setReviewsMap] = useState<Record<string, ReviewDto>>({});
     const { user } = useAuthStore();
     const { addToast } = useToast();
 
@@ -34,6 +35,22 @@ export function OrderHistoryPage() {
                     });
                 }
                 setServicesMap(map);
+
+                // Fetch reviews for driver
+                try {
+                    // Get currentdriver profile to get driverId
+                    const profile = await DriversService.getApiDriversProfile();
+                    if (profile?.id) {
+                        const reviews = await ReviewsService.getApiReviewsDriver({ driverId: profile.id });
+                        const rMap: Record<string, ReviewDto> = {};
+                        reviews.forEach(r => {
+                            if (r.orderId) rMap[r.orderId] = r;
+                        });
+                        setReviewsMap(rMap);
+                    }
+                } catch (reviewError) {
+                    console.warn('Could not fetch reviews:', reviewError);
+                }
             } catch (error) {
                 addToast('Failed to load order history', 'error');
                 console.error('Error fetching order history:', error);
@@ -144,6 +161,7 @@ export function OrderHistoryPage() {
                                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Amount</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Review</th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
                                     </tr>
                                 </thead>
@@ -257,6 +275,26 @@ export function OrderHistoryPage() {
                                                     )}
                                                 </div>
                                             </td>
+                                            {/* Review Column */}
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                {order.id && reviewsMap[order.id] ? (
+                                                    <div className="flex items-center gap-1">
+                                                        {[1, 2, 3, 4, 5].map((star) => (
+                                                            <Star
+                                                                key={star}
+                                                                className={`w-4 h-4 ${star <= (reviewsMap[order.id!]?.rating || 0)
+                                                                    ? 'fill-yellow-400 text-yellow-400'
+                                                                    : 'text-slate-300 dark:text-slate-600'
+                                                                    }`}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                ) : isStatus(order.status, OrderStatus.Delivered) ? (
+                                                    <span className="text-sm text-slate-400 italic">Pending</span>
+                                                ) : (
+                                                    <span className="text-sm text-slate-400">-</span>
+                                                )}
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                                                 <button
                                                     onClick={() => setSelectedOrder(order)}
@@ -280,6 +318,20 @@ export function OrderHistoryPage() {
                     <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800">
                             <h2 className="text-xl font-bold text-slate-900 dark:text-white">Order Details</h2>
+                            {/* Show review in modal header if exists */}
+                            {selectedOrder.id && reviewsMap[selectedOrder.id] && (
+                                <div className="flex items-center gap-1 mr-4">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <Star
+                                            key={star}
+                                            className={`w-4 h-4 ${star <= (reviewsMap[selectedOrder.id!]?.rating || 0)
+                                                ? 'fill-yellow-400 text-yellow-400'
+                                                : 'text-slate-300 dark:text-slate-600'
+                                                }`}
+                                        />
+                                    ))}
+                                </div>
+                            )}
                             <button onClick={() => setSelectedOrder(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300">
                                 <X className="w-6 h-6" />
                             </button>
@@ -396,6 +448,37 @@ export function OrderHistoryPage() {
                                     {selectedOrder.totalPrice} {selectedOrder.currency || 'EGP'}
                                 </span>
                             </div>
+
+                            {/* Customer Review Section */}
+                            {selectedOrder.id && reviewsMap[selectedOrder.id] && (
+                                <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-4">
+                                    <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 mb-2">
+                                        <Star className="w-4 h-4" />
+                                        <span className="font-medium">Customer Review</span>
+                                    </div>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="flex">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Star
+                                                    key={star}
+                                                    className={`w-5 h-5 ${star <= (reviewsMap[selectedOrder.id!]?.rating || 0)
+                                                        ? 'fill-yellow-400 text-yellow-400'
+                                                        : 'text-slate-300 dark:text-slate-600'
+                                                        }`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="font-medium text-slate-900 dark:text-white">
+                                            {reviewsMap[selectedOrder.id]?.rating}/5
+                                        </span>
+                                    </div>
+                                    {reviewsMap[selectedOrder.id]?.comment && (
+                                        <p className="text-slate-600 dark:text-slate-300 italic bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                                            "{reviewsMap[selectedOrder.id].comment}"
+                                        </p>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

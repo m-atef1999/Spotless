@@ -5,7 +5,9 @@ import { ArrowLeft, Calendar, MapPin, CreditCard, Package, AlertCircle, Loader2,
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { useToast } from '../../components/ui/Toast';
-import { OrdersService, ServicesService, type OrderDto, OrderStatus, PaymentMethod, getOrderStatusLabel, getOrderStatusColor } from '../../lib/api';
+import { OrdersService, ServicesService, ReviewsService, type OrderDto, type ReviewDto, OrderStatus, PaymentMethod, getOrderStatusLabel, getOrderStatusColor } from '../../lib/api';
+import { ReviewComponent } from '../../components/reviews/ReviewComponent';
+import { Star } from 'lucide-react';
 
 export const OrderDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -15,14 +17,16 @@ export const OrderDetailsPage: React.FC = () => {
     const [error, setError] = useState<string | null>(null);
 
     const [servicesMap, setServicesMap] = useState<Record<string, string>>({});
+    const [existingReview, setExistingReview] = useState<ReviewDto | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 if (!id) return;
-                const [orderResponse, servicesResponse] = await Promise.all([
+                const [orderResponse, servicesResponse, reviewsResponse] = await Promise.all([
                     OrdersService.getApiOrders({ id }),
-                    ServicesService.getApiServices({ pageNumber: 1, pageSize: 100 })
+                    ServicesService.getApiServices({ pageNumber: 1, pageSize: 100 }),
+                    ReviewsService.getApiReviewsCustomer()
                 ]);
 
                 // Create services map
@@ -36,6 +40,14 @@ export const OrderDetailsPage: React.FC = () => {
 
                 if (orderResponse) {
                     setOrder(orderResponse);
+
+                    // Check for existing review
+                    if (reviewsResponse) {
+                        const review = reviewsResponse.find(r => r.orderId === orderResponse.id);
+                        if (review) {
+                            setExistingReview(review);
+                        }
+                    }
                 } else {
                     setError('Order not found');
                 }
@@ -84,15 +96,17 @@ export const OrderDetailsPage: React.FC = () => {
         }
     };
 
-    const handleWriteReview = () => {
-        // For now, just a prompt
-        const rating = window.prompt('Rate this service (1-5):');
-        if (!rating) return;
-
-        const comment = window.prompt('Leave a comment:');
-        if (comment) {
-            alert('Review submitted successfully!');
-        }
+    const handleReviewSubmitted = (rating: number) => {
+        // Optimistically update the UI or re-fetch
+        // For simplicity, we'll just set a mock review object so the form disappears
+        setExistingReview({
+            id: 'temp',
+            orderId: order?.id,
+            customerId: 'temp',
+            rating: rating,
+            comment: '',
+            createdAt: new Date().toISOString()
+        } as ReviewDto);
     };
 
     const handleReorder = () => {
@@ -163,14 +177,11 @@ export const OrderDetailsPage: React.FC = () => {
                                     Cancel Order
                                 </Button>
                             )}
-                        {order.status === OrderStatus.Delivered && (
+                        {(order.status === OrderStatus.Delivered || (order.status as any) === 'Delivered') && (
                             <>
                                 <Button variant="outline" onClick={handleReorder}>
                                     <RotateCcw className="w-4 h-4 mr-2" />
                                     Reorder
-                                </Button>
-                                <Button onClick={handleWriteReview}>
-                                    Write Review
                                 </Button>
                             </>
                         )}
@@ -210,6 +221,44 @@ export const OrderDetailsPage: React.FC = () => {
                                 </span>
                             </div>
                         </div>
+
+                        {/* Review Section */}
+                        {(order.status === OrderStatus.Delivered || (order.status as any) === 'Delivered') && (
+                            existingReview ? (
+                                <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6">
+                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                                        <Star className="w-5 h-5 text-cyan-500" />
+                                        Your Review
+                                    </h3>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <div className="flex">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Star
+                                                    key={star}
+                                                    className={`w-5 h-5 ${star <= (existingReview.rating || 0)
+                                                        ? 'fill-yellow-400 text-yellow-400'
+                                                        : 'text-slate-300 dark:text-slate-600'
+                                                        }`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="font-medium text-slate-900 dark:text-white">
+                                            {existingReview.rating}/5
+                                        </span>
+                                    </div>
+                                    {existingReview.comment && (
+                                        <p className="text-slate-600 dark:text-slate-300 italic">
+                                            "{existingReview.comment}"
+                                        </p>
+                                    )}
+                                </div>
+                            ) : (
+                                <ReviewComponent
+                                    orderId={order.id || ''}
+                                    onReviewSubmitted={handleReviewSubmitted}
+                                />
+                            )
+                        )}
                     </div>
 
                     {/* Sidebar */}
@@ -275,6 +324,6 @@ export const OrderDetailsPage: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 };

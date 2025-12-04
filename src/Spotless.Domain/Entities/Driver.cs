@@ -32,6 +32,19 @@ namespace Spotless.Domain.Entities
             this.Role = UserRole.Driver;
         }
 
+        public double AverageRating { get; private set; }
+        public int NumberOfReviews { get; private set; }
+
+        public void UpdateRating(int newRating)
+        {
+            if (newRating < 1 || newRating > 5)
+                throw new ArgumentOutOfRangeException(nameof(newRating), "Rating must be between 1 and 5.");
+
+            double totalRating = (AverageRating * NumberOfReviews) + newRating;
+            NumberOfReviews++;
+            AverageRating = totalRating / NumberOfReviews;
+        }
+
         public void UpdateStatus(DriverStatus newStatus)
         {
             Status = newStatus;
