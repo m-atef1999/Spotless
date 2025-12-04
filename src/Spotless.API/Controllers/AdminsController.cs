@@ -16,11 +16,13 @@ namespace Spotless.API.Controllers
     public class AdminsController(
         IMediator mediator,
         UserManager<ApplicationUser> userManager,
-        IPaginationService paginationService) : ControllerBase
+        IPaginationService paginationService,
+        ILogger<AdminsController> logger) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IPaginationService _paginationService = paginationService;
+        private readonly ILogger<AdminsController> _logger = logger;
 
         
         
@@ -78,19 +80,30 @@ namespace Spotless.API.Controllers
         [ProducesResponseType(StatusCodes.Status403Forbidden)]
         public async Task<IActionResult> GetDashboard()
         {
-            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
-                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+            try
+            {
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                _logger.LogInformation("GetDashboard called for user {UserId}", userIdString);
+                
+                if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
+                    return Unauthorized(new { Message = "Invalid or missing user ID claim." });
 
-            var user = await _userManager.FindByIdAsync(userIdString);
-            if (user == null || !user.AdminId.HasValue)
-                return Forbid("Admin profile not found for this user.");
+                var user = await _userManager.FindByIdAsync(userIdString);
+                if (user == null || !user.AdminId.HasValue)
+                    return Forbid("Admin profile not found for this user.");
 
-            // Use fixed small page size for most used services (top 5)
-            var query = new GetAdminDashboardQuery(1, 5);
-            var result = await _mediator.Send(query);
+                // Use fixed small page size for most used services (top 5)
+                var query = new GetAdminDashboardQuery(1, 5);
+                var result = await _mediator.Send(query);
 
-            return Ok(result);
+                _logger.LogInformation("GetDashboard returning data: OrdersToday={OrdersToday}", result.TotalOrdersToday);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetDashboard: {Message}", ex.Message);
+                return StatusCode(500, new { Message = ex.Message, StackTrace = ex.StackTrace });
+            }
         }
 
         /// <summary>

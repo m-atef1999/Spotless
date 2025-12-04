@@ -30,6 +30,7 @@ interface AnalyticsData {
 const AnalyticsPage: React.FC = () => {
     const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
 
     useEffect(() => {
@@ -38,6 +39,7 @@ const AnalyticsPage: React.FC = () => {
 
     const fetchAnalytics = async () => {
         setLoading(true);
+        setError(null);
         try {
             const data: AnalyticsDashboardDto = await AnalyticsService.getApiAnalyticsDashboard();
 
@@ -73,8 +75,10 @@ const AnalyticsPage: React.FC = () => {
                 }))
             };
             setAnalytics(transformedData);
-        } catch (error) {
-            console.error('Failed to fetch analytics:', error);
+        } catch (err: any) {
+            const errorMessage = err?.body?.message || err?.message || 'Unknown error occurred';
+            console.error('Failed to fetch analytics:', err);
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -95,12 +99,19 @@ const AnalyticsPage: React.FC = () => {
         );
     }
 
-    if (!analytics) {
+    if (error || !analytics) {
         return (
             <DashboardLayout role="Admin">
                 <div className="p-6">
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <p className="text-red-800">Failed to load analytics data.</p>
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                        <h3 className="text-lg font-semibold text-red-800 dark:text-red-400 mb-2">Failed to load analytics data</h3>
+                        <p className="text-red-600 dark:text-red-300 mb-4">{error || 'No data received from server'}</p>
+                        <button
+                            onClick={fetchAnalytics}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                            Retry
+                        </button>
                     </div>
                 </div>
             </DashboardLayout>

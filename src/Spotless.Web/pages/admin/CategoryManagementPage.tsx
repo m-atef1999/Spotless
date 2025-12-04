@@ -3,12 +3,13 @@ import { CategoriesService, type CategoryDto, type PagedResponse } from '../../l
 import { useToast } from '../../components/ui/Toast';
 import { Modal } from '../../components/ui/Modal';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
-import { Image, Folder, Package } from 'lucide-react';
+import { Image, Folder, Package, Upload } from 'lucide-react';
 
 interface CategoryFormData {
     name: string;
     description: string;
     imageUrl: string;
+    imageData: string;
 }
 
 export function CategoryManagementPage() {
@@ -16,7 +17,8 @@ export function CategoryManagementPage() {
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState<CategoryDto | null>(null);
-    const [formData, setFormData] = useState<CategoryFormData>({ name: '', description: '', imageUrl: '' });
+    const [formData, setFormData] = useState<CategoryFormData>({ name: '', description: '', imageUrl: '', imageData: '' });
+    const [imageInputMode, setImageInputMode] = useState<'url' | 'upload'>('url');
     const { addToast } = useToast();
 
     useEffect(() => {
@@ -41,7 +43,8 @@ export function CategoryManagementPage() {
 
     const handleCreate = () => {
         setEditingCategory(null);
-        setFormData({ name: '', description: '', imageUrl: '' });
+        setFormData({ name: '', description: '', imageUrl: '', imageData: '' });
+        setImageInputMode('url');
         setShowModal(true);
     };
 
@@ -50,8 +53,10 @@ export function CategoryManagementPage() {
         setFormData({
             name: category.name || '',
             description: category.description || '',
-            imageUrl: category.imageUrl || ''
+            imageUrl: category.imageUrl || '',
+            imageData: (category as any).imageData || ''
         });
+        setImageInputMode((category as any).imageData ? 'upload' : 'url');
         setShowModal(true);
     };
 
@@ -68,6 +73,7 @@ export function CategoryManagementPage() {
                         name: formData.name,
                         description: formData.description,
                         imageUrl: formData.imageUrl || undefined,
+                        imageData: formData.imageData || undefined,
                         price: 0
                     }
                 });
@@ -78,6 +84,7 @@ export function CategoryManagementPage() {
                         name: formData.name,
                         description: formData.description,
                         imageUrl: formData.imageUrl || undefined,
+                        imageData: formData.imageData || undefined,
                         price: 0
                     }
                 });
@@ -216,24 +223,84 @@ export function CategoryManagementPage() {
                         <div>
                             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                                 <Image className="w-4 h-4 inline mr-1" />
-                                Image URL
+                                Image
                             </label>
-                            <input
-                                type="url"
-                                value={formData.imageUrl}
-                                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
-                                placeholder="https://example.com/image.jpg"
-                            />
-                            {formData.imageUrl && (
-                                <div className="mt-2 rounded-lg overflow-hidden h-24 w-full max-w-xs bg-slate-100 dark:bg-slate-800">
-                                    <img
-                                        src={formData.imageUrl}
-                                        alt="Preview"
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                            {/* Image Input Mode Toggle */}
+                            <div className="flex gap-2 mb-3">
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setImageInputMode('url');
+                                        setFormData({ ...formData, imageData: '' });
+                                    }}
+                                    className={`flex-1 py-2 px-3 text-sm rounded-lg border transition-colors ${imageInputMode === 'url'
+                                            ? 'bg-cyan-50 border-cyan-500 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
+                                            : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400'
+                                        }`}
+                                >
+                                    <Image className="w-4 h-4 inline mr-1" />
+                                    URL
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setImageInputMode('upload');
+                                        setFormData({ ...formData, imageUrl: '' });
+                                    }}
+                                    className={`flex-1 py-2 px-3 text-sm rounded-lg border transition-colors ${imageInputMode === 'upload'
+                                            ? 'bg-cyan-50 border-cyan-500 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
+                                            : 'border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-400'
+                                        }`}
+                                >
+                                    <Upload className="w-4 h-4 inline mr-1" />
+                                    Upload
+                                </button>
+                            </div>
+
+                            {imageInputMode === 'url' ? (
+                                <>
+                                    <input
+                                        type="url"
+                                        value={formData.imageUrl}
+                                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                        className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
+                                        placeholder="https://example.com/image.jpg"
                                     />
-                                </div>
+                                    {formData.imageUrl && (
+                                        <div className="mt-2 rounded-lg overflow-hidden h-24 w-full max-w-xs bg-slate-100 dark:bg-slate-800">
+                                            <img
+                                                src={formData.imageUrl}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                                            />
+                                        </div>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => {
+                                            const file = e.target.files?.[0];
+                                            if (file) {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => {
+                                                    const base64 = reader.result as string;
+                                                    setFormData({ ...formData, imageData: base64 });
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }
+                                        }}
+                                        className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-cyan-50 file:text-cyan-700 dark:file:bg-cyan-900/30 dark:file:text-cyan-400 hover:file:bg-cyan-100"
+                                    />
+                                    {formData.imageData && (
+                                        <div className="mt-2 rounded-lg overflow-hidden h-24 w-full max-w-xs bg-slate-100 dark:bg-slate-800">
+                                            <img src={formData.imageData} alt="Preview" className="w-full h-full object-cover" />
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                         <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">

@@ -85,6 +85,29 @@ export const DriverStatusPage: React.FC = () => {
         }
     };
 
+    const handleSetStatus = async (newStatus: string) => {
+        if (newStatus === status) return;
+        setIsUpdating(true);
+        try {
+            await DriversService.putApiDriversStatus({
+                requestBody: { status: newStatus }
+            });
+            setStatus(newStatus);
+        } catch (error) {
+            console.error('Failed to update status', error);
+            alert('Failed to update status. Please try again.');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const availableStatuses = [
+        { value: 'Available', label: 'Available', description: 'Ready to accept new orders', color: 'green' },
+        { value: 'OnRoute', label: 'On Route', description: 'Currently on a pickup/delivery', color: 'blue' },
+        { value: 'Busy', label: 'Busy', description: 'Working but cannot take new orders', color: 'orange' },
+        { value: 'Offline', label: 'Offline', description: 'Not accepting any orders', color: 'slate' },
+    ];
+
     const isOnline = status === 'Available' || status === 'Online';
 
     return (
@@ -99,30 +122,60 @@ export const DriverStatusPage: React.FC = () => {
                     </p>
                 </div>
 
-                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 text-center space-y-8">
-                    <div className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-colors ${isOnline
-                        ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
+                <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 space-y-8">
+                    <div className={`mx-auto w-24 h-24 rounded-full flex items-center justify-center transition-colors ${status === 'Available' ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' :
+                            status === 'OnRoute' ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400' :
+                                status === 'Busy' ? 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400' :
+                                    'bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500'
                         }`}>
                         <Power className="w-12 h-12" />
                     </div>
 
-                    <div>
+                    <div className="text-center">
                         <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
                             You are currently {status}
                         </h2>
                         <p className="text-slate-500 dark:text-slate-400 mt-2">
-                            {isOnline
-                                ? "You are visible to customers and can receive new orders."
-                                : "You will not receive any new order notifications."}
+                            {availableStatuses.find(s => s.value === status)?.description || 'Select a status below'}
                         </p>
                     </div>
 
+                    {/* Status Options Grid */}
+                    <div className="grid grid-cols-2 gap-3">
+                        {availableStatuses.map((statusOption) => (
+                            <button
+                                key={statusOption.value}
+                                onClick={() => handleSetStatus(statusOption.value)}
+                                disabled={isUpdating || isLoading}
+                                className={`p-4 rounded-xl border-2 transition-all ${status === statusOption.value
+                                        ? statusOption.color === 'green' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' :
+                                            statusOption.color === 'blue' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' :
+                                                statusOption.color === 'orange' ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' :
+                                                    'border-slate-500 bg-slate-50 dark:bg-slate-900/20'
+                                        : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+                                    }`}
+                            >
+                                <div className={`w-3 h-3 rounded-full mx-auto mb-2 ${statusOption.color === 'green' ? 'bg-green-500' :
+                                        statusOption.color === 'blue' ? 'bg-blue-500' :
+                                            statusOption.color === 'orange' ? 'bg-orange-500' :
+                                                'bg-slate-400'
+                                    }`} />
+                                <div className="font-medium text-slate-900 dark:text-white text-sm">
+                                    {statusOption.label}
+                                </div>
+                                <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                    {statusOption.description}
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Quick Toggle for convenience */}
                     <Button
                         size="lg"
                         onClick={handleToggleStatus}
                         isLoading={isUpdating || isLoading}
-                        className={`w-full py-6 text-lg ${isOnline
+                        className={`w-full py-4 text-base ${isOnline
                             ? 'bg-red-500 hover:bg-red-600 text-white'
                             : 'bg-green-500 hover:bg-green-600 text-white'
                             }`}
@@ -130,12 +183,12 @@ export const DriverStatusPage: React.FC = () => {
                         {isOnline ? (
                             <>
                                 <XCircle className="w-5 h-5 mr-2" />
-                                Go Offline
+                                Quick: Go Offline
                             </>
                         ) : (
                             <>
                                 <CheckCircle className="w-5 h-5 mr-2" />
-                                Go Online
+                                Quick: Go Online
                             </>
                         )}
                     </Button>

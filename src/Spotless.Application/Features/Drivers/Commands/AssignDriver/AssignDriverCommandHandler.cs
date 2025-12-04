@@ -37,7 +37,8 @@ namespace Spotless.Application.Features.Drivers.Commands.AssignDriver
             }
 
             order.AssignDriver(request.DriverId);
-            driver.UpdateStatus(DriverStatus.OnRoute);
+            // Note: Driver status is NOT changed to OnRoute anymore
+            // This allows drivers to remain Available and take multiple orders
 
             await _unitOfWork.Orders.UpdateAsync(order);
             await _unitOfWork.Drivers.UpdateAsync(driver);

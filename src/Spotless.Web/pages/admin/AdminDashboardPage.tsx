@@ -23,10 +23,10 @@ import {
 } from "recharts";
 import { useQuery } from "@tanstack/react-query";
 import { DashboardLayout } from "../../layouts/DashboardLayout";
-import { AdminsService } from "../../lib/api";
 import { Button } from "../../components/ui/Button";
+import { OpenAPI } from "../../lib/api";
 
-// Mock Data for Charts (since API doesn't provide historical data yet)
+// Mock Data for Revenue Chart (API doesn't provide historical data yet)
 const REVENUE_DATA = [
   { name: "Mon", revenue: 1200 },
   { name: "Tue", revenue: 1900 },
@@ -37,29 +37,33 @@ const REVENUE_DATA = [
   { name: "Sun", revenue: 2500 },
 ];
 
-const SERVICE_DATA = [
-  { name: "Standard Cleaning", value: 45 },
-  { name: "Deep Cleaning", value: 25 },
-  { name: "Move-in/out", value: 20 },
-  { name: "Carpet Cleaning", value: 10 },
-];
-
-const COLORS = ["#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899"];
+const COLORS = ["#06b6d4", "#3b82f6", "#8b5cf6", "#ec4899", "#22c55e"];
 
 export const AdminDashboardPage: React.FC = () => {
   const {
     data: stats,
     isLoading,
+    isError,
+    error,
     refetch,
   } = useQuery<any, Error>({
     queryKey: ["adminDashboard"],
     queryFn: async () => {
-      const data = await AdminsService.getApiAdminsDashboard();
-      return data;
+      const token = typeof OpenAPI.TOKEN === 'function' ? await OpenAPI.TOKEN({} as any) : OpenAPI.TOKEN;
+      const response = await fetch(`${OpenAPI.BASE}/api/analytics/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch dashboard: ${response.status} ${errorText}`);
+      }
+      return await response.json();
     },
-    // keep data slightly fresher but avoid frequent refetches causing UI jank
     staleTime: 15000,
-    keepPreviousData: true,
+    retry: 1,
   } as any);
 
   if (isLoading) {
@@ -72,18 +76,32 @@ export const AdminDashboardPage: React.FC = () => {
     );
   }
 
+  if (isError) {
+    return (
+      <DashboardLayout role="Admin">
+        <div className="p-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-red-800 dark:text-red-400 mb-2">Failed to load dashboard</h3>
+            <p className="text-red-600 dark:text-red-300 mb-4">{(error as any)?.message || 'Unknown error'}</p>
+            <Button onClick={() => refetch()} variant="outline">Retry</Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   const statCards = [
     {
-      label: "New Users Today",
-      value: stats?.newRegistrationsToday || 0,
+      label: "Total Customers",
+      value: stats?.totalCustomers || 0,
       change: "+0%",
       icon: Users,
       color: "text-blue-500",
       bg: "bg-blue-50 dark:bg-blue-900/20",
     },
     {
-      label: "Orders Today",
-      value: stats?.totalOrdersToday || 0,
+      label: "Total Orders",
+      value: stats?.totalOrders || 0,
       change: "+0%",
       icon: ShoppingBag,
       color: "text-purple-500",
@@ -91,8 +109,7 @@ export const AdminDashboardPage: React.FC = () => {
     },
     {
       label: "Total Revenue",
-      value: `${stats?.revenueCurrency || "EGP"} ${stats?.totalRevenue?.toFixed(2) || "0.00"
-        }`,
+      value: `EGP ${stats?.totalRevenue?.toFixed(2) || "0.00"}`,
       change: "+0%",
       icon: TrendingUp,
       color: "text-green-500",
@@ -100,13 +117,19 @@ export const AdminDashboardPage: React.FC = () => {
     },
     {
       label: "Active Drivers",
-      value: stats?.numberOfActiveCleaners || 0,
+      value: stats?.activeDrivers || 0,
       change: "0%",
       icon: Activity,
       color: "text-orange-500",
       bg: "bg-orange-50 dark:bg-orange-900/20",
     },
   ];
+
+  // Use real service data from API (Analytics DTO uses 'topServices'), fall back to empty array
+  const serviceData = (stats?.topServices || []).map((s: any) => ({
+    name: s.serviceName || "Unknown",
+    value: s.orderCount || 0,
+  }));
 
   return (
     <DashboardLayout role="Admin">
@@ -236,39 +259,45 @@ export const AdminDashboardPage: React.FC = () => {
               Service Popularity
             </h3>
             <div className="h-80">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={SERVICE_DATA}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={80}
-                    outerRadius={110}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {SERVICE_DATA.map((_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={COLORS[index % COLORS.length]}
-                      />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      borderRadius: "8px",
-                      border: "none",
-                      boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={36}
-                    iconType="circle"
-                  />
-                </PieChart>
-              </ResponsiveContainer>
+              {serviceData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={serviceData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={80}
+                      outerRadius={110}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {serviceData.map((_: { name: string; value: number }, index: number) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "#fff",
+                        borderRadius: "8px",
+                        border: "none",
+                        boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+                      }}
+                    />
+                    <Legend
+                      verticalAlign="bottom"
+                      height={36}
+                      iconType="circle"
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="flex items-center justify-center h-full text-slate-400">
+                  No service data available
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
