@@ -14,5 +14,7 @@ export type Spotless_Application_Dtos_Service_ServiceDto = {
     maxWeightKg?: number;
     isActive?: boolean;
     isFeatured?: boolean;
+    imageUrl?: string | null;
+    imageData?: string | null;
 };
 

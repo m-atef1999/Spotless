@@ -92,5 +92,33 @@ namespace Spotless.API.Controllers
 
             return Ok(result);
         }
+
+        /// <summary>
+        /// Retrieves authenticated admin's profile
+        /// </summary>
+        [HttpGet("me")]
+        [ProducesResponseType(typeof(AdminDto), 200)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetAdminProfile()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdString))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var user = await _userManager.FindByIdAsync(userIdString);
+            if (user == null || !user.AdminId.HasValue)
+                return NotFound(new { Message = "Admin profile not found for this user." });
+
+            var adminDto = new AdminDto
+            {
+                Id = user.AdminId.Value,
+                Name = user.Name ?? user.UserName ?? user.Email ?? "Admin",
+                Email = user.Email ?? "",
+                AdminRole = "SuperAdmin" // Could be expanded to include different admin roles
+            };
+
+            return Ok(adminDto);
+        }
     }
 }

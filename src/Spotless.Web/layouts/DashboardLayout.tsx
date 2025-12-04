@@ -236,7 +236,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
             { icon: Star, label: 'Reviews', href: '/admin/reviews' },
             { icon: BarChart, label: 'Analytics', href: '/admin/analytics' },
             { icon: Shield, label: 'Audit Logs', href: '/admin/audit-logs' },
-            { icon: Users, label: 'Users', href: '/admin/users' },
+            { icon: Users, label: 'Admins', href: '/admin/users' },
             { icon: Settings, label: 'Settings', href: '/admin/settings' },
         ]
     };

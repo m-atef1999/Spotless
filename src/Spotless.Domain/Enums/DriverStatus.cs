@@ -8,6 +8,8 @@ namespace Spotless.Domain.Enums
         Busy,
         Offline,
         PendingApproval,
-        Rejected
+        Rejected,
+        Revoked
     }
 }
+

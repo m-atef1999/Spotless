@@ -74,4 +74,20 @@ export class AdminsService {
             },
         });
     }
+
+    /**
+     * Retrieves authenticated admin's profile
+     * @returns Spotless_Application_Dtos_Admin_AdminDto Success
+     * @throws ApiError
+     */
+    public static getApiAdminsMe(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/admins/me',
+            errors: {
+                401: `Unauthorized`,
+                404: `Not Found`,
+            },
+        });
+    }
 }

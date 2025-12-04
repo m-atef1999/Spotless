@@ -47,9 +47,9 @@ export const Modal: React.FC<ModalProps> = ({
     const sizeClasses = {
         sm: 'max-w-sm',
         md: 'max-w-md',
-        lg: 'max-w-lg',
-        xl: 'max-w-xl',
-        full: 'max-w-full m-4',
+        lg: 'max-w-2xl',
+        xl: 'max-w-4xl',
+        full: 'max-w-6xl m-4',
     };
 
     return createPortal(

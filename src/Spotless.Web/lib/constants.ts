@@ -65,7 +65,7 @@ export const NotificationType = {
 } as const;
 
 // DriverStatus enum values
-// Backend: Available=0, DriverAssigned=1, OnRoute=2, Busy=3, Offline=4, PendingApproval=5, Rejected=6
+// Backend: Available=0, DriverAssigned=1, OnRoute=2, Busy=3, Offline=4, PendingApproval=5, Rejected=6, Revoked=7
 export const DriverStatus = {
     Available: 0,
     DriverAssigned: 1,
@@ -74,6 +74,7 @@ export const DriverStatus = {
     Offline: 4,
     PendingApproval: 5,
     Rejected: 6,
+    Revoked: 7,
 } as const;
 
 // Helper functions for status display

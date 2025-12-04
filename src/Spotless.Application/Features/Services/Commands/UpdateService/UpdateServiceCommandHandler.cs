@@ -39,7 +39,9 @@ namespace Spotless.Application.Features.Services.Commands.UpdateService
                 pricePerUnit: newPricePerUnit,
                 estimatedDurationHours: request.Dto.EstimatedDurationHours,
                 categoryId: request.Dto.CategoryId,
-                maxWeightKg: request.Dto.MaxWeightKg
+                maxWeightKg: request.Dto.MaxWeightKg,
+                imageUrl: request.Dto.ImageUrl,
+                imageData: request.Dto.ImageData
             );
 
 
@@ -50,3 +52,4 @@ namespace Spotless.Application.Features.Services.Commands.UpdateService
         }
     }
 }
+

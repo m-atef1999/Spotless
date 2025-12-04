@@ -72,4 +72,101 @@ export class ServicesService {
             },
         });
     }
+
+    /**
+     * Creates a new service (Admin only)
+     * @returns string Created - Service ID
+     * @throws ApiError
+     */
+    public static postApiServices({
+        requestBody,
+    }: {
+        requestBody: {
+            categoryId: string;
+            name: string;
+            description: string;
+            pricePerUnitAmount: number;
+            pricePerUnitCurrency: string;
+            estimatedDurationHours: number;
+            maxWeightKg?: number;
+            imageUrl?: string | null;
+            imageData?: string | null;
+        };
+    }): CancelablePromise<string> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/Services',
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad Request`,
+                401: `Unauthorized`,
+                403: `Forbidden`,
+            },
+        });
+    }
+
+    /**
+     * Updates an existing service (Admin only)
+     * @returns void No Content
+     * @throws ApiError
+     */
+    public static putApiServices({
+        id,
+        requestBody,
+    }: {
+        id: string;
+        requestBody: {
+            name?: string | null;
+            description?: string | null;
+            pricePerUnitValue?: number | null;
+            pricePerUnitCurrency?: string | null;
+            estimatedDurationHours?: number | null;
+            maxWeightKg?: number | null;
+            categoryId?: string | null;
+            imageUrl?: string | null;
+            imageData?: string | null;
+        };
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/Services/{id}',
+            path: {
+                'id': id,
+            },
+            body: requestBody,
+            mediaType: 'application/json',
+            errors: {
+                400: `Bad Request`,
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
+
+    /**
+     * Deletes a service (Admin only)
+     * @returns void No Content
+     * @throws ApiError
+     */
+    public static deleteApiServices({
+        id,
+    }: {
+        id: string;
+    }): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/Services/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                401: `Unauthorized`,
+                403: `Forbidden`,
+                404: `Not Found`,
+            },
+        });
+    }
 }
+

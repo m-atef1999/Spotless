@@ -13,5 +13,8 @@ namespace Spotless.Application.Dtos.Service
         public decimal MaxWeightKg { get; set; }
         public bool IsActive { get; set; }
         public bool IsFeatured { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? ImageData { get; set; }
     }
 }
+

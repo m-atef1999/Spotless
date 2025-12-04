@@ -24,7 +24,9 @@ namespace Spotless.Application.Features.Services.Commands.CreateService
                 description: request.Dto.Description,
                 pricePerUnit: pricePerUnit,
                 estimatedDurationHours: request.Dto.EstimatedDurationHours,
-                maxWeightKg: request.Dto.MaxWeightKg
+                maxWeightKg: request.Dto.MaxWeightKg,
+                imageUrl: request.Dto.ImageUrl,
+                imageData: request.Dto.ImageData
             );
 
             await _unitOfWork.Services.AddAsync(serviceEntity);
@@ -37,3 +39,4 @@ namespace Spotless.Application.Features.Services.Commands.CreateService
         }
     }
 }
+

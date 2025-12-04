@@ -4,6 +4,7 @@ import {
     AuthService,
     CustomersService,
     DriversService,
+    AdminsService,
     type LoginCommand,
     type RegisterCustomerCommand,
     type DriverApplicationRequest,
@@ -72,6 +73,22 @@ export const useAuthStore = create<AuthState>()(
                                 isLoading: false,
                                 canSwitchRole: true // Drivers are implicitly customers too usually, or we can check
                             });
+                        } else if (role === 'Admin') {
+                            // Fetch admin profile
+                            try {
+                                const adminProfile = await AdminsService.getApiAdminsMe();
+                                set({
+                                    user: adminProfile,
+                                    isLoading: false
+                                });
+                            } catch (adminErr) {
+                                console.error('Failed to fetch admin profile', adminErr);
+                                // Set a basic user object with email
+                                set({
+                                    user: { name: 'Admin', email: '' },
+                                    isLoading: false
+                                });
+                            }
                         } else {
                             // Fallback: If role is undefined (old backend) or unknown, try fetching customer profile as default
                             try {

@@ -15,6 +15,10 @@ namespace Spotless.Domain.Entities
         public bool IsActive { get; private set; } = true;
         public bool IsFeatured { get; private set; } = false;
         public decimal MaxWeightKg { get; private set; } = 50m; // Default max weight per service
+        
+        // Image support - URL for external images, Data for uploaded files
+        public string? ImageUrl { get; private set; }
+        public string? ImageData { get; private set; } // Base64 encoded image data
 
         public virtual Category Category { get; private set; } = null!;
 
@@ -28,7 +32,9 @@ namespace Spotless.Domain.Entities
             string description,
             Money pricePerUnit,
             decimal estimatedDurationHours,
-            decimal? maxWeightKg = null) : base()
+            decimal? maxWeightKg = null,
+            string? imageUrl = null,
+            string? imageData = null) : base()
         {
             CategoryId = categoryId;
             Name = name;
@@ -38,6 +44,8 @@ namespace Spotless.Domain.Entities
             PricePerUnit = pricePerUnit;
             BasePrice = pricePerUnit;
             EstimatedDurationHours = estimatedDurationHours;
+            ImageUrl = imageUrl;
+            ImageData = imageData;
             if (maxWeightKg.HasValue)
             {
                 if (maxWeightKg.Value <= 0) throw new ArgumentException("MaxWeightKg must be positive.", nameof(maxWeightKg));
@@ -51,7 +59,9 @@ namespace Spotless.Domain.Entities
             Money? pricePerUnit,
             decimal? estimatedDurationHours,
             Guid? categoryId,
-            decimal? maxWeightKg = null)
+            decimal? maxWeightKg = null,
+            string? imageUrl = null,
+            string? imageData = null)
         {
             if (maxWeightKg.HasValue && maxWeightKg.Value <= 0)
                 throw new ArgumentException("MaxWeightKg must be positive.", nameof(maxWeightKg));
@@ -81,6 +91,19 @@ namespace Spotless.Domain.Entities
 
             if (categoryId.HasValue)
                 CategoryId = categoryId.Value;
+
+            // Image can be updated to null (clear) or new value
+            if (imageUrl != null || imageData != null)
+            {
+                ImageUrl = imageUrl;
+                ImageData = imageData;
+            }
+        }
+
+        public void SetImage(string? imageUrl, string? imageData)
+        {
+            ImageUrl = imageUrl;
+            ImageData = imageData;
         }
         
         public void SetFeatured(bool isFeatured)
@@ -95,3 +118,4 @@ namespace Spotless.Domain.Entities
 
     }
 }
+

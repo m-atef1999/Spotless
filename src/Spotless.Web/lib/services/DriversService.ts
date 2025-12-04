@@ -158,7 +158,7 @@ export class DriversService {
     }): CancelablePromise<string> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/Drivers/admin/applications/{applicationId}/approve',
+            url: '/api/Drivers/admin/registrations/{applicationId}/approve',
             path: {
                 'applicationId': applicationId,
             },
@@ -206,7 +206,7 @@ export class DriversService {
     }): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
-            url: '/api/Drivers/admin/applications/{applicationId}/accept',
+            url: '/api/Drivers/admin/order-applications/{applicationId}/accept',
             path: {
                 'applicationId': applicationId,
             },
