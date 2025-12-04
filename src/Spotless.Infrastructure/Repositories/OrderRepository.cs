@@ -50,16 +50,13 @@ namespace Spotless.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<Order>> GetAvailableOrdersForDriverAsync(Guid driverId)
         {
-            var activeStatuses = new[] 
-            { 
-                OrderStatus.DriverAssigned, 
-                OrderStatus.PickedUp, 
-                OrderStatus.InCleaning, 
-                OrderStatus.OutForDelivery 
-            };
-
+            // Return ALL orders assigned to this driver (for order history)
+            // Including completed and cancelled orders
             return await _dbContext.Orders
-                                   .Where(o => o.DriverId == driverId && activeStatuses.Contains(o.Status))
+                                   .Where(o => o.DriverId == driverId)
+                                   .Include(o => o.Items).ThenInclude(i => i.Service)
+                                   .Include(o => o.TimeSlot)
+                                   .OrderByDescending(o => o.OrderDate)
                                    .ToListAsync();
         }
 

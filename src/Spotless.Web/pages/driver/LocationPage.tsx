@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Navigation, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Navigation, AlertCircle, Loader2 } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { DriversService } from '../../lib/api';
@@ -7,12 +7,41 @@ import { Map } from '../../components/ui/Map';
 
 export const LocationPage: React.FC = () => {
     const [isUpdating, setIsUpdating] = useState(false);
-    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(() => {
-        const saved = localStorage.getItem('driverLocation');
-        return saved ? JSON.parse(saved) : null;
-    });
+    const [isLoading, setIsLoading] = useState(true);
+    const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+    // Fetch location from driver profile on mount
+    useEffect(() => {
+        const fetchLocation = async () => {
+            try {
+                const profile = await DriversService.getApiDriversProfile();
+                if (profile.currentLocation?.latitude && profile.currentLocation?.longitude) {
+                    setLocation({
+                        lat: profile.currentLocation.latitude,
+                        lng: profile.currentLocation.longitude
+                    });
+                } else {
+                    // Fallback to localStorage if not in profile
+                    const saved = localStorage.getItem('driverLocation');
+                    if (saved) {
+                        setLocation(JSON.parse(saved));
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch driver profile', err);
+                // Fallback to localStorage
+                const saved = localStorage.getItem('driverLocation');
+                if (saved) {
+                    setLocation(JSON.parse(saved));
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchLocation();
+    }, []);
 
     const getCurrentLocation = () => {
         if (!navigator.geolocation) {
@@ -53,6 +82,16 @@ export const LocationPage: React.FC = () => {
             }
         );
     };
+
+    if (isLoading) {
+        return (
+            <DashboardLayout role="Driver">
+                <div className="flex items-center justify-center h-96">
+                    <Loader2 className="w-8 h-8 animate-spin text-cyan-500" />
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout role="Driver">

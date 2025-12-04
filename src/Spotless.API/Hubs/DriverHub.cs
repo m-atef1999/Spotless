@@ -9,7 +9,7 @@ using System;
 
 namespace Spotless.API.Hubs
 {
-    [Authorize]
+    [Authorize(Roles = "Driver,Admin")]
     public class DriverHub(UserManager<ApplicationUser> userManager, ILogger<DriverHub> logger) : Hub
     {
         private readonly UserManager<ApplicationUser> _userManager = userManager;

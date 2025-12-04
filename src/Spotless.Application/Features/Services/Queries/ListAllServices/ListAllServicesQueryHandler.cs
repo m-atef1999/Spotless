@@ -19,35 +19,24 @@ namespace Spotless.Application.Features.Services.Queries.ListAllServices
 
         public async Task<PagedResponse<ServiceDto>> Handle(ListServicesQuery request, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(request.NameSearchTerm))
+            var searchTerm = request.NameSearchTerm?.Trim();
+            
+            // If no search term, use cached services
+            if (string.IsNullOrEmpty(searchTerm))
             {
                 var cachedServices = await _cachedServiceService.GetAllServicesAsync();
                 var pagedCached = cachedServices.Skip(request.Skip).Take(request.PageSize);
                 return new PagedResponse<ServiceDto>([.. pagedCached], cachedServices.Count(), request.PageNumber, request.PageSize);
             }
 
-            var filterExpression = BuildFilterExpression(request);
-            var totalRecords = await _unitOfWork.Services.CountAsync(filterExpression);
-            var services = await _unitOfWork.Services.GetPagedAsync(
-                filterExpression,
-                request.Skip,
-                request.PageSize,
-                include: q => q.Include(s => s.Category),
-                orderBy: q => q.OrderBy(s => s.Name)
-            );
-
-            var serviceDtos = _serviceMapper.MapToDto(services).ToList();
-            return new PagedResponse<ServiceDto>(serviceDtos, totalRecords, request.PageNumber, request.PageSize);
-        }
-
-
-        private Expression<Func<Service, bool>> BuildFilterExpression(ListServicesQuery request)
-        {
-            var raw = request.NameSearchTerm?.Trim();
-                var searchTerm = request.NameSearchTerm?.Trim().ToLowerInvariant();
-                return service =>
-                    string.IsNullOrEmpty(searchTerm) ||
-                    (service.Name != null && service.Name.ToLowerInvariant().Contains(searchTerm));
+            // Use cached services and filter in-memory for search (supports Unicode/Arabic)
+            var allServices = await _cachedServiceService.GetAllServicesAsync();
+            var filteredServices = allServices
+                .Where(s => s.Name != null && s.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            
+            var pagedFiltered = filteredServices.Skip(request.Skip).Take(request.PageSize).ToList();
+            return new PagedResponse<ServiceDto>(pagedFiltered, filteredServices.Count, request.PageNumber, request.PageSize);
         }
     }
 }

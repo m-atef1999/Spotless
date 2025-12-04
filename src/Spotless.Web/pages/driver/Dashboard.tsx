@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { MapPin, Calendar, DollarSign, Package, Loader2, CheckCircle, Power } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
-import { DriversService, OrdersService } from '../../lib/api';
+import { DriversService } from '../../lib/api';
 import type { Spotless_Application_Dtos_Order_OrderDto as OrderDto } from '../../lib/models/Spotless_Application_Dtos_Order_OrderDto';
 import { OrderStatus } from '../../lib/constants';
 import { useAuthStore } from '../../store/authStore';
@@ -88,10 +88,10 @@ export const DriverDashboard: React.FC = () => {
                 job.id === orderId ? { ...job, status: newStatus as any } : job
             ));
 
-            // Call API to update status
-            await OrdersService.putApiOrdersStatus({
-                id: orderId,
-                status: newStatus
+            // Call API to update status (use DriversService for driver role)
+            await DriversService.putApiDriversOrdersStatus({
+                orderId: orderId,
+                requestBody: newStatus
             });
             fetchData();
         } catch (error) {

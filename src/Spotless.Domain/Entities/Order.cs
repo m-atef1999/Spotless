@@ -63,12 +63,19 @@ namespace Spotless.Domain.Entities
 
         private static readonly Dictionary<OrderStatus, List<OrderStatus>> StateTransitions = new()
         {
+            // PaymentFailed can retry to Requested or be Cancelled
             { OrderStatus.PaymentFailed, new List<OrderStatus> { OrderStatus.Requested, OrderStatus.Cancelled } },
-            { OrderStatus.Requested, new List<OrderStatus> { OrderStatus.Confirmed, OrderStatus.Cancelled } },
-            { OrderStatus.Confirmed, new List<OrderStatus> { OrderStatus.DriverAssigned, OrderStatus.Cancelled } },
-            { OrderStatus.DriverAssigned, new List<OrderStatus> { OrderStatus.PickedUp, OrderStatus.Cancelled } },
-            { OrderStatus.PickedUp, new List<OrderStatus> { OrderStatus.InCleaning, OrderStatus.Cancelled } },
-            { OrderStatus.InCleaning, new List<OrderStatus> { OrderStatus.OutForDelivery, OrderStatus.Cancelled } },
+            // Requested can be Confirmed (by payment), DriverAssigned (driver accepts), or Cancelled
+            { OrderStatus.Requested, new List<OrderStatus> { OrderStatus.Confirmed, OrderStatus.DriverAssigned, OrderStatus.PickedUp, OrderStatus.InCleaning, OrderStatus.OutForDelivery, OrderStatus.Delivered, OrderStatus.Cancelled } },
+            // Confirmed can have driver assigned or be Cancelled
+            { OrderStatus.Confirmed, new List<OrderStatus> { OrderStatus.DriverAssigned, OrderStatus.PickedUp, OrderStatus.InCleaning, OrderStatus.OutForDelivery, OrderStatus.Delivered, OrderStatus.Cancelled } },
+            // DriverAssigned -> driver picks up the order
+            { OrderStatus.DriverAssigned, new List<OrderStatus> { OrderStatus.PickedUp, OrderStatus.InCleaning, OrderStatus.OutForDelivery, OrderStatus.Delivered, OrderStatus.Cancelled } },
+            // PickedUp -> driver delivers to cleaning facility
+            { OrderStatus.PickedUp, new List<OrderStatus> { OrderStatus.InCleaning, OrderStatus.OutForDelivery, OrderStatus.Delivered, OrderStatus.Cancelled } },
+            // InCleaning -> cleaning done, out for delivery
+            { OrderStatus.InCleaning, new List<OrderStatus> { OrderStatus.OutForDelivery, OrderStatus.Delivered, OrderStatus.Cancelled } },
+            // OutForDelivery -> delivered to customer
             { OrderStatus.OutForDelivery, new List<OrderStatus> { OrderStatus.Delivered, OrderStatus.Cancelled } }
         };
 

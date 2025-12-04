@@ -24,7 +24,7 @@ import {
     Repeat
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
-import logo from '../logos/spotless_logo.png';
+import logo from '../assets/logo.png';
 import { AiChatWidget } from '../components/ai/AiChatWidget';
 import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { NotificationsService, type NotificationDto } from '../lib/api';
@@ -274,7 +274,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
                 <div className="h-20 flex items-center px-6 border-b border-slate-100 dark:border-slate-800">
                     <Link to="/" className="flex items-center gap-3 overflow-hidden group">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex items-center justify-center shrink-0 shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-                            <img src={logo} alt="Logo" className="w-6 h-6 object-contain brightness-0 invert" />
+                            <img src={logo} alt="Logo" className="h-8 w-auto" />
                         </div>
                         {isSidebarOpen && (
                             <motion.span

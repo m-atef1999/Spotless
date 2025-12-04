@@ -23,40 +23,49 @@ export const DriverStatusPage: React.FC = () => {
         fetchProfile();
     }, []);
 
-    // Real-time status updates
+    // Real-time status updates (optional, gracefully handle failures)
     useEffect(() => {
         const apiUrl = import.meta.env.VITE_API_URL || 'https://spotless.runasp.net';
         const baseUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+        const token = localStorage.getItem('token');
+
+        // Skip SignalR if no token available
+        if (!token) {
+            return;
+        }
+
+        let connection: any = null;
 
         // Import dynamically to avoid issues if not installed, though it should be
         import('@microsoft/signalr').then(signalR => {
-            const connection = new signalR.HubConnectionBuilder()
+            connection = new signalR.HubConnectionBuilder()
                 .withUrl(`${baseUrl}/driverHub`, {
-                    accessTokenFactory: () => localStorage.getItem('token') || '' // Assuming token is in localStorage, or use auth store
+                    accessTokenFactory: () => token
                 })
                 .withAutomaticReconnect()
+                .configureLogging(signalR.LogLevel.None) // Suppress logs
                 .build();
-
-            console.log('Connecting to DriverHub at:', `${baseUrl}/driverHub`);
-            console.log('Using token:', localStorage.getItem('token') ? 'Token present' : 'No token found');
 
             connection.start()
                 .then(() => {
-                    console.log('DriverHub Connected');
-                    // Join group if needed, but hub handles it via OnConnected if we send token
-
+                    // Successfully connected
                     connection.on('DriverAvailabilityUpdated', (_userId: string, newStatus: string) => {
-                        // We could check if userId matches current user, but for now just update
-                        // Ideally we check if it's OUR status update
                         setStatus(newStatus);
                     });
                 })
-                .catch(err => console.error('DriverHub Connection Error: ', err));
-
-            return () => {
-                connection.stop();
-            };
+                .catch(() => {
+                    // Silently fail - SignalR is optional for this page
+                    // The page still works with manual refresh
+                });
+        }).catch(() => {
+            // SignalR module not available, that's fine
         });
+
+        return () => {
+            if (connection) {
+                connection.stop().catch(() => { });
+            }
+        };
     }, []);
 
     const handleToggleStatus = async () => {

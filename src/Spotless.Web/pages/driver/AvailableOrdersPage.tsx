@@ -33,8 +33,11 @@ export const AvailableOrdersPage: React.FC = () => {
             await DriversService.postApiDriversAccept({ orderId });
             // Refresh data
             fetchAvailableJobs();
-        } catch (error) {
+            alert('Order accepted successfully!');
+        } catch (error: any) {
             console.error('Failed to accept job', error);
+            const errorMessage = error?.body?.message || error?.message || 'Unknown error';
+            alert(`Failed to accept order: ${errorMessage}`);
         }
     };
 
