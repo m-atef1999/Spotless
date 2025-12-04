@@ -58,6 +58,17 @@ namespace Spotless.Application.Features.Orders.Commands.AcceptOrder
                 await _notificationService.SendPushNotificationAsync(userId, "Order Accepted", $"Your order #{order.Id.ToString().Substring(0, 8)} has been accepted by a driver.");
             }
 
+            // Notify Driver (confirmation of acceptance)
+            var driverUserId = await _authService.GetUserIdByDriverIdAsync(request.DriverId);
+            if (driverUserId != null)
+            {
+                await _notificationService.SendPushNotificationAsync(
+                    driverUserId, 
+                    "Order Assigned! 📦", 
+                    $"You've accepted order #{order.Id.ToString().Substring(0, 8)}. Head to the customer for pickup!"
+                );
+            }
+
             return _orderMapper.MapToDto(order);
         }
     }

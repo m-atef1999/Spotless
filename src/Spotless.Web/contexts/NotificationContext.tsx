@@ -41,18 +41,25 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     useEffect(() => {
         if (connection) {
+            const handleNotification = (data: any) => {
+                console.log('Context: Notification received', data);
+                const message = data.Message || data.message;
+                const title = data.Title || data.title;
+
+                if (message) {
+                    addToast(message, 'success');
+                }
+            };
+
             connection.start()
                 .then(() => {
                     console.log('SignalR Connected');
-
-                    connection.on('ReceiveNotification', (notification: { Title: string, Message: string, Timestamp: string }) => {
-                        addToast(notification.Message, 'success');
-                        // You can also dispatch to a store or play a sound here
-                    });
+                    connection.on('ReceiveNotification', handleNotification);
                 })
                 .catch(err => console.error('SignalR Connection Error: ', err));
 
             return () => {
+                connection.off('ReceiveNotification', handleNotification);
                 connection.stop();
             };
         }

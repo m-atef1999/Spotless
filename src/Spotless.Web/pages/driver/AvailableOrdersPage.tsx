@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { MapPin, Calendar, Package, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapPin, Calendar, Package, Loader2, CheckCircle, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { DriversService, type OrderDto, OrderStatus } from '../../lib/api';
 import { usePolling } from '../../hooks/usePolling';
 
 export const AvailableOrdersPage: React.FC = () => {
+    const navigate = useNavigate();
     const [availableJobs, setAvailableJobs] = useState<OrderDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [acceptedOrderId, setAcceptedOrderId] = useState<string | null>(null);
 
     const fetchAvailableJobs = async () => {
         try {
@@ -33,7 +37,9 @@ export const AvailableOrdersPage: React.FC = () => {
             await DriversService.postApiDriversAccept({ orderId });
             // Refresh data
             fetchAvailableJobs();
-            alert('Order accepted successfully!');
+            // Show success modal
+            setAcceptedOrderId(orderId);
+            setShowSuccessModal(true);
         } catch (error: any) {
             console.error('Failed to accept job', error);
             const errorMessage = error?.body?.message || error?.message || 'Unknown error';
@@ -130,6 +136,75 @@ export const AvailableOrdersPage: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Success Modal */}
+            <AnimatePresence>
+                {showSuccessModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+                        onClick={() => setShowSuccessModal(false)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl max-w-md w-full p-6 relative"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={() => setShowSuccessModal(false)}
+                                className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="text-center">
+                                {/* Animated Check Icon */}
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ type: 'spring', stiffness: 200, damping: 10, delay: 0.1 }}
+                                    className="w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4"
+                                >
+                                    <motion.div
+                                        initial={{ scale: 0 }}
+                                        animate={{ scale: 1 }}
+                                        transition={{ delay: 0.3 }}
+                                    >
+                                        <CheckCircle className="w-10 h-10 text-green-500" />
+                                    </motion.div>
+                                </motion.div>
+
+                                <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+                                    Order Accepted! 🎉
+                                </h2>
+                                <p className="text-slate-500 dark:text-slate-400 mb-6">
+                                    You've successfully accepted order <span className="font-mono font-semibold text-cyan-600">#{acceptedOrderId?.substring(0, 8)}</span>. It's now in your active jobs.
+                                </p>
+
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <Button
+                                        variant="outline"
+                                        className="flex-1"
+                                        onClick={() => setShowSuccessModal(false)}
+                                    >
+                                        Accept More Orders
+                                    </Button>
+                                    <Button
+                                        className="flex-1"
+                                        onClick={() => navigate('/driver/order-history')}
+                                    >
+                                        Go to Order History
+                                    </Button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </DashboardLayout>
     );
 };

@@ -209,7 +209,29 @@ export function OrderHistoryPage() {
                                                         </Button>
                                                     )}
                                                     {isStatus(order.status, OrderStatus.InCleaning) && (
-                                                        <span className="text-sm text-slate-500 dark:text-slate-400 italic">Cleaning in progress...</span>
+                                                        <Button
+                                                            size="sm"
+                                                            variant="outline"
+                                                            onClick={async (e) => {
+                                                                e.stopPropagation();
+                                                                if (window.confirm('Order is still in cleaning. Are you sure it\'s finished and ready for delivery?')) {
+                                                                    try {
+                                                                        await DriversService.putApiDriversOrdersStatus({
+                                                                            orderId: order.id!,
+                                                                            requestBody: OrderStatus.OutForDelivery
+                                                                        });
+                                                                        const data = await DriversService.getApiDriversOrders();
+                                                                        setOrders(data || []);
+                                                                        addToast('Ready for delivery!', 'success');
+                                                                    } catch (e) {
+                                                                        console.error(e);
+                                                                        addToast('Failed to update status', 'error');
+                                                                    }
+                                                                }
+                                                            }}
+                                                        >
+                                                            Mark Ready for Delivery
+                                                        </Button>
                                                     )}
                                                     {isStatus(order.status, OrderStatus.OutForDelivery) && (
                                                         <Button
@@ -344,13 +366,13 @@ export function OrderHistoryPage() {
                                                     </div>
                                                     {service && (
                                                         <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 flex gap-4">
-                                                            {service.estimatedDurationHours && (
+                                                            {service.estimatedDurationHours != null && (
                                                                 <span className="flex items-center gap-1">
                                                                     <Clock className="w-3 h-3" />
                                                                     Est. {service.estimatedDurationHours}h
                                                                 </span>
                                                             )}
-                                                            {service.maxWeightKg && (
+                                                            {service.maxWeightKg != null && (
                                                                 <span className="flex items-center gap-1">
                                                                     <Scale className="w-3 h-3" />
                                                                     Max {service.maxWeightKg} kg

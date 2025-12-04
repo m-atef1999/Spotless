@@ -30,8 +30,7 @@ import { ThemeToggle } from '../components/ui/ThemeToggle';
 import { NotificationsService, type NotificationDto } from '../lib/api';
 import { NotificationType } from '../lib/constants';
 import { BackToTop } from '../components/ui/BackToTop';
-import { NotificationCenter } from '../components/ui/NotificationCenter';
-
+import { useNotification } from '../contexts/NotificationContext';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -59,8 +58,10 @@ const mockNotifications: NotificationDto[] = [
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role }) => {
     const { logout, user, canSwitchRole, switchRole } = useAuthStore();
+    const { connection } = useNotification();
     const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
     // Load read mock IDs from localStorage
     const getReadMockIds = (): string[] => {
@@ -138,13 +139,34 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
         }
     }, [user]);
 
+    // SignalR real-time notifications using global connection
+    useEffect(() => {
+        if (connection) {
+            const handleNotification = () => {
+                console.log('Dashboard: Notification received, refreshing list');
+                fetchNotifications();
+            };
+
+            connection.on('ReceiveNotification', handleNotification);
+
+            return () => {
+                connection.off('ReceiveNotification', handleNotification);
+            };
+        }
+    }, [connection, user]);
+
     const handleNotificationClick = async (notification: NotificationDto) => {
         // Handle Mock Notifications Persistence
         if (notification.id?.startsWith('mock-')) {
-            const readIds = getReadMockIds();
-            if (!readIds.includes(notification.id)) {
-                const newReadIds = [...readIds, notification.id];
-                localStorage.setItem('readMockNotifications', JSON.stringify(newReadIds));
+            try {
+                const readIds = getReadMockIds();
+                if (!readIds.includes(notification.id)) {
+                    const newReadIds = [...readIds, notification.id];
+                    localStorage.setItem('readMockNotifications', JSON.stringify(newReadIds));
+                    console.log('Saved read mock notification:', notification.id);
+                }
+            } catch (e) {
+                console.error('Failed to save read status', e);
             }
         }
 
@@ -182,6 +204,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
         } else if (notification.message?.toLowerCase().includes('profile')) {
             navigate('/customer/settings');
         }
+
+        setIsNotificationOpen(false);
     };
 
     const menuItems: Record<string, { icon: React.ElementType; label: string; href: string }[]> = {
@@ -365,7 +389,75 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, role
 
                     <div className="flex items-center gap-4">
                         <ThemeToggle />
-                        <NotificationCenter />
+                        {/* Notifications Dropdown */}
+                        <div className="relative">
+                            <button
+                                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                                className="relative p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                            >
+                                <Bell className="w-6 h-6 text-slate-600 dark:text-slate-300" />
+                                {unreadCount > 0 && (
+                                    <span className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                                        {unreadCount > 9 ? '9+' : unreadCount}
+                                    </span>
+                                )}
+                            </button>
+
+                            {isNotificationOpen && (
+                                <>
+                                    {/* Backdrop */}
+                                    <div
+                                        className="fixed inset-0 z-40"
+                                        onClick={() => setIsNotificationOpen(false)}
+                                    />
+                                    {/* Dropdown */}
+                                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-100 dark:border-slate-800 overflow-hidden z-50">
+                                        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                                            <h3 className="font-semibold text-slate-900 dark:text-white">Notifications</h3>
+                                            {unreadCount > 0 && (
+                                                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400">
+                                                    {unreadCount} unread
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div className="max-h-96 overflow-y-auto">
+                                            {notifications.length === 0 ? (
+                                                <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+                                                    No notifications
+                                                </div>
+                                            ) : (
+                                                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                                                    {notifications.map(notification => (
+                                                        <div
+                                                            key={notification.id}
+                                                            className={`p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer ${!notification.isRead ? 'bg-cyan-50/50 dark:bg-cyan-900/10' : ''}`}
+                                                            onClick={() => {
+                                                                handleNotificationClick(notification);
+                                                            }}
+                                                        >
+                                                            <div className="flex items-start gap-3">
+                                                                <div className={`w-2 h-2 rounded-full mt-2 shrink-0 ${getNotificationColor(notification.type, notification.title)}`} />
+                                                                <div className="flex-1 min-w-0">
+                                                                    <h4 className={`text-sm truncate ${!notification.isRead ? 'font-semibold text-slate-900 dark:text-white' : 'font-medium text-slate-600 dark:text-slate-300'}`}>
+                                                                        {notification.title}
+                                                                    </h4>
+                                                                    <p className="text-slate-500 dark:text-slate-400 text-xs mt-0.5 line-clamp-2">
+                                                                        {notification.message}
+                                                                    </p>
+                                                                    <span className="text-xs text-slate-400 mt-1 block">
+                                                                        {notification.createdAt ? new Date(notification.createdAt).toLocaleString() : ''}
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </header>
 
