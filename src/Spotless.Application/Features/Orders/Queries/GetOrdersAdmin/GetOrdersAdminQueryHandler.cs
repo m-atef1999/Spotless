@@ -24,6 +24,7 @@ namespace Spotless.Application.Features.Orders.Queries.GetOrdersAdmin
                 o.CustomerId,
                 o.Customer?.Name ?? "Unknown Customer",
                 o.DriverId,
+                o.Driver?.Name, // DriverName
                 o.TimeSlotId,
                 null, // StartTime
                 null, // EndTime

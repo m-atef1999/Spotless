@@ -9,6 +9,7 @@ export type Spotless_Application_Dtos_Order_OrderDto = {
     id?: string;
     customerId?: string;
     driverId?: string | null;
+    driverName?: string | null;
     timeSlotId?: string;
     startTime?: string | null;
     endTime?: string | null;

@@ -169,6 +169,7 @@ namespace Spotless.Infrastructure.Repositories
             // Apply Sorting and Pagination
             var items = await query
                 .Include(o => o.Customer)
+                .Include(o => o.Driver)
                 .Include(o => o.Items).ThenInclude(i => i.Service)
                 .OrderByDescending(o => o.OrderDate)
                 .Skip((pageNumber - 1) * pageSize)

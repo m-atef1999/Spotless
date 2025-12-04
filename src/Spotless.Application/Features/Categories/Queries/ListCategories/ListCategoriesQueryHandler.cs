@@ -21,7 +21,9 @@ namespace Spotless.Application.Features.Categories.Queries.ListCategories
                 Name = c.Name,
                 Description = c.Description,
                 Price = c.Price.Amount,
-                ServiceCount = c.Services.Count
+                ServiceCount = c.Services?.Count ?? 0,
+                ImageUrl = c.ImageUrl,
+                ImageData = c.ImageData
             }).ToList();
 
             // Apply pagination

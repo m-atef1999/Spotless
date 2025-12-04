@@ -7,6 +7,7 @@ namespace Spotless.Application.Dtos.Order
         Guid CustomerId,
         string CustomerName,
         Guid? DriverId,
+        string? DriverName,
 
         Guid TimeSlotId,
         TimeSpan? StartTime,

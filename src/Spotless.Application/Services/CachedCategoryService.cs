@@ -14,7 +14,8 @@ namespace Spotless.Application.Services
             var cached = await _cachingService.GetAsync<IEnumerable<Category>>(CATEGORIES_CACHE_KEY);
             if (cached != null) return cached;
 
-            var categories = await _categoryRepository.GetAllAsync();
+            // Use GetAllWithServicesAsync to include Services collection for accurate ServiceCount
+            var categories = await _categoryRepository.GetAllWithServicesAsync();
             await _cachingService.SetAsync(CATEGORIES_CACHE_KEY, categories, TimeSpan.FromHours(6));
             return categories;
         }
