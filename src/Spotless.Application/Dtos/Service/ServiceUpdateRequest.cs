@@ -16,7 +16,7 @@ namespace Spotless.Application.Dtos.Service
         public Guid? CategoryId { get; init; }
         
         public string? ImageUrl { get; init; }
-        public string? ImageData { get; init; }
     }
 }
+
 

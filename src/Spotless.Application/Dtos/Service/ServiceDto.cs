@@ -14,7 +14,7 @@ namespace Spotless.Application.Dtos.Service
         public bool IsActive { get; set; }
         public bool IsFeatured { get; set; }
         public string? ImageUrl { get; set; }
-        public string? ImageData { get; set; }
     }
 }
+
 

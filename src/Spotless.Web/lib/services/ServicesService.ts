@@ -90,7 +90,6 @@ export class ServicesService {
             estimatedDurationHours: number;
             maxWeightKg?: number;
             imageUrl?: string | null;
-            imageData?: string | null;
         };
     }): CancelablePromise<string> {
         return __request(OpenAPI, {
@@ -125,7 +124,6 @@ export class ServicesService {
             maxWeightKg?: number | null;
             categoryId?: string | null;
             imageUrl?: string | null;
-            imageData?: string | null;
         };
     }): CancelablePromise<void> {
         return __request(OpenAPI, {

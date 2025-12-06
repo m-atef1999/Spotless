@@ -314,7 +314,7 @@ export const NewOrderPage: React.FC = () => {
                             >
                                 <div className="aspect-video w-full overflow-hidden">
                                     <img
-                                        src={getServiceImage(service.name || '', service.categoryId)}
+                                        src={getServiceImage(service)}
                                         alt={service.name || ''}
                                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                                     />

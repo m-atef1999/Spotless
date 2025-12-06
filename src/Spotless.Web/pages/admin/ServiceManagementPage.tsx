@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, Edit2, Trash2, Package, DollarSign, Clock, Star, Image, Upload } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Package, DollarSign, Clock, Star, Image } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
@@ -16,7 +16,6 @@ interface ServiceFormData {
     estimatedDurationHours: number;
     maxWeightKg: number;
     imageUrl: string;
-    imageData: string;
 }
 
 export const ServiceManagementPage: React.FC = () => {
@@ -31,9 +30,7 @@ export const ServiceManagementPage: React.FC = () => {
         estimatedDurationHours: 2,
         maxWeightKg: 50,
         imageUrl: '',
-        imageData: '',
     });
-    const [imageInputMode, setImageInputMode] = useState<'url' | 'upload'>('url');
     const queryClient = useQueryClient();
     const { addToast } = useToast();
 
@@ -74,7 +71,6 @@ export const ServiceManagementPage: React.FC = () => {
                     estimatedDurationHours: data.estimatedDurationHours,
                     maxWeightKg: data.maxWeightKg,
                     imageUrl: data.imageUrl || undefined,
-                    imageData: data.imageData || undefined,
                 }
             });
         },
@@ -101,7 +97,6 @@ export const ServiceManagementPage: React.FC = () => {
                     maxWeightKg: data.maxWeightKg,
                     categoryId: data.categoryId,
                     imageUrl: data.imageUrl || undefined,
-                    imageData: data.imageData || undefined,
                 }
             });
         },
@@ -138,9 +133,7 @@ export const ServiceManagementPage: React.FC = () => {
             estimatedDurationHours: 2,
             maxWeightKg: 50,
             imageUrl: '',
-            imageData: '',
         });
-        setImageInputMode('url');
         if (categories.length === 0) {
             addToast('Please create a category first.', 'error');
             return;
@@ -158,10 +151,7 @@ export const ServiceManagementPage: React.FC = () => {
             estimatedDurationHours: service.estimatedDurationHours || 2,
             maxWeightKg: service.maxWeightKg || 50,
             imageUrl: service.imageUrl || '',
-            imageData: (service as any).imageData || '',
         });
-        // Set mode based on existing data
-        setImageInputMode((service as any).imageData ? 'upload' : 'url');
         setShowModal(true);
     };
 
@@ -386,79 +376,19 @@ export const ServiceManagementPage: React.FC = () => {
                     <div>
                         <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
                             <Image className="w-4 h-4 inline mr-1" />
-                            Image
+                            Image URL
                         </label>
-                        {/* Image Input Mode Toggle */}
-                        <div className="flex gap-2 mb-3">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setImageInputMode('url');
-                                    setFormData({ ...formData, imageData: '' });
-                                }}
-                                className={`flex-1 py-2 px-3 text-sm rounded-lg border transition-colors ${imageInputMode === 'url'
-                                    ? 'bg-cyan-50 border-cyan-500 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
-                                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                                    }`}
-                            >
-                                <Image className="w-4 h-4 inline mr-1" />
-                                URL
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setImageInputMode('upload');
-                                    setFormData({ ...formData, imageUrl: '' });
-                                }}
-                                className={`flex-1 py-2 px-3 text-sm rounded-lg border transition-colors ${imageInputMode === 'upload'
-                                    ? 'bg-cyan-50 border-cyan-500 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400'
-                                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300'
-                                    }`}
-                            >
-                                <Upload className="w-4 h-4 inline mr-1" />
-                                Upload
-                            </button>
-                        </div>
-
-                        {imageInputMode === 'url' ? (
-                            <>
-                                <input
-                                    type="url"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500"
-                                    placeholder="https://example.com/image.jpg"
-                                />
-                                {formData.imageUrl && (
-                                    <div className="mt-2 rounded-lg overflow-hidden h-24 w-24 bg-slate-100 dark:bg-slate-800">
-                                        <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <>
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            const reader = new FileReader();
-                                            reader.onloadend = () => {
-                                                const base64 = reader.result as string;
-                                                setFormData({ ...formData, imageData: base64 });
-                                            };
-                                            reader.readAsDataURL(file);
-                                        }
-                                    }}
-                                    className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500 file:mr-4 file:py-1 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-cyan-50 file:text-cyan-700 dark:file:bg-cyan-900/30 dark:file:text-cyan-400 hover:file:bg-cyan-100"
-                                />
-                                {formData.imageData && (
-                                    <div className="mt-2 rounded-lg overflow-hidden h-24 w-24 bg-slate-100 dark:bg-slate-800">
-                                        <img src={formData.imageData} alt="Preview" className="w-full h-full object-cover" />
-                                    </div>
-                                )}
-                            </>
+                        <input
+                            type="url"
+                            value={formData.imageUrl}
+                            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                            className="w-full px-4 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-cyan-500"
+                            placeholder="https://example.com/image.jpg"
+                        />
+                        {formData.imageUrl && (
+                            <div className="mt-2 rounded-lg overflow-hidden h-24 w-24 bg-slate-100 dark:bg-slate-800">
+                                <img src={formData.imageUrl} alt="Preview" className="w-full h-full object-cover" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                            </div>
                         )}
                     </div>
 

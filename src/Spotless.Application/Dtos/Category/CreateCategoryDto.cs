@@ -6,7 +6,7 @@ namespace Spotless.Application.Dtos.Category
         public string? Description { get; init; }
         public decimal Price { get; init; }
         public string? ImageUrl { get; init; }
-        public string? ImageData { get; init; }
     }
 }
+
 

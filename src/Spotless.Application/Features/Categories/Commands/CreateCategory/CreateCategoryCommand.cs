@@ -7,7 +7,7 @@ namespace Spotless.Application.Features.Categories.Commands.CreateCategory
         string Name,
         decimal Price,
         string? Description,
-        string? ImageUrl = null,
-        string? ImageData = null) : IRequest<CategoryDto>;
+        string? ImageUrl = null) : IRequest<CategoryDto>;
 }
+
 

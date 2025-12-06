@@ -21,8 +21,7 @@ namespace Spotless.Application.Features.Categories.Commands.CreateCategory
                 request.Name,
                 new Money(request.Price, "EGP"),
                 request.Description,
-                request.ImageUrl,
-                request.ImageData
+                request.ImageUrl
             );
 
             await _unitOfWork.Categories.AddAsync(category);
@@ -35,10 +34,10 @@ namespace Spotless.Application.Features.Categories.Commands.CreateCategory
                 Description = category.Description,
                 Price = category.Price.Amount,
                 ServiceCount = category.Services.Count,
-                ImageUrl = category.ImageUrl,
-                ImageData = category.ImageData
+                ImageUrl = category.ImageUrl
             };
         }
     }
 }
+
 

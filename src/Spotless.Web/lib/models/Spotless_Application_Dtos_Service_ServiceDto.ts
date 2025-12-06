@@ -15,6 +15,6 @@ export type Spotless_Application_Dtos_Service_ServiceDto = {
     isActive?: boolean;
     isFeatured?: boolean;
     imageUrl?: string | null;
-    imageData?: string | null;
 };
+
 

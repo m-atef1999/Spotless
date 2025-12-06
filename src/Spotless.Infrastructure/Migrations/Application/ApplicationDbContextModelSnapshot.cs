@@ -178,9 +178,6 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageData")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
@@ -321,26 +318,30 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("RejectionReason")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<Guid?>("ReviewedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("VehicleInfo")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("DriverApplications");
+                    b.ToTable("DriverApplications", (string)null);
                 });
 
             modelBuilder.Entity("Spotless.Domain.Entities.Notification", b =>
@@ -649,9 +650,6 @@ namespace Spotless.Infrastructure.Configurations.Migrations.Application
 
                     b.Property<decimal>("EstimatedDurationHours")
                         .HasColumnType("decimal(4,2)");
-
-                    b.Property<string>("ImageData")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");

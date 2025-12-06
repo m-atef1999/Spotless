@@ -157,7 +157,7 @@ export const ServicesPage: React.FC = () => {
                 >
                   <div className="relative h-48 mb-4 rounded-xl overflow-hidden group-hover:shadow-md transition-all duration-300">
                     <img
-                      src={getServiceImage(service.name || "")}
+                      src={getServiceImage(service)}
                       alt={service.name || ""}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />

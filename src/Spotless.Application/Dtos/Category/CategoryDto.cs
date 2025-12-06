@@ -8,7 +8,7 @@ namespace Spotless.Application.Dtos.Category
         public decimal Price { get; init; }
         public int ServiceCount { get; init; }
         public string? ImageUrl { get; init; }
-        public string? ImageData { get; init; }
     }
 }
+
 

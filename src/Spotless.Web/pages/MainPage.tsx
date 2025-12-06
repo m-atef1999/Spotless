@@ -7,14 +7,17 @@ import { CategoriesService, ServicesService, type CategoryDto, type ServiceDto, 
 import { useAuthStore } from '../store/authStore';
 import logo from '../assets/logo.png';
 import { AiChatWidget } from '../components/ai/AiChatWidget';
-import { getServiceImage, getCategoryImage } from '../utils/imageUtils';
 import { BackToTop } from '../components/ui/BackToTop';
+import { getCached, setCache, CACHE_KEYS, CACHE_TTL } from '../utils/cacheUtils';
 
 export const MainPage: React.FC = () => {
     const navigate = useNavigate();
     const { role, token } = useAuthStore();
     const [categories, setCategories] = useState<CategoryDto[]>([]);
     const [services, setServices] = useState<ServiceDto[]>([]);
+    // Store ALL services/categories for instant local search filtering
+    const [allServices, setAllServices] = useState<ServiceDto[]>([]);
+    const [allCategories, setAllCategories] = useState<CategoryDto[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [suggestions, setSuggestions] = useState<ServiceDto[]>([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -22,17 +25,42 @@ export const MainPage: React.FC = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            // First, try to show cached data immediately for instant perceived loading
+            const cachedCategories = getCached<CategoryDto[]>(CACHE_KEYS.CATEGORIES_ALL);
+            const cachedServices = getCached<ServiceDto[]>(CACHE_KEYS.SERVICES_ALL);
+
+            if (cachedCategories && cachedServices) {
+                setCategories(cachedCategories.slice(0, 4));
+                setServices(cachedServices.slice(0, 8));
+                // Store full lists for instant search
+                setAllCategories(cachedCategories);
+                setAllServices(cachedServices);
+                setIsLoading(false);
+            }
+
+            // Then fetch fresh data in background
             try {
                 const [categoriesData, servicesData] = await Promise.all([
-                    CategoriesService.getApiCategories({ pageNumber: 1, pageSize: 4 }),
-                    ServicesService.getApiServices({ pageNumber: 1, pageSize: 8 })
+                    CategoriesService.getApiCategories({ pageNumber: 1, pageSize: 50 }),
+                    ServicesService.getApiServices({ pageNumber: 1, pageSize: 100 })
                 ]);
-                setCategories((categoriesData as PagedResponse).data || []);
-                const servicesList = (servicesData as PagedResponse).data || [];
 
-                setServices(servicesList);
+                const freshCategories = (categoriesData as PagedResponse).data || [];
+                const freshServices = (servicesData as PagedResponse).data || [];
+
+                // Cache the full results
+                setCache(CACHE_KEYS.CATEGORIES_ALL, freshCategories, CACHE_TTL.CATEGORIES);
+                setCache(CACHE_KEYS.SERVICES_ALL, freshServices, CACHE_TTL.SERVICES);
+
+                // Update UI with fresh data (limited for display)
+                setCategories(freshCategories.slice(0, 4));
+                setServices(freshServices.slice(0, 8));
+                // Store full lists for instant search
+                setAllCategories(freshCategories);
+                setAllServices(freshServices);
             } catch (error) {
                 console.error('Failed to fetch data:', error);
+                // If we had cached data, we're fine. If not, show error state.
             } finally {
                 setIsLoading(false);
             }
@@ -40,62 +68,36 @@ export const MainPage: React.FC = () => {
         fetchData();
     }, []);
 
+    // OPTIMIZED: Filter locally from cached data - no API calls needed!
     useEffect(() => {
-        const fetchSuggestions = async () => {
-            if (searchQuery.length > 1) {
-                try {
-                    // Fetch services with name search
-                    const servicesPromise = ServicesService.getApiServices({
-                        pageNumber: 1,
-                        pageSize: 5,
-                        nameSearchTerm: searchQuery
-                    });
+        if (searchQuery.length > 1) {
+            const searchLower = searchQuery.toLowerCase();
 
-                    // Also fetch categories to check for matches
-                    const categoriesPromise = CategoriesService.getApiCategories({
-                        pageNumber: 1,
-                        pageSize: 100 // Fetch more to ensure we find matches
-                    });
+            // First, search services by name
+            let results = allServices.filter(s =>
+                s.name?.toLowerCase().includes(searchLower)
+            );
 
-                    const [servicesData, categoriesData] = await Promise.all([servicesPromise, categoriesPromise]);
+            // If no direct service matches, check if search matches a category name
+            if (results.length === 0) {
+                const matchedCategory = allCategories.find(c =>
+                    c.name?.toLowerCase().includes(searchLower)
+                );
 
-                    let results = (servicesData as PagedResponse).data || [];
-                    const categoriesList = (categoriesData as PagedResponse).data || [];
-
-                    // If no direct service matches, check if search term matches a category
-                    if (results.length === 0) {
-                        const matchedCategory = categoriesList.find(c =>
-                            c.name?.toLowerCase().includes(searchQuery.toLowerCase())
-                        );
-
-                        if (matchedCategory) {
-                            // Since API doesn't support categoryId filter, we'll fetch more services and filter client-side
-                            // or just show the category match itself if we can't filter services easily.
-                            // For now, let's try to fetch services and filter by categoryId if the DTO has it.
-                            const allServices = await ServicesService.getApiServices({
-                                pageNumber: 1,
-                                pageSize: 20 // Fetch a batch to filter
-                            });
-
-                            const servicesList = (allServices as PagedResponse).data || [];
-                            results = servicesList.filter(s => s.categoryId === matchedCategory.id);
-                        }
-                    }
-
-                    setSuggestions(results);
-                    setShowSuggestions(true);
-                } catch (error) {
-                    console.error('Failed to fetch suggestions:', error);
+                if (matchedCategory) {
+                    // Show services from that category
+                    results = allServices.filter(s => s.categoryId === matchedCategory.id);
                 }
-            } else {
-                setSuggestions([]);
-                setShowSuggestions(false);
             }
-        };
 
-        const debounceTimer = setTimeout(fetchSuggestions, 300);
-        return () => clearTimeout(debounceTimer);
-    }, [searchQuery]);
+            // Limit to 5 suggestions for UI
+            setSuggestions(results.slice(0, 5));
+            setShowSuggestions(true);
+        } else {
+            setSuggestions([]);
+            setShowSuggestions(false);
+        }
+    }, [searchQuery, allServices, allCategories]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -104,8 +106,8 @@ export const MainPage: React.FC = () => {
         }
     };
 
-    const handleCategoryClick = (categoryName: string) => {
-        navigate(`/services?search=${encodeURIComponent(categoryName)}`);
+    const handleCategoryClick = (categoryId: string, categoryName: string) => {
+        navigate(`/services?categoryId=${categoryId}&categoryName=${encodeURIComponent(categoryName)}`);
     };
 
     const handleBookNow = (e: React.MouseEvent, serviceId: string) => {
@@ -214,11 +216,13 @@ export const MainPage: React.FC = () => {
                                                 navigate(`/services?search=${encodeURIComponent(service.name || '')}`);
                                             }}
                                         >
-                                            <img
-                                                src={getServiceImage(service.name || '')}
-                                                alt={service.name || ''}
-                                                className="w-12 h-12 rounded-lg object-cover"
-                                            />
+                                            {service.imageUrl && (
+                                                <img
+                                                    src={service.imageUrl}
+                                                    alt={service.name || ''}
+                                                    className="w-12 h-12 rounded-lg object-cover"
+                                                />
+                                            )}
                                             <div>
                                                 <h4 className="font-medium text-slate-900 dark:text-white">{service.name}</h4>
                                                 <p className="text-sm text-cyan-600 dark:text-cyan-400 font-medium">
@@ -256,13 +260,15 @@ export const MainPage: React.FC = () => {
                                     className="bg-slate-50 dark:bg-slate-800 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow duration-300 border border-slate-100 dark:border-slate-700 cursor-pointer group relative flex flex-col"
                                     onClick={() => navigate(`/services?search=${encodeURIComponent(service.name || '')}`)}
                                 >
-                                    <div className="relative h-48 overflow-hidden">
-                                        <img
-                                            src={getServiceImage(service.name || '')}
-                                            alt={service.name || ''}
-                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                        />
-                                    </div>
+                                    {service.imageUrl && (
+                                        <div className="relative h-48 overflow-hidden">
+                                            <img
+                                                src={service.imageUrl}
+                                                alt={service.name || ''}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                            />
+                                        </div>
+                                    )}
                                     <div className="p-6 flex-1 flex flex-col">
                                         <div className="flex justify-between items-start mb-2">
                                             <h3 className="font-bold text-slate-900 dark:text-white line-clamp-2 pr-2">{service.name}</h3>
@@ -334,14 +340,16 @@ export const MainPage: React.FC = () => {
                             categories.map((category) => (
                                 <div
                                     key={category.id}
-                                    className="group relative h-64 rounded-2xl overflow-hidden cursor-pointer"
-                                    onClick={() => handleCategoryClick(category.name || '')}
+                                    className="group relative h-64 rounded-2xl overflow-hidden cursor-pointer bg-gradient-to-br from-cyan-600 to-blue-700"
+                                    onClick={() => handleCategoryClick(category.id || '', category.name || '')}
                                 >
-                                    <img
-                                        src={getCategoryImage(category.name || '')}
-                                        alt={category.name || ''}
-                                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                    />
+                                    {category.imageUrl && (
+                                        <img
+                                            src={category.imageUrl}
+                                            alt={category.name || ''}
+                                            className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                    )}
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                                     <div className="absolute bottom-0 left-0 p-6">
                                         <h3 className="text-xl font-bold text-white mb-2">{category.name}</h3>

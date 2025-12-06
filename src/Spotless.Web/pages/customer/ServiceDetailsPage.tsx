@@ -106,7 +106,7 @@ export const ServiceDetailsPage: React.FC = () => {
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
                     <div className="relative h-64 md:h-80">
                         <img
-                            src={getServiceImage(service.name || '')}
+                            src={getServiceImage(service)}
                             alt={service.name || ''}
                             className="w-full h-full object-cover"
                         />

@@ -16,9 +16,8 @@ namespace Spotless.Domain.Entities
         public bool IsFeatured { get; private set; } = false;
         public decimal MaxWeightKg { get; private set; } = 50m; // Default max weight per service
         
-        // Image support - URL for external images, Data for uploaded files
+        // Image support - URL for external images only
         public string? ImageUrl { get; private set; }
-        public string? ImageData { get; private set; } // Base64 encoded image data
 
         public virtual Category Category { get; private set; } = null!;
 
@@ -33,19 +32,16 @@ namespace Spotless.Domain.Entities
             Money pricePerUnit,
             decimal estimatedDurationHours,
             decimal? maxWeightKg = null,
-            string? imageUrl = null,
-            string? imageData = null) : base()
+            string? imageUrl = null) : base()
         {
             CategoryId = categoryId;
             Name = name;
             Description = description;
 
-
             PricePerUnit = pricePerUnit;
             BasePrice = pricePerUnit;
             EstimatedDurationHours = estimatedDurationHours;
             ImageUrl = imageUrl;
-            ImageData = imageData;
             if (maxWeightKg.HasValue)
             {
                 if (maxWeightKg.Value <= 0) throw new ArgumentException("MaxWeightKg must be positive.", nameof(maxWeightKg));
@@ -60,8 +56,7 @@ namespace Spotless.Domain.Entities
             decimal? estimatedDurationHours,
             Guid? categoryId,
             decimal? maxWeightKg = null,
-            string? imageUrl = null,
-            string? imageData = null)
+            string? imageUrl = null)
         {
             if (maxWeightKg.HasValue && maxWeightKg.Value <= 0)
                 throw new ArgumentException("MaxWeightKg must be positive.", nameof(maxWeightKg));
@@ -93,17 +88,15 @@ namespace Spotless.Domain.Entities
                 CategoryId = categoryId.Value;
 
             // Image can be updated to null (clear) or new value
-            if (imageUrl != null || imageData != null)
+            if (imageUrl != null)
             {
                 ImageUrl = imageUrl;
-                ImageData = imageData;
             }
         }
 
-        public void SetImage(string? imageUrl, string? imageData)
+        public void SetImage(string? imageUrl)
         {
             ImageUrl = imageUrl;
-            ImageData = imageData;
         }
         
         public void SetFeatured(bool isFeatured)

@@ -8,10 +8,13 @@ import logo from '../assets/logo.png';
 import { getServiceImage } from '../utils/imageUtils';
 import { useAuthStore } from '../store/authStore';
 import { BackToTop } from '../components/ui/BackToTop';
+import { getCached, setCache, CACHE_KEYS, CACHE_TTL } from '../utils/cacheUtils';
 
 export const PublicServicesPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const initialSearch = searchParams.get('search') || '';
+    const categoryId = searchParams.get('categoryId') || '';
+    const categoryName = searchParams.get('categoryName') || '';
     const navigate = useNavigate();
     const { token } = useAuthStore();
 
@@ -28,16 +31,44 @@ export const PublicServicesPage: React.FC = () => {
         const fetchServices = async () => {
             setIsLoading(true);
             setError(null);
+
+            // Try to show cached data immediately when no search/filter
+            const cachedServices = getCached<ServiceDto[]>(CACHE_KEYS.SERVICES_ALL);
+            if (cachedServices && !searchQuery) {
+                let filtered = cachedServices;
+                if (categoryId) {
+                    filtered = cachedServices.filter(s => s.categoryId === categoryId);
+                }
+                setServices(filtered);
+                setIsLoading(false);
+            }
+
+            // Fetch fresh data
             try {
                 const response = await ServicesService.getApiServices({
                     pageNumber: 1,
-                    pageSize: 50,
-                    nameSearchTerm: searchQuery || undefined
+                    pageSize: 100,
+                    nameSearchTerm: categoryId ? undefined : (searchQuery || undefined)
                 });
-                setServices(response.data || []);
+
+                let fetchedServices = response.data || [];
+
+                // Cache all services when no search filter (for future use)
+                if (!searchQuery && !categoryId) {
+                    setCache(CACHE_KEYS.SERVICES_ALL, fetchedServices, CACHE_TTL.SERVICES);
+                }
+
+                // Filter by categoryId if present
+                if (categoryId) {
+                    fetchedServices = fetchedServices.filter(s => s.categoryId === categoryId);
+                }
+
+                setServices(fetchedServices);
             } catch (err) {
                 console.error('Failed to fetch services:', err);
-                setError('Failed to load services. Please try again later.');
+                if (!cachedServices) {
+                    setError('Failed to load services. Please try again later.');
+                }
             } finally {
                 setIsLoading(false);
             }
@@ -48,11 +79,16 @@ export const PublicServicesPage: React.FC = () => {
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [searchQuery]);
+    }, [searchQuery, categoryId]);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
+        // Clear category filter when searching
         setSearchParams(searchQuery ? { search: searchQuery } : {});
+    };
+
+    const clearCategoryFilter = () => {
+        setSearchParams({});
     };
 
     const handleBookNow = (serviceId?: string) => {
@@ -105,11 +141,28 @@ export const PublicServicesPage: React.FC = () => {
                     <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6">
                         Our Services
                     </h1>
-                    <p className="text-xl text-slate-600 dark:text-slate-400 mb-10">
+                    <p className="text-xl text-slate-600 dark:text-slate-400 mb-6">
                         Professional cleaning solutions tailored to your needs.
                     </p>
 
-                    {/* Search Bar */}
+                    {/* Category Filter Indicator */}
+                    {categoryId && categoryName && (
+                        <div className="mb-6 flex items-center justify-center gap-2">
+                            <span className="text-slate-600 dark:text-slate-400">Showing services in:</span>
+                            <span className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-100 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-300 rounded-full font-medium">
+                                {decodeURIComponent(categoryName)}
+                                <button
+                                    onClick={clearCategoryFilter}
+                                    className="ml-1 p-0.5 hover:bg-cyan-200 dark:hover:bg-cyan-800 rounded-full transition-colors"
+                                    aria-label="Clear filter"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                                    </svg>
+                                </button>
+                            </span>
+                        </div>
+                    )}
                     <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto">
                         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-2xl blur opacity-20" />
                         <div className="relative flex items-center bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-2">
@@ -163,7 +216,7 @@ export const PublicServicesPage: React.FC = () => {
                             >
                                 <div className="relative h-56 overflow-hidden">
                                     <img
-                                        src={getServiceImage(service.name || '')}
+                                        src={getServiceImage(service)}
                                         alt={service.name || ''}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
