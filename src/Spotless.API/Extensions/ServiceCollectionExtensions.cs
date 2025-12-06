@@ -226,9 +226,6 @@ namespace Spotless.API.Extensions
             services.AddScoped<CachedCategoryService>();
             services.AddScoped<CachedTimeSlotService>();
 
-            // Cart services and repositories
-            services.AddScoped<ICartRepository, CartRepository>();
-            services.AddScoped<ICartService, CartService>();
 
 
             // Payment Services
@@ -257,7 +254,6 @@ namespace Spotless.API.Extensions
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IServiceRepository, ServiceRepository>();
-            services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<IPaymentRepository, PaymentRepository>();
             services.AddScoped<IReviewRepository, ReviewRepository>();
             services.AddScoped<IOrderDriverApplicationRepository, OrderDriverApplicationRepository>();

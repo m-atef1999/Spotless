@@ -14,7 +14,6 @@ import { usePayment } from '../../hooks/usePayment';
 import { getServiceImage } from '../../lib/imageUtils';
 import {
     ServicesService,
-    CartsService,
     OrdersService,
     CustomersService,
     type ServiceDto,
@@ -77,7 +76,7 @@ export const NewOrderPage: React.FC = () => {
                     const serviceToSelect = allServices.find(s => s.id === serviceId);
                     if (serviceToSelect) {
                         setSelectedServices([{ service: serviceToSelect, quantity: 1 }]);
-                        addToast(`Added ${serviceToSelect.name} to the cart`, 'success');
+                        addToast(`Added ${serviceToSelect.name} to your order`, 'success');
                     }
                 }
             } catch (error) {
@@ -117,12 +116,7 @@ export const NewOrderPage: React.FC = () => {
 
 
 
-    const handleServiceToggle = async (service: ServiceDto, quantity: number) => {
-        const currentService = selectedServices.find(s => s.service.id === service.id);
-        const currentQty = currentService?.quantity || 0;
-        const isAdding = quantity > currentQty;
-        const diff = Math.abs(quantity - currentQty);
-
+    const handleServiceToggle = (service: ServiceDto, quantity: number) => {
         setSelectedServices(prev => {
             const existing = prev.find(s => s.service.id === service.id);
             if (existing) {
@@ -133,29 +127,6 @@ export const NewOrderPage: React.FC = () => {
             }
             return [...prev, { service, quantity }];
         });
-
-        if (isAdding) {
-            addToast(`Added ${service.name} to the cart`, 'success');
-            try {
-                await CartsService.postApiCustomersCartItems({
-                    requestBody: {
-                        serviceId: service.id,
-                        quantity: diff
-                    }
-                });
-            } catch (error) {
-                console.error('Failed to add to backend cart', error);
-            }
-        } else {
-            addToast(`Removed ${service.name} from the cart`, 'info');
-            if (quantity <= 0) {
-                try {
-                    await CartsService.deleteApiCustomersCartItems({ serviceId: service.id! });
-                } catch (error) {
-                    console.error('Failed to remove from backend cart', error);
-                }
-            }
-        }
     };
 
     const calculateTotal = () => {

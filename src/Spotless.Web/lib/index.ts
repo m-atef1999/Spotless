@@ -19,9 +19,6 @@ export type { Spotless_Application_Dtos_Analytics_RevenueReportDto } from './mod
 export type { Spotless_Application_Dtos_AuditLog_AuditLogDto } from './models/Spotless_Application_Dtos_AuditLog_AuditLogDto';
 export type { Spotless_Application_Dtos_Authentication_AuthResult } from './models/Spotless_Application_Dtos_Authentication_AuthResult';
 export type { Spotless_Application_Dtos_Authentication_ExternalAuthRequest } from './models/Spotless_Application_Dtos_Authentication_ExternalAuthRequest';
-export type { Spotless_Application_Dtos_Cart_AddToCartDto } from './models/Spotless_Application_Dtos_Cart_AddToCartDto';
-export type { Spotless_Application_Dtos_Cart_BuyNowRequest } from './models/Spotless_Application_Dtos_Cart_BuyNowRequest';
-export type { Spotless_Application_Dtos_Cart_CartCheckoutRequest } from './models/Spotless_Application_Dtos_Cart_CartCheckoutRequest';
 export type { Spotless_Application_Dtos_Category_CategoryDto } from './models/Spotless_Application_Dtos_Category_CategoryDto';
 export type { Spotless_Application_Dtos_Category_CreateCategoryDto } from './models/Spotless_Application_Dtos_Category_CreateCategoryDto';
 export type { Spotless_Application_Dtos_Category_UpdateCategoryDto } from './models/Spotless_Application_Dtos_Category_UpdateCategoryDto';
@@ -74,7 +71,6 @@ export { AiService } from './services/AiService';
 export { AnalyticsService } from './services/AnalyticsService';
 export { AuditLogsService } from './services/AuditLogsService';
 export { AuthService } from './services/AuthService';
-export { CartsService } from './services/CartsService';
 export { CategoriesService } from './services/CategoriesService';
 export { CustomersService } from './services/CustomersService';
 export { DriversService } from './services/DriversService';

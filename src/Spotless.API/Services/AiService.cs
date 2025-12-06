@@ -18,7 +18,6 @@ namespace Spotless.API.Services
         private readonly IServiceRepository _serviceRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly IOrderRepository _orderRepository;
-        private readonly ICartRepository _cartRepository;
         private readonly IRepository<Domain.Entities.Customer> _customerRepository;
         private readonly IRepository<Domain.Entities.Driver> _driverRepository;
         private readonly HttpClient _httpClient;
@@ -29,7 +28,6 @@ namespace Spotless.API.Services
             IServiceRepository serviceRepository,
             ICurrentUserService currentUserService,
             IOrderRepository orderRepository,
-            ICartRepository cartRepository,
             IRepository<Domain.Entities.Customer> customerRepository,
             IRepository<Domain.Entities.Driver> driverRepository,
             ILogger<AiService> logger)
@@ -38,7 +36,6 @@ namespace Spotless.API.Services
             _serviceRepository = serviceRepository;
             _currentUserService = currentUserService;
             _orderRepository = orderRepository;
-            _cartRepository = cartRepository;
             _customerRepository = customerRepository;
             _driverRepository = driverRepository;
             _httpClient = new HttpClient();
@@ -98,7 +95,7 @@ namespace Spotless.API.Services
             {
                 var userSummary = await GetUserSummaryAsync(_currentUserService.UserId);
                 systemPrompt.Append($"\n\nUser Context:\n{userSummary}");
-                systemPrompt.Append("\n\nUse this context to answer questions about the user's orders, cart, wallet, or account. If they ask about something else, answer generally.");
+                systemPrompt.Append("\n\nUse this context to answer questions about the user's orders, wallet, or account. If they ask about something else, answer generally.");
                 systemPrompt.Append("\n\nIMPORTANT: When referring to an order, prefer using its STATUS (e.g., 'your Requested order') or Service Name instead of the Order ID, unless the user explicitly asks for the ID.");
                 systemPrompt.Append("\n\nIMPORTANT: The system uses an In-Memory Database for development. Order IDs and history may reset if the server restarts. Explain this if the user asks why their orders changed.");
                 _logger.LogWarning($"[AiService] System Prompt: {systemPrompt}");
@@ -210,20 +207,7 @@ namespace Spotless.API.Services
                 }
                 catch { sb.AppendLine("Could not retrieve orders."); }
 
-                // 3. Get Cart Info
-                try
-                {
-                    var cart = await _cartRepository.GetCartByCustomerIdAsync(customerId.Value);
-                    if (cart != null && cart.Items.Any())
-                    {
-                        sb.AppendLine($"Cart: {cart.Items.Count} items");
-                    }
-                    else
-                    {
-                        sb.AppendLine("Cart is empty.");
-                    }
-                }
-                catch { sb.AppendLine("Could not retrieve cart."); }
+
             }
             else
             {
