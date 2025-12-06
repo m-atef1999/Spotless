@@ -25,9 +25,62 @@ Despite the rapid modernization of lifestyle in cities like Cairo, Riyadh, and D
 
 > **Insight:** As shown in the heatmap, **Trust/Safety** is the acute pain point for households, while **Pricing/Contracts** is a major friction point for offices.
 
+
+---
+
 ---
 
 ## 2. Market Statistics & Insights
+
+The opportunity for Spotless is driven by massive market growth and a shift towards the formal gig economy.
+
+### 📈 Market Size & Growth
+The cleaning services market in the MENA region is booming, driven by urbanization and dual-income households.
+
+*   **Saudi Arabia:** Projected to grow from **$5.4B** (2024) to **$9.49B** (2033).
+*   **Egypt:** A rapidly expanding market, growing from **$3.67B** to **$6.73B**.
+*   **UAE:** High-value market focused on premium services.
+
+![Market Growth Chart](market_growth_mena.png)
+
+### ⚠️ The Gig Economy Gap
+In Egypt alone, informal employment accounts for roughly **64%** of the workforce. Platforms like Spotless are essential to bridge the gap between this informal labor supply and the formal demand from households.
+
+![Employment Stats](employment_stats.png)
+
+> **Strategic Insight:** By moving these 64% of informal workers onto a digital platform, Spotless not only provides jobs but **formalizes** the sector, creating a massive economic impact.
+
+---
+
+## 3. The Solution: Spotless Platform
+
+This section analyzes the key players in the Spotless ecosystem, their interests, and how the platform addresses their needs.
+
+### 📊 Stakeholder Power-Interest Matrix
+
+| **High Power, Low Interest** (Keep Satisfied) | **High Power, High Interest** (Manage Closely) |
+| :--- | :--- |
+| **Payment Gateways & Banks**<br>*(Crucial for operations)* | **Platform Owners / Investors**<br>*(Strategic direction)*<br>**Regulatory Bodies**<br>*(Labor laws, digital commerce)* |
+| **Low Power, Low Interest** (Monitor) | **Low Power, High Interest** (Keep Informed) |
+| **General Public**<br>*(Future users)*<br>**Traditional Agencies**<br>*(Competitors)* | **Service Providers**<br>*(Income dependent)*<br>**Households (End Users)**<br>*(Daily usage)* |
+
+### 👥 Strategies for Key Groups
+
+#### 1. End Users (Households)
+*   **Pain Points:** Trust deficit, hidden costs, unreliability.
+*   **Strategy:** Provide verified profiles (background checks) and fixed, transparent pricing models.
+
+#### 2. Service Providers (Gig Workers)
+*   **Pain Points:** Income instability, lack of formal contracts.
+*   **Strategy:** Offer consistent job flow and digital payment records to formalize their work history.
+
+#### 3. Regulatory Bodies
+*   **Context:** Align with new laws like **Egypt's Labor Law 2025** and **Saudi Vision 2030**.
+*   **Strategy:** Ensure tax compliance and worker protection standards to gain government support.
+
+---
+
+## 3. Market Statistics & Insights
 
 The opportunity for Spotless is driven by massive market growth and a shift towards the formal gig economy.
 
@@ -87,6 +140,32 @@ Built on **Clean Architecture** to ensure reliability and scalability:
 | **Pains** (Relieved) | **Gains** (Created) |
 | :--- | :--- |
 | ❌ Risk of theft/damage<br>❌ Endless phone calls to book<br>❌ Cash pricing arguments | ✅ **Verified** personnel only<br>✅ **1-Click** scheduling<br>✅ **Transparent**, fixed pricing |
+
+---
+
+---
+
+## 5. References & Market Validation
+
+The problem statement and market opportunity are validated by the following sources:
+
+### 1. Market Size & Growth
+*   **Deep Market Insights**: *"Egypt Cleaning Services Market Assessment, 2024–2033"*.
+    *   **Data:** Egypt market valued at **$3.67B** (2024), projected to reach **$6.73B** by 2033.
+*   **TechSci Research**: *"Saudi Arabia Facility Management Market - By Region, Competition, Forecast & Opportunities, 2029"*.
+    *   **Data:** Saudi market shows strong growth trajectory ($1.07B to $1.68B).
+*   **Grand View Research**: *"Middle East & Africa Cleaning Services Market Size, Share & Trends Analysis Report"*.
+    *   **Insight:** Regional growth is driven by rapid urbanization and the outsourcing of non-core activities.
+
+### 2. Labor & Informality
+*   **International Labour Organization (ILO)**: *"Informal Economy Country Diagnostics (Egypt)"*.
+    *   **Data:** Informal employment in Egypt is estimated between **60–67%**, highlighting the need for formalization platforms like Spotless.
+*   **Economic Research Forum (ERF)**: Various studies on employment and informality in the MENA region.
+
+### 3. Regulatory Context
+*   **Official Gazette / Legal Analyses**: *"New Labor Law No. 14 of 2025 (Egypt)"*.
+    *   **Relevance:** Mandates better protection for non-standard workers suitable for gig platforms. (Sources: Andersen Legal, EY Legal Alerts).
+*   **Fairwork MENA Project**: Reports on the state of platform work and the need for fair conditions in the gig economy.
 
 ---
 *Generated for Spotless Presentation - December 2025*
