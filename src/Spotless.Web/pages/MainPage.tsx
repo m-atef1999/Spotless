@@ -37,16 +37,6 @@ export const MainPage: React.FC = () => {
 
     // Scroll-based navbar effects
     const { scrollY } = useScroll();
-    const headerBg = useTransform(
-        scrollY,
-        [0, 100],
-        ['rgba(255, 255, 255, 0)', 'rgba(255, 255, 255, 0.9)']
-    );
-    const headerBgDark = useTransform(
-        scrollY,
-        [0, 100],
-        ['rgba(15, 23, 42, 0)', 'rgba(15, 23, 42, 0.95)']
-    );
     const headerShadow = useTransform(
         scrollY,
         [0, 100],
