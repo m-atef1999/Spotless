@@ -20,7 +20,7 @@ namespace Spotless.API.Services
         private readonly IOrderRepository _orderRepository;
         private readonly IRepository<Domain.Entities.Customer> _customerRepository;
         private readonly IRepository<Domain.Entities.Driver> _driverRepository;
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<AiService> _logger;
 
         public AiService(
@@ -30,6 +30,7 @@ namespace Spotless.API.Services
             IOrderRepository orderRepository,
             IRepository<Domain.Entities.Customer> customerRepository,
             IRepository<Domain.Entities.Driver> driverRepository,
+            IHttpClientFactory httpClientFactory,
             ILogger<AiService> logger)
         {
             _configuration = configuration;
@@ -38,7 +39,7 @@ namespace Spotless.API.Services
             _orderRepository = orderRepository;
             _customerRepository = customerRepository;
             _driverRepository = driverRepository;
-            _httpClient = new HttpClient();
+            _httpClientFactory = httpClientFactory;
             _logger = logger;
             Console.WriteLine("[AiService] Service initialized (Gemini Edition).");
         }
@@ -46,7 +47,6 @@ namespace Spotless.API.Services
         public async Task<ChatResponse> GetResponseAsync(string userMessage)
         {
             _logger.LogWarning($"[AiService] Processing message: {userMessage}");
-            
             
             // Prioritize Environment Variable for Security
             var apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY");
@@ -57,31 +57,27 @@ namespace Spotless.API.Services
                 apiKey = _configuration["Gemini:ApiKey"];
             }
 
-            
-            
-            
             // Hybrid approach: Try Gemini if key exists, otherwise fallback to local logic
             if (!string.IsNullOrEmpty(apiKey))
             {
                 try
                 {
-                    _logger.LogWarning($"[AiService] Using Gemini API Key: {apiKey.Substring(0, 3)}...{apiKey.Substring(apiKey.Length - 3)}");
+                    // Mask key for logging
+                    var maskedKey = apiKey.Length > 6 ? $"{apiKey.Substring(0, 3)}...{apiKey.Substring(apiKey.Length - 3)}" : "***";
+                    _logger.LogWarning($"[AiService] Using Gemini API Key: {maskedKey}");
+                    
                     return await GetGeminiResponseAsync(userMessage, apiKey);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"[AiService] Gemini API Error: {ex.Message}");
-                    _logger.LogError(ex, "Gemini API failed. Falling back to local logic.");
-                    
-                    
-                    // Fallback if API fails
+                    // Error is already logged in GetGeminiResponseAsync if it was an API failure
+                    _logger.LogWarning($"[AiService] Gemini Flow Failed: {ex.Message}. Falling back to local logic.");
                     return await GetLocalResponseAsync(userMessage);
                 }
             }
             else
             {
-                _logger.LogWarning("[AiService] GEMINI_API_KEY is missing or empty.");
-                _logger.LogWarning("GEMINI_API_KEY is missing or empty. Using local logic.");
+                _logger.LogWarning("[AiService] GEMINI_API_KEY is missing or empty. Using local logic.");
             }
 
             return await GetLocalResponseAsync(userMessage);
@@ -91,14 +87,20 @@ namespace Spotless.API.Services
         {
             var systemPrompt = new StringBuilder("You are Spotless AI, a helpful assistant for a laundry and dry cleaning service. Be concise and friendly.");
             
-            if (_currentUserService.IsAuthenticated && !string.IsNullOrEmpty(_currentUserService.UserId))
+            try 
             {
-                var userSummary = await GetUserSummaryAsync(_currentUserService.UserId);
-                systemPrompt.Append($"\n\nUser Context:\n{userSummary}");
-                systemPrompt.Append("\n\nUse this context to answer questions about the user's orders, wallet, or account. If they ask about something else, answer generally.");
-                systemPrompt.Append("\n\nIMPORTANT: When referring to an order, prefer using its STATUS (e.g., 'your Requested order') or Service Name instead of the Order ID, unless the user explicitly asks for the ID.");
-                systemPrompt.Append("\n\nIMPORTANT: The system uses an In-Memory Database for development. Order IDs and history may reset if the server restarts. Explain this if the user asks why their orders changed.");
-                _logger.LogWarning($"[AiService] System Prompt: {systemPrompt}");
+                if (_currentUserService.IsAuthenticated && !string.IsNullOrEmpty(_currentUserService.UserId))
+                {
+                    var userSummary = await GetUserSummaryAsync(_currentUserService.UserId);
+                    systemPrompt.Append($"\n\nUser Context:\n{userSummary}");
+                    systemPrompt.Append("\n\nUse this context to answer questions about the user's orders, wallet, or account. If they ask about something else, answer generally.");
+                    systemPrompt.Append("\n\nIMPORTANT: When referring to an order, prefer using its STATUS (e.g., 'your Requested order') or Service Name instead of the Order ID, unless the user explicitly asks for the ID.");
+                    systemPrompt.Append("\n\nIMPORTANT: The system uses an In-Memory Database for development. Order IDs and history may reset if the server restarts. Explain this if the user asks why their orders changed.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "[AiService] Error building user context. Proceeding without context.");
             }
 
             // Gemini API Payload Structure
@@ -117,38 +119,50 @@ namespace Spotless.API.Services
             };
 
             var content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={apiKey}";
             
-            var response = await _httpClient.PostAsync(url, content);
+            // UPDATED: Using gemini-2.5-flash-lite as requested
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key={apiKey}";
+            
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.PostAsync(url, content);
             
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                using var doc = JsonDocument.Parse(json);
                 
-                // Parse Gemini Response: candidates[0].content.parts[0].text
-                if (doc.RootElement.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
+                try 
                 {
-                    var firstCandidate = candidates[0];
-                    if (firstCandidate.TryGetProperty("content", out var contentElem) && 
-                        contentElem.TryGetProperty("parts", out var parts) && 
-                        parts.GetArrayLength() > 0)
+                    using var doc = JsonDocument.Parse(json);
+                    // Parse Gemini Response: candidates[0].content.parts[0].text
+                    if (doc.RootElement.TryGetProperty("candidates", out var candidates) && candidates.GetArrayLength() > 0)
                     {
-                        var reply = parts[0].GetProperty("text").GetString() ?? string.Empty;
-                        if (string.IsNullOrWhiteSpace(reply))
+                        var firstCandidate = candidates[0];
+                        if (firstCandidate.TryGetProperty("content", out var contentElem) && 
+                            contentElem.TryGetProperty("parts", out var parts) && 
+                            parts.GetArrayLength() > 0)
                         {
-                            reply = "I'm sorry — I couldn't get a proper response right now. Try again later.";
+                            var reply = parts[0].GetProperty("text").GetString() ?? string.Empty;
+                            if (string.IsNullOrWhiteSpace(reply))
+                            {
+                                return new ChatResponse { Response = "I received your message but couldn't generate a response." };
+                            }
+                            return new ChatResponse { Response = reply };
                         }
-
-                        return new ChatResponse { Response = reply };
                     }
                 }
+                catch (JsonException jsonEx)
+                {
+                     _logger.LogError(jsonEx, $"[AiService] Error parsing success response: {json}");
+                     throw new Exception("Failed to parse Gemini API response.");
+                }
                 
-                throw new Exception("Gemini API response format unexpected.");
+                throw new Exception("Gemini API response format unexpected (no candidates).");
             }
 
+            // DETAILED ERROR LOGGING
             var errorContent = await response.Content.ReadAsStringAsync();
-            throw new Exception($"Gemini API failed: {response.StatusCode} - {errorContent}");
+            _logger.LogError($"[AiService] Gemini API Call Failed. Status: {response.StatusCode}. Response: {errorContent}");
+            throw new Exception($"Gemini API failed with status {response.StatusCode}: {errorContent}");
         }
 
         private async Task<string> GetUserSummaryAsync(string userId)
