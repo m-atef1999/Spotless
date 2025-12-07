@@ -13,18 +13,27 @@ namespace Spotless.Infrastructure.Repositories
 
         public async Task<IReadOnlyList<MostUsedServiceDto>> GetMostUsedServicesAsync(int pageNumber, int pageSize)
         {
-            return await _dbContext.OrderItems
+            // Fetch the raw data from database first (only what we need)
+            var orderItems = await _dbContext.OrderItems
                 .Include(oi => oi.Service)
-                .GroupBy(oi => new { oi.ServiceId, oi.Service.Name })
+                .Where(oi => oi.Service != null) // Ensure service exists
+                .Select(oi => new { oi.ServiceId, ServiceName = oi.Service.Name, oi.OrderId })
+                .ToListAsync();
+
+            // Perform the complex GroupBy with Distinct on client side
+            var result = orderItems
+                .GroupBy(oi => new { oi.ServiceId, oi.ServiceName })
                 .Select(g => new MostUsedServiceDto(
                     g.Key.ServiceId,
-                    g.Key.Name,
+                    g.Key.ServiceName ?? "Unknown",
                     g.Select(oi => oi.OrderId).Distinct().Count()
                 ))
                 .OrderByDescending(s => s.OrderCount)
-                .Skip((pageNumber - 1) * pageSize) // pagination
+                .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .ToListAsync();
+                .ToList();
+
+            return result;
         }
 
         public async Task<IReadOnlyList<Order>> GetOrdersByCustomerIdAsync(Guid customerId, OrderStatus? statusFilter = null)
@@ -169,6 +178,7 @@ namespace Spotless.Infrastructure.Repositories
             // Apply Sorting and Pagination
             var items = await query
                 .Include(o => o.Customer)
+                .Include(o => o.Driver)
                 .Include(o => o.Items).ThenInclude(i => i.Service)
                 .OrderByDescending(o => o.OrderDate)
                 .Skip((pageNumber - 1) * pageSize)

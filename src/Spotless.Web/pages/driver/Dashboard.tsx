@@ -81,6 +81,23 @@ export const DriverDashboard: React.FC = () => {
         }
     };
 
+    const handleSetStatus = async (newStatus: string) => {
+        if (newStatus === driverStatus) return;
+        setIsStatusLoading(true);
+        try {
+            await DriversService.putApiDriversStatus({
+                requestBody: { status: newStatus }
+            });
+            setDriverStatus(newStatus);
+        } catch (error) {
+            console.error('Failed to update status', error);
+        } finally {
+            setIsStatusLoading(false);
+        }
+    };
+
+    const availableStatuses = ['Available', 'OnRoute', 'Busy', 'Offline'];
+
     const handleUpdateStatus = async (orderId: string, newStatus: number) => {
         try {
             // Optimistic update
@@ -142,7 +159,30 @@ export const DriverDashboard: React.FC = () => {
                             Welcome, {user?.name || 'Driver'}.
                         </p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex gap-3 items-center">
+                        {/* Status Dropdown */}
+                        <div className="relative">
+                            <select
+                                value={driverStatus}
+                                onChange={(e) => handleSetStatus(e.target.value)}
+                                disabled={isStatusLoading}
+                                className={`appearance-none pl-4 pr-10 py-2 rounded-lg border text-sm font-medium cursor-pointer transition-colors ${driverStatus === 'Available' ? 'bg-green-50 border-green-300 text-green-700 dark:bg-green-900/30 dark:border-green-700 dark:text-green-400' :
+                                        driverStatus === 'OnRoute' ? 'bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-400' :
+                                            driverStatus === 'Busy' ? 'bg-orange-50 border-orange-300 text-orange-700 dark:bg-orange-900/30 dark:border-orange-700 dark:text-orange-400' :
+                                                'bg-slate-100 border-slate-300 text-slate-700 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-400'
+                                    }`}
+                            >
+                                {availableStatuses.map((status) => (
+                                    <option key={status} value={status}>{status}</option>
+                                ))}
+                            </select>
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                                <svg className="w-4 h-4 text-current opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                        {/* Quick Toggle */}
                         {driverStatus === 'Available' ? (
                             <Button
                                 variant="outline"
@@ -153,7 +193,7 @@ export const DriverDashboard: React.FC = () => {
                                 <Power className="w-4 h-4 mr-2" />
                                 Go Offline
                             </Button>
-                        ) : (
+                        ) : driverStatus === 'Offline' && (
                             <Button
                                 onClick={handleToggleStatus}
                                 isLoading={isStatusLoading}

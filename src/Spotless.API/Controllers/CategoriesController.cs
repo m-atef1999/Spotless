@@ -51,7 +51,8 @@ namespace Spotless.API.Controllers
             var command = new CreateCategoryCommand(
                 dto.Name,
                 dto.Price,
-                dto.Description
+                dto.Description,
+                dto.ImageUrl
             );
 
             var result = await _mediator.Send(command);
@@ -72,7 +73,8 @@ namespace Spotless.API.Controllers
                 Id = id,
                 Name = dto.Name,
                 Description = dto.Description,
-                Price = dto.Price
+                Price = dto.Price,
+                ImageUrl = dto.ImageUrl
             };
 
             var result = await _mediator.Send(command);

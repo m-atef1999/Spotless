@@ -1,3 +1,5 @@
+using Spotless.Application.Dtos.Admin;
+
 namespace Spotless.Application.Dtos.Analytics
 {
     public record AdminDashboardDto
@@ -13,5 +15,6 @@ namespace Spotless.Application.Dtos.Analytics
         public decimal MonthlyRevenue { get; init; }
         public int TotalServices { get; init; }
         public int TotalCategories { get; init; }
+        public IReadOnlyList<MostUsedServiceDto>? TopServices { get; init; }
     }
 }

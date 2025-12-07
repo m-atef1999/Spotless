@@ -19,8 +19,8 @@ namespace Spotless.Application.Features.Drivers.Commands.RevokeDriverAccess
                 throw new KeyNotFoundException($"Driver with ID {request.DriverId} not found.");
             }
 
-            // 1. Update Driver Status
-            driver.UpdateStatus(DriverStatus.Offline);
+            // 1. Update Driver Status to Revoked
+            driver.UpdateStatus(DriverStatus.Revoked);
 
             // 2. Remove Driver Role from User
             // Find the user ID associated with this driver

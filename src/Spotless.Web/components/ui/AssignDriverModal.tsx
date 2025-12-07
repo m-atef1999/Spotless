@@ -54,7 +54,7 @@ export const AssignDriverModal: React.FC<AssignDriverModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Assign Driver" size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} title="Assign Driver" size="xl">
       <div className="space-y-4">
         <div className="flex gap-2 items-center">
           <div className="flex-1">

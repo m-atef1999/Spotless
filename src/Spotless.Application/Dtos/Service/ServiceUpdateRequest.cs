@@ -14,5 +14,9 @@ namespace Spotless.Application.Dtos.Service
         public decimal? MaxWeightKg { get; init; }
 
         public Guid? CategoryId { get; init; }
+        
+        public string? ImageUrl { get; init; }
     }
 }
+
+

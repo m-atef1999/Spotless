@@ -1,12 +1,14 @@
 using MediatR;
 using Spotless.Application.Interfaces;
+using Spotless.Application.Services;
 using Spotless.Domain.ValueObjects;
 
 namespace Spotless.Application.Features.Services.Commands.UpdateService
 {
-    public class UpdateServiceCommandHandler(IUnitOfWork unitOfWork) : IRequestHandler<UpdateServiceCommand, Unit>
+    public class UpdateServiceCommandHandler(IUnitOfWork unitOfWork, CachedServiceService cachedServiceService) : IRequestHandler<UpdateServiceCommand, Unit>
     {
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
+        private readonly CachedServiceService _cachedServiceService = cachedServiceService;
 
         public async Task<Unit> Handle(UpdateServiceCommand request, CancellationToken cancellationToken)
         {
@@ -39,14 +41,20 @@ namespace Spotless.Application.Features.Services.Commands.UpdateService
                 pricePerUnit: newPricePerUnit,
                 estimatedDurationHours: request.Dto.EstimatedDurationHours,
                 categoryId: request.Dto.CategoryId,
-                maxWeightKg: request.Dto.MaxWeightKg
+                maxWeightKg: request.Dto.MaxWeightKg,
+                imageUrl: request.Dto.ImageUrl
             );
 
 
             await _unitOfWork.Services.UpdateAsync(service);
             await _unitOfWork.CommitAsync();
+            
+            // Invalidate cache so changes are immediately visible
+            await _cachedServiceService.InvalidateServiceCacheAsync();
 
             return Unit.Value;
         }
     }
 }
+
+

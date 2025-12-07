@@ -5,17 +5,14 @@ import {
   Sparkles,
   Loader2,
   AlertCircle,
-  ShoppingCart,
   Zap,
 } from "lucide-react";
 import { DashboardLayout } from "../../layouts/DashboardLayout";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
-import { useToast } from "../../components/ui/Toast";
 
 import {
   ServicesService,
-  CartsService,
   type ServiceDto,
   type PagedResponse,
 } from "../../lib/api";
@@ -25,13 +22,11 @@ import { getServiceImage } from "../../lib/imageUtils";
 
 export const ServicesPage: React.FC = () => {
   const navigate = useNavigate();
-  const { addToast } = useToast();
   const [services, setServices] = useState<ServiceDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
-  const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   // Debounce search term
   useEffect(() => {
@@ -65,25 +60,7 @@ export const ServicesPage: React.FC = () => {
     setServices(servicesResponse?.data || []);
   }, [servicesResponse, isFetching]);
 
-  const handleAddToCart = async (serviceId: string, serviceName: string) => {
-    try {
-      setAddingToCart(serviceId);
-      await CartsService.postApiCustomersCartItems({
-        requestBody: {
-          serviceId,
-          quantity: 1,
-        },
-      });
-      addToast(`Added ${serviceName} to cart`, "success");
-    } catch (error) {
-      console.error("Failed to add to cart:", error);
-      addToast("Failed to add to cart", "error");
-    } finally {
-      setAddingToCart(null);
-    }
-  };
-
-  const handleBuyNow = (serviceId?: string) => {
+  const handleBookNow = (serviceId?: string) => {
     navigate(
       `/customer/new-order${serviceId ? `?serviceId=${serviceId}` : ""}`
     );
@@ -157,7 +134,7 @@ export const ServicesPage: React.FC = () => {
                 >
                   <div className="relative h-48 mb-4 rounded-xl overflow-hidden group-hover:shadow-md transition-all duration-300">
                     <img
-                      src={getServiceImage(service.name || "")}
+                      src={getServiceImage(service)}
                       alt={service.name || ""}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -174,7 +151,6 @@ export const ServicesPage: React.FC = () => {
                   <p className="text-slate-500 dark:text-slate-400 text-sm line-clamp-3">
                     {service.description || "No description available."}
                   </p>
-                  {/* Weight moved to price section */}
                 </div>
 
                 <div className="mt-auto pt-6 border-t border-slate-100 dark:border-slate-800">
@@ -198,33 +174,13 @@ export const ServicesPage: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      onClick={() =>
-                        service.id &&
-                        handleAddToCart(service.id, service.name || "Service")
-                      }
-                      variant="outline"
-                      className="w-full"
-                      disabled={addingToCart === service.id}
-                    >
-                      {addingToCart === service.id ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-4 h-4 mr-2" />
-                          Add
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      onClick={() => service.id && handleBuyNow(service.id)}
-                      className="w-full shadow-lg shadow-cyan-500/20"
-                    >
-                      <Zap className="w-4 h-4 mr-2" />
-                      Buy Now
-                    </Button>
-                  </div>
+                  <Button
+                    onClick={() => service.id && handleBookNow(service.id)}
+                    className="w-full shadow-lg shadow-cyan-500/20"
+                  >
+                    <Zap className="w-4 h-4 mr-2" />
+                    Book Now
+                  </Button>
                 </div>
               </div>
             ))}

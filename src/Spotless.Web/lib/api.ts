@@ -3,7 +3,6 @@ export { AdminsService } from './services/AdminsService';
 export { AnalyticsService } from './services/AnalyticsService';
 export { AuditLogsService } from './services/AuditLogsService';
 export { AuthService } from './services/AuthService';
-export { CartsService } from './services/CartsService';
 export { CategoriesService } from './services/CategoriesService';
 export { CustomersService } from './services/CustomersService';
 export { DriversService } from './services/DriversService';
@@ -71,11 +70,6 @@ export type {
   Spotless_Application_Dtos_Category_CategoryDto as CategoryDto,
   Spotless_Application_Dtos_Category_CreateCategoryDto as CreateCategoryDto,
   Spotless_Application_Dtos_Category_UpdateCategoryDto as UpdateCategoryDto,
-
-  // Cart
-  Spotless_Application_Dtos_Cart_AddToCartDto as AddToCartDto,
-  Spotless_Application_Dtos_Cart_BuyNowRequest as BuyNowRequest,
-  Spotless_Application_Dtos_Cart_CartCheckoutRequest as CartCheckoutRequest,
 
   // Review
   Spotless_Application_Dtos_Review_ReviewDto as ReviewDto,

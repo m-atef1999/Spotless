@@ -2,11 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { ChevronDown, ChevronUp, Terminal, RefreshCw, Trash2 } from 'lucide-react';
 
+// Toggle debug panel via: localStorage.setItem('debug-panel-enabled', 'true')
+// Or in console: localStorage.setItem('debug-panel-enabled', 'true'); location.reload();
+// To disable: localStorage.removeItem('debug-panel-enabled'); location.reload();
 
 export const DebugPanel: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isEnabled, setIsEnabled] = useState(false);
     const { user, role, token } = useAuthStore();
     const [storageContent, setStorageContent] = useState<string>('');
+
+    useEffect(() => {
+        // Check if debug panel is enabled via localStorage
+        const enabled = localStorage.getItem('debug-panel-enabled') === 'true';
+        setIsEnabled(enabled);
+    }, []);
 
     const updateStorageContent = () => {
         const content = localStorage.getItem('auth-storage');
@@ -18,10 +28,11 @@ export const DebugPanel: React.FC = () => {
     };
 
     useEffect(() => {
+        if (!isEnabled) return;
         updateStorageContent();
         const interval = setInterval(updateStorageContent, 1000);
         return () => clearInterval(interval);
-    }, []);
+    }, [isEnabled]);
 
     const clearStorage = () => {
         localStorage.removeItem('auth-storage');
@@ -29,7 +40,8 @@ export const DebugPanel: React.FC = () => {
         window.location.reload();
     };
 
-    if (process.env.NODE_ENV === 'production') return null;
+    // Only show if explicitly enabled via localStorage
+    if (!isEnabled) return null;
 
     return (
         <div className={`fixed bottom-24 right-6 z-50 transition-all duration-300 ${isOpen ? 'w-96' : 'w-auto'}`}>

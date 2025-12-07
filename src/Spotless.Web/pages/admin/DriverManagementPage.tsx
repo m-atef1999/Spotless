@@ -74,10 +74,11 @@ export const DriverManagementPage: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case "Available":
       case "Online":
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
-            Online
+            {status === "Available" ? "Available" : "Online"}
           </span>
         );
       case "Offline":
@@ -92,12 +93,19 @@ export const DriverManagementPage: React.FC = () => {
             Busy
           </span>
         );
+      case "Revoked":
+        return (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400">
+            Revoked
+          </span>
+        );
       default:
         return (
           <span className="px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-400">
             {status}
           </span>
         );
+
     }
   };
 

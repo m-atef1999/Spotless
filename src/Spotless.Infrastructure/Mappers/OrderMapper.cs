@@ -61,6 +61,7 @@ namespace Spotless.Infrastructure.Mappers
                 CustomerId: order.CustomerId,
                 CustomerName: order.Customer?.Name ?? "Unknown",
                 DriverId: order.DriverId,
+                DriverName: order.Driver?.Name,
                 TimeSlotId: order.TimeSlotId,
                 StartTime: order.TimeSlot?.StartTime,
                 EndTime: order.TimeSlot?.EndTime,

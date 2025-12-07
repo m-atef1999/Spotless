@@ -48,6 +48,49 @@ namespace Spotless.API.Controllers
         }
 
         /// <summary>
+        /// Gets the current customer's driver application status
+        /// </summary>
+        [HttpGet("my-application")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(DriverApplicationDto))]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetMyApplication()
+        {
+            var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out _))
+                return Unauthorized(new { Message = "Invalid or missing user ID claim." });
+
+            var identityUser = await _userManager.FindByIdAsync(userIdString);
+            if (identityUser == null || !identityUser.CustomerId.HasValue)
+                return NotFound(new { Message = "Customer profile not found for this user." });
+
+            var application = await _unitOfWork.DriverApplications.GetSingleAsync(
+                da => da.CustomerId == identityUser.CustomerId.Value);
+
+            if (application == null)
+                return NotFound(new { Message = "No driver application found." });
+
+            var customer = await _unitOfWork.Customers.GetByIdAsync(application.CustomerId);
+
+            var dto = new DriverApplicationDto
+            {
+                Id = application.Id,
+                CustomerId = application.CustomerId,
+                CustomerName = customer?.Name ?? "Unknown",
+                CustomerEmail = customer?.Email ?? "Unknown",
+                CustomerPhone = customer?.Phone ?? "Unknown",
+                VehicleInfo = application.VehicleInfo,
+                Status = application.Status.ToString(),
+                CreatedAt = application.CreatedAt,
+                UpdatedAt = application.UpdatedAt,
+                RejectionReason = application.RejectionReason
+            };
+
+            return Ok(dto);
+        }
+
+        /// <summary>
         /// Retrieves authenticated driver's profile
         /// </summary>
         [HttpGet("profile")]
@@ -426,16 +469,27 @@ namespace Spotless.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Spotless.Application.Dtos.Responses.PagedResponse<DriverApplicationDto>))]
         public async Task<IActionResult> GetDriverApplications([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, [FromQuery] Spotless.Domain.Enums.DriverApplicationStatus? status = null)
         {
-            var query = new Spotless.Application.Features.Drivers.Queries.GetDriverApplications.GetDriverApplicationsQuery
+            try
             {
-                PageNumber = pageNumber,
-                PageSize = pageSize,
-                Status = status
-            };
+                _logger.LogInformation("GetDriverApplications called with pageNumber={PageNumber}, pageSize={PageSize}, status={Status}", pageNumber, pageSize, status);
+                
+                var query = new Spotless.Application.Features.Drivers.Queries.GetDriverApplications.GetDriverApplicationsQuery
+                {
+                    PageNumber = pageNumber,
+                    PageSize = pageSize,
+                    Status = status
+                };
 
-            var result = await _mediator.Send(query);
-
-            return Ok(result);
+                var result = await _mediator.Send(query);
+                
+                _logger.LogInformation("GetDriverApplications returning {Count} items", result.Data?.Count ?? 0);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error in GetDriverApplications: {Message}", ex.Message);
+                return StatusCode(500, new { Message = ex.Message, StackTrace = ex.StackTrace });
+            }
         }
 
         private async Task<Guid?> ResolveApplicationId(Guid inputId)

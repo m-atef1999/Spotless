@@ -7,7 +7,7 @@ import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 
-import { CustomersService, AuthService, DriversService, type CustomerUpdateRequest, type CustomerDto, type DriverDto } from '../../lib/api';
+import { CustomersService, AuthService, DriversService, OpenAPI, type CustomerUpdateRequest, type CustomerDto, type DriverDto } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 
 const profileSchema = z.object({
@@ -21,11 +21,20 @@ const profileSchema = z.object({
 
 type ProfileFormValues = z.infer<typeof profileSchema>;
 
+// Type for driver application response
+interface DriverApplicationStatus {
+    id: string;
+    status: string;
+    rejectionReason?: string;
+    updatedAt?: string;
+}
+
 export const ProfilePage: React.FC = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [profile, setProfile] = useState<CustomerDto | null>(null);
     const [driverProfile, setDriverProfile] = useState<DriverDto | null>(null);
+    const [applicationStatus, setApplicationStatus] = useState<DriverApplicationStatus | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const user = useAuthStore((state) => state.user);
@@ -68,6 +77,23 @@ export const ProfilePage: React.FC = () => {
 
                 if (driverData.status === 'fulfilled') {
                     setDriverProfile(driverData.value);
+                }
+
+                // Also fetch driver application status (for pending applications)
+                try {
+                    const token = typeof OpenAPI.TOKEN === 'function' ? await OpenAPI.TOKEN({} as any) : OpenAPI.TOKEN;
+                    const response = await fetch(`${OpenAPI.BASE}/api/Drivers/my-application`, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    if (response.ok) {
+                        const appData = await response.json();
+                        setApplicationStatus(appData);
+                    }
+                } catch {
+                    // No application found, which is fine
                 }
 
             } catch (err) {
@@ -310,6 +336,7 @@ export const ProfilePage: React.FC = () => {
                                         initialEmail={profile?.email || ''}
                                         initialPhone={profile?.phone || ''}
                                         driverProfile={driverProfile}
+                                        applicationStatus={applicationStatus}
                                     />
                                 </div>
                             </div>
@@ -382,10 +409,11 @@ const DriverApplicationForm: React.FC<{
     initialEmail: string;
     initialPhone: string;
     driverProfile: DriverDto | null;
-}> = ({ initialName, initialEmail, initialPhone, driverProfile }) => {
+    applicationStatus: DriverApplicationStatus | null;
+}> = ({ initialName, initialEmail, initialPhone, driverProfile, applicationStatus }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle');
+    const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
     const registerDriver = useAuthStore((state) => state.registerDriver);
     const switchRole = useAuthStore((state) => state.switchRole);
@@ -397,7 +425,7 @@ const DriverApplicationForm: React.FC<{
         if (!vehicleInfo.trim()) return;
 
         setIsLoading(true);
-        setStatus('idle');
+        setSubmitStatus('idle');
 
         try {
             await registerDriver({
@@ -406,16 +434,31 @@ const DriverApplicationForm: React.FC<{
                 phone: initialPhone,
                 vehicleInfo: vehicleInfo
             });
-            setStatus('success');
+            setSubmitStatus('success');
             setIsExpanded(false);
         } catch (err: any) {
             console.error(err);
-            setStatus('error');
+            setSubmitStatus('error');
             setErrorMessage(err.message || 'Application failed');
         } finally {
             setIsLoading(false);
         }
     };
+
+    // Check for pending application status from backend (persisted state)
+    if (applicationStatus && applicationStatus.status === 'Submitted') {
+        return (
+            <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-lg p-4 text-yellow-200 flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center shrink-0">
+                    <Clock className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                    <p className="font-semibold">Application Under Review</p>
+                    <p className="text-sm opacity-80">Your application is currently being reviewed by our team.</p>
+                </div>
+            </div>
+        );
+    }
 
     if (driverProfile) {
         if (driverProfile.status === 'PendingApproval') {
@@ -480,7 +523,7 @@ const DriverApplicationForm: React.FC<{
         }
     }
 
-    if (status === 'success') {
+    if (submitStatus === 'success') {
         return (
             <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4 text-green-200 flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center shrink-0">
@@ -497,11 +540,10 @@ const DriverApplicationForm: React.FC<{
     if (!isExpanded) {
         return (
             <Button
-                variant="ghost"
                 onClick={() => setIsExpanded(true)}
-                className="bg-white text-slate-900 hover:bg-slate-100 border-none"
+                className="w-full sm:w-auto"
             >
-                {driverProfile?.status === 'Rejected' ? 'Apply Again' : 'Apply Now'}
+                {applicationStatus?.status === 'Rejected' ? 'Apply Again' : 'Apply Now'}
             </Button>
         );
     }
@@ -519,7 +561,7 @@ const DriverApplicationForm: React.FC<{
                 <p className="text-xs text-slate-400 mt-1">Please provide Make, Model, Year, and Color.</p>
             </div>
 
-            {status === 'error' && (
+            {submitStatus === 'error' && (
                 <p className="text-red-400 text-sm">{errorMessage}</p>
             )}
 

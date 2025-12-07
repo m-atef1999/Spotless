@@ -3,13 +3,20 @@ import { CategoriesService, type CategoryDto, type PagedResponse } from '../../l
 import { useToast } from '../../components/ui/Toast';
 import { Modal } from '../../components/ui/Modal';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
+import { Image, Folder, Package } from 'lucide-react';
+
+interface CategoryFormData {
+    name: string;
+    description: string;
+    imageUrl: string;
+}
 
 export function CategoryManagementPage() {
     const [categories, setCategories] = useState<CategoryDto[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState<CategoryDto | null>(null);
-    const [formData, setFormData] = useState({ name: '', description: '' });
+    const [formData, setFormData] = useState<CategoryFormData>({ name: '', description: '', imageUrl: '' });
     const { addToast } = useToast();
 
     useEffect(() => {
@@ -34,17 +41,25 @@ export function CategoryManagementPage() {
 
     const handleCreate = () => {
         setEditingCategory(null);
-        setFormData({ name: '', description: '' });
+        setFormData({ name: '', description: '', imageUrl: '' });
         setShowModal(true);
     };
 
     const handleEdit = (category: CategoryDto) => {
         setEditingCategory(category);
-        setFormData({ name: category.name || '', description: category.description || '' });
+        setFormData({
+            name: category.name || '',
+            description: category.description || '',
+            imageUrl: category.imageUrl || ''
+        });
         setShowModal(true);
     };
 
     const handleSubmit = async () => {
+        if (!formData.name.trim()) {
+            addToast('Category name is required', 'error');
+            return;
+        }
         try {
             if (editingCategory) {
                 await CategoriesService.putApiCategories({
@@ -52,7 +67,8 @@ export function CategoryManagementPage() {
                     requestBody: {
                         name: formData.name,
                         description: formData.description,
-                        price: 0 // Default price as it's not in the form yet, or add to form if needed
+                        imageUrl: formData.imageUrl || undefined,
+                        price: 0
                     }
                 });
                 addToast('Category updated successfully', 'success');
@@ -61,7 +77,8 @@ export function CategoryManagementPage() {
                     requestBody: {
                         name: formData.name,
                         description: formData.description,
-                        price: 0 // Default price
+                        imageUrl: formData.imageUrl || undefined,
+                        price: 0
                     }
                 });
                 addToast('Category created successfully', 'success');
@@ -117,25 +134,46 @@ export function CategoryManagementPage() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
                             {categories.map((category) => (
-                                <div key={category.id} className="border border-slate-200 dark:border-slate-800 rounded-xl p-6 hover:shadow-md transition-shadow bg-slate-50 dark:bg-slate-800/50">
-                                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{category.name}</h3>
-                                    <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2">{category.description || 'No description'}</p>
-                                    <div className="text-sm text-slate-500 dark:text-slate-500 mb-4">
-                                        Services: {category.serviceCount || 0}
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => handleEdit(category)}
-                                            className="flex-1 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-900/30 transition-colors font-medium text-sm"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            onClick={() => handleDelete(category.id!)}
-                                            className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors font-medium text-sm"
-                                        >
-                                            Delete
-                                        </button>
+                                <div key={category.id} className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden hover:shadow-md transition-shadow bg-slate-50 dark:bg-slate-800/50">
+                                    {/* Category Image */}
+                                    {category.imageUrl ? (
+                                        <div className="h-32 bg-slate-100 dark:bg-slate-800">
+                                            <img
+                                                src={category.imageUrl}
+                                                alt={category.name || ''}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                                            />
+                                        </div>
+                                    ) : (
+                                        <div className="h-32 bg-gradient-to-br from-cyan-50 to-slate-100 dark:from-cyan-900/20 dark:to-slate-800 flex items-center justify-center">
+                                            <Folder className="w-12 h-12 text-cyan-400/60" />
+                                        </div>
+                                    )}
+
+                                    <div className="p-6">
+                                        <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-2">{category.name}</h3>
+                                        <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-2">
+                                            {category.description || 'No description available'}
+                                        </p>
+                                        <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-500 mb-4">
+                                            <Package className="w-4 h-4" />
+                                            <span>{category.serviceCount || 0} services</span>
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => handleEdit(category)}
+                                                className="flex-1 bg-cyan-50 dark:bg-cyan-900/20 text-cyan-700 dark:text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-100 dark:hover:bg-cyan-900/30 transition-colors font-medium text-sm"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                onClick={() => handleDelete(category.id!)}
+                                                className="flex-1 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors font-medium text-sm"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -144,59 +182,77 @@ export function CategoryManagementPage() {
                 </div>
 
                 {/* Modal */}
-                {
-                    showModal && (
-                        <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
-                            <div className="p-6 bg-white dark:bg-slate-900">
-                                <h2 className="text-2xl font-bold mb-4 text-slate-900 dark:text-white">
-                                    {editingCategory ? 'Edit Category' : 'Create Category'}
-                                </h2>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                            Category Name
-                                        </label>
-                                        <input
-                                            type="text"
-                                            value={formData.name}
-                                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                            className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
-                                            placeholder="Enter category name"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                                            Description
-                                        </label>
-                                        <textarea
-                                            value={formData.description}
-                                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                            className="w-full px-4 py-2 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
-                                            rows={4}
-                                            placeholder="Enter category description"
-                                        />
-                                    </div>
-                                    <div className="flex gap-2 pt-4">
-                                        <button
-                                            onClick={handleSubmit}
-                                            className="flex-1 bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors font-medium"
-                                        >
-                                            {editingCategory ? 'Update' : 'Create'}
-                                        </button>
-                                        <button
-                                            onClick={() => setShowModal(false)}
-                                            className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium"
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
+                <Modal
+                    isOpen={showModal}
+                    onClose={() => setShowModal(false)}
+                    title={editingCategory ? 'Edit Category' : 'Create Category'}
+                    size="lg"
+                >
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Category Name *
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
+                                placeholder="Enter category name"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                value={formData.description}
+                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
+                                rows={3}
+                                placeholder="Enter category description"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+                                <Image className="w-4 h-4 inline mr-1" />
+                                Image URL
+                            </label>
+                            <input
+                                type="url"
+                                value={formData.imageUrl}
+                                onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                className="w-full px-4 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white"
+                                placeholder="https://example.com/image.jpg"
+                            />
+                            {formData.imageUrl && (
+                                <div className="mt-2 rounded-lg overflow-hidden h-24 w-full max-w-xs bg-slate-100 dark:bg-slate-800">
+                                    <img
+                                        src={formData.imageUrl}
+                                        alt="Preview"
+                                        className="w-full h-full object-cover"
+                                        onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}
+                                    />
                                 </div>
-                            </div>
-                        </Modal>
-                    )
-                }
-            </div >
+                            )}
+                        </div>
+                        <div className="flex gap-2 pt-4 border-t border-slate-200 dark:border-slate-700">
+                            <button
+                                onClick={handleSubmit}
+                                className="flex-1 bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors font-medium"
+                            >
+                                {editingCategory ? 'Update' : 'Create'}
+                            </button>
+                            <button
+                                onClick={() => setShowModal(false)}
+                                className="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors font-medium"
+                            >
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
+            </div>
         </DashboardLayout>
     );
 }
-

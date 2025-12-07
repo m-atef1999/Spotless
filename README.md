@@ -19,8 +19,13 @@ Graduation project for DEPI: a full cleaning services platform. This repository 
 * [🌐 Live Demo](#-live-demo)
 * [🛠 Tech Stack](#-tech-stack)
 * [📂 Project Structure](#-project-structure)
+* [🚀 Performance](#-performance)
+* [🏗 Architecture & Diagrams](#-architecture--diagrams)
+* [🗄 Database Schema](#-database-schema)
+* [📊 Project Statistics](#-project-statistics)
 * [🧠 Layer Responsibilities](#-layer-responsibilities)
 * [⚡ Getting Started](#-getting-started)
+* [📑 Detailed Documentation](#-detailed-documentation)
 * [👥 Contributors](#-contributors)
 * [📄 License](#-license)
 
@@ -29,6 +34,8 @@ Graduation project for DEPI: a full cleaning services platform. This repository 
 ## 📌 Project Overview
 
 Spotless is a modern **cleaning service platform** built with a scalable, maintainable clean architecture.
+
+![Homepage](docs/full%20homepage%20screenshot%20-%20theme%201.png)
 
 Key features:
 
@@ -82,7 +89,8 @@ Key features:
 │   ├── Spotless.Application/      → Application Layer   (CQRS, MediatR, DTOs, Validation)
 │   ├── Spotless.Domain/           → Domain Layer        (Entities, Rules, Events)
 │   ├── Spotless.Infrastructure/   → Infrastructure      (EF Core, Repositories, Migrations)
-│   ├── Spotless.Web/                  → React + Vite + Tailwind Frontend
+│   ├── Spotless.Tests/            → Unit Tests          (xUnit, FluentAssertions)
+│   ├── Spotless.Web/              → React + Vite + Tailwind Frontend
 │   │
 │   └── Spotless.sln               → Solution file
 │
@@ -90,6 +98,49 @@ Key features:
 │
 └── docs/                          → Docs & architecture notes
 ```
+
+---
+
+
+
+---
+
+## 🚀 Performance
+
+The application is optimized for speed and user experience.
+
+![Performance Score](docs/website%20performance%20test.png)
+
+---
+
+## 🏗 Architecture & Diagrams
+
+### Order Cycle Activity Diagram
+![Order Cycle](docs/activity_diagram(order_cycle).png)
+
+### High-Level System Diagram
+![System Diagram](docs/diagram%20(mermaid).png)
+
+---
+
+## 🗄 Database Schema
+
+The database is robustly designed with SQL Server.
+
+![ERD](docs/spotless_erd.png)
+
+---
+
+## 📊 Project Statistics
+
+### API Statistics
+![API Stats](docs/apis%20statistics.png)
+
+### Database Statistics
+![DB Stats](docs/DB%20statistics.png)
+
+### Test Coverage
+![Tests](docs/Tests.png)
 
 ---
 
@@ -101,7 +152,8 @@ Key features:
 | **Application**        | `Spotless.Application`    | Contains use cases (CQRS), handlers, DTOs, interfaces, validation, and mapping. No EF or domain logic.     |
 | **Domain**             | `Spotless.Domain`         | Pure business logic: entities, enums, value objects, domain rules, domain events. Framework-independent.   |
 | **Infrastructure**     | `Spotless.Infrastructure` | EF Core DbContext, repositories, migrations, external services, and persistence implementations.           |
-| **Frontend**           | `Spotless.Web`                | React + Vite + Tailwind app structure, handles UI components, pages, routing, and frontend business logic. |
+| **Tests**              | `Spotless.Tests`          | Unit tests using xUnit and FluentAssertions. Tests domain entities and value objects.                      |
+| **Frontend**           | `Spotless.Web`            | React + Vite + Tailwind app structure, handles UI components, pages, routing, and frontend business logic. |
 
 ---
 
@@ -181,6 +233,28 @@ Use it in your frontend:
 ```ts
 const api = import.meta.env.VITE_API_BASE_URL;
 ```
+
+---
+
+---
+
+## 📑 Detailed Documentation
+
+We have extensive documentation available in the `docs` folder:
+
+* **[Detailed Endpoints & DTOs](docs/Endpoints.md)**
+* **[Metadata & Test Accounts](docs/Metadata.txt)**
+* **[Setup Guide](docs/setup.md)**
+* **[Architecture Overview](docs/architecture.md)**
+* **[API Reference](docs/api.md)**
+* **[Database Guide](docs/database.md)**
+* **[Deployment Guide](docs/deployment.md)**
+* **[Security Policies](docs/security.md)**
+* **[Runbook & Troubleshooting](docs/runbook.md)**
+* **[SRS (Software Requirements Specification)](docs/SRS.pdf)**
+* **[Project Description](docs/Project%20Description.pdf)**
+* **[Stakeholder Analysis](docs/stakeholder_analysis.md)**
+* **[Problem Statement & Solution](docs/problem_solution.md)**
 
 ---
 

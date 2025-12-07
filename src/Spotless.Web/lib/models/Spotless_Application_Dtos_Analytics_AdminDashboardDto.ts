@@ -14,5 +14,10 @@ export type Spotless_Application_Dtos_Analytics_AdminDashboardDto = {
     monthlyRevenue?: number;
     totalServices?: number;
     totalCategories?: number;
+    topServices?: Array<{
+        serviceId?: string;
+        serviceName?: string;
+        orderCount?: number;
+    }>;
 };
 

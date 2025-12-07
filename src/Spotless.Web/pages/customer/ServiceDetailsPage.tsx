@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, DollarSign, ShoppingCart, Loader2, AlertCircle, Sparkles, Zap } from 'lucide-react';
+import { ArrowLeft, Clock, DollarSign, Loader2, AlertCircle, Sparkles, Zap } from 'lucide-react';
 import { DashboardLayout } from '../../layouts/DashboardLayout';
 import { Button } from '../../components/ui/Button';
-import { useToast } from '../../components/ui/Toast';
-import { ServicesService, CartsService, type ServiceDto } from '../../lib/api';
+import { ServicesService, type ServiceDto } from '../../lib/api';
 import { getServiceImage } from '../../lib/imageUtils';
 
 export const ServiceDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { addToast } = useToast();
     const [service, setService] = useState<ServiceDto | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [addingToCart, setAddingToCart] = useState(false);
 
     useEffect(() => {
         const fetchService = async () => {
@@ -34,30 +31,9 @@ export const ServiceDetailsPage: React.FC = () => {
         fetchService();
     }, [id]);
 
-    const handleAddToCart = async () => {
+    const handleBookNow = () => {
         if (!service?.id) return;
-
-        try {
-            setAddingToCart(true);
-            await CartsService.postApiCustomersCartItems({
-                requestBody: {
-                    serviceId: service.id,
-                    quantity: 1
-                }
-            });
-            addToast(`Added ${service.name} to cart`, 'success');
-        } catch (error) {
-            console.error('Failed to add to cart:', error);
-            addToast('Failed to add to cart', 'error');
-        } finally {
-            setAddingToCart(false);
-        }
-    };
-
-    const handleBuyNow = () => {
-        if (!service?.id) return;
-        // Logic for immediate buy or redirect to cart/checkout
-        navigate('/customer/new-order');
+        navigate(`/customer/new-order?serviceId=${service.id}`);
     };
 
     if (isLoading) {
@@ -106,7 +82,7 @@ export const ServiceDetailsPage: React.FC = () => {
                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl">
                     <div className="relative h-64 md:h-80">
                         <img
-                            src={getServiceImage(service.name || '')}
+                            src={getServiceImage(service)}
                             alt={service.name || ''}
                             className="w-full h-full object-cover"
                         />
@@ -159,30 +135,13 @@ export const ServiceDetailsPage: React.FC = () => {
                             <div className="space-y-4">
                                 <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
                                     <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Actions</h3>
-                                    <div className="space-y-3">
-                                        <Button
-                                            onClick={handleAddToCart}
-                                            className="w-full"
-                                            disabled={addingToCart}
-                                        >
-                                            {addingToCart ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <>
-                                                    <ShoppingCart className="w-4 h-4 mr-2" />
-                                                    Add to Cart
-                                                </>
-                                            )}
-                                        </Button>
-                                        <Button
-                                            onClick={handleBuyNow}
-                                            variant="outline"
-                                            className="w-full"
-                                        >
-                                            <Zap className="w-4 h-4 mr-2" />
-                                            Buy Now
-                                        </Button>
-                                    </div>
+                                    <Button
+                                        onClick={handleBookNow}
+                                        className="w-full shadow-lg shadow-cyan-500/20"
+                                    >
+                                        <Zap className="w-4 h-4 mr-2" />
+                                        Book Now
+                                    </Button>
                                 </div>
                             </div>
                         </div>

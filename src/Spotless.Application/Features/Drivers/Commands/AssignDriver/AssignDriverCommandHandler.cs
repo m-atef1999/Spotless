@@ -25,10 +25,10 @@ namespace Spotless.Application.Features.Drivers.Commands.AssignDriver
             }
 
 
-
-            if (order.Status != OrderStatus.Confirmed || order.DriverId.HasValue)
+            // Allow assignment to orders that are Requested or Confirmed and don't have a driver yet
+            if ((order.Status != OrderStatus.Requested && order.Status != OrderStatus.Confirmed) || order.DriverId.HasValue)
             {
-                throw new InvalidOperationException($"Order ID {request.OrderId} is not eligible for assignment. Current status: {order.Status}.");
+                throw new InvalidOperationException($"Order ID {request.OrderId} is not eligible for assignment. Current status: {order.Status}. Only Requested or Confirmed orders without an assigned driver can be assigned.");
             }
 
             if (driver.Status != DriverStatus.Available)
@@ -37,7 +37,8 @@ namespace Spotless.Application.Features.Drivers.Commands.AssignDriver
             }
 
             order.AssignDriver(request.DriverId);
-            driver.UpdateStatus(DriverStatus.OnRoute);
+            // Note: Driver status is NOT changed to OnRoute anymore
+            // This allows drivers to remain Available and take multiple orders
 
             await _unitOfWork.Orders.UpdateAsync(order);
             await _unitOfWork.Drivers.UpdateAsync(driver);

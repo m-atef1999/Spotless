@@ -7,6 +7,9 @@ namespace Spotless.Application.Dtos.Service
         decimal PricePerUnitAmount,
         string PricePerUnitCurrency,
         decimal EstimatedDurationHours,
-        decimal MaxWeightKg = 50m
+        decimal MaxWeightKg = 50m,
+        string? ImageUrl = null
     );
 }
+
+

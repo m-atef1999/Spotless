@@ -30,6 +30,7 @@ interface AnalyticsData {
 const AnalyticsPage: React.FC = () => {
     const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
     const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('month');
 
     useEffect(() => {
@@ -38,6 +39,7 @@ const AnalyticsPage: React.FC = () => {
 
     const fetchAnalytics = async () => {
         setLoading(true);
+        setError(null);
         try {
             const data: AnalyticsDashboardDto = await AnalyticsService.getApiAnalyticsDashboard();
 
@@ -66,11 +68,17 @@ const AnalyticsPage: React.FC = () => {
                     { name: 'Pending', value: data.pendingOrders || 0 },
                     { name: 'Cancelled', value: data.cancelledOrders || 0 }
                 ],
-                topServices: [] // Missing from DTO
+                topServices: (data.topServices || []).map(s => ({
+                    name: s.serviceName || 'Unknown Service',
+                    orders: s.orderCount || 0,
+                    revenue: 0 // Revenue per service not available yet
+                }))
             };
             setAnalytics(transformedData);
-        } catch (error) {
-            console.error('Failed to fetch analytics:', error);
+        } catch (err: any) {
+            const errorMessage = err?.body?.message || err?.message || 'Unknown error occurred';
+            console.error('Failed to fetch analytics:', err);
+            setError(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -91,12 +99,19 @@ const AnalyticsPage: React.FC = () => {
         );
     }
 
-    if (!analytics) {
+    if (error || !analytics) {
         return (
             <DashboardLayout role="Admin">
                 <div className="p-6">
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                        <p className="text-red-800">Failed to load analytics data.</p>
+                    <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+                        <h3 className="text-lg font-semibold text-red-800 dark:text-red-400 mb-2">Failed to load analytics data</h3>
+                        <p className="text-red-600 dark:text-red-300 mb-4">{error || 'No data received from server'}</p>
+                        <button
+                            onClick={fetchAnalytics}
+                            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        >
+                            Retry
+                        </button>
                     </div>
                 </div>
             </DashboardLayout>
@@ -145,9 +160,9 @@ const AnalyticsPage: React.FC = () => {
                     </div>
 
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
-                        <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Active Customers</h3>
-                        <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{analytics.users.activeCustomers}</p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">of {analytics.users.totalCustomers} total</p>
+                        <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Customers</h3>
+                        <p className="text-3xl font-bold text-slate-900 dark:text-white mt-2">{analytics.users.totalCustomers}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">registered customers</p>
                     </div>
 
                     <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">

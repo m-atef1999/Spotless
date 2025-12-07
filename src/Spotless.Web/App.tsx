@@ -29,7 +29,6 @@ import { CustomerManagementPage } from './pages/admin/CustomerManagementPage';
 import { CategoryManagementPage } from './pages/admin/CategoryManagementPage';
 
 import { PaymentMethodsPage } from './pages/customer/PaymentMethodsPage';
-import { CartPage } from './pages/customer/CartPage';
 import { EarningsPage } from './pages/driver/EarningsPage';
 import { AvailableOrdersPage } from './pages/driver/AvailableOrdersPage';
 import { OrderHistoryPage } from './pages/driver/OrderHistoryPage';
@@ -107,7 +106,6 @@ function App() {
                       <Route path="services" element={<ServicesPage />} />
 
                       <Route path="payment-methods" element={<PaymentMethodsPage />} />
-                      <Route path="cart" element={<CartPage />} />
                       <Route path="services/:id" element={<ServiceDetailsPage />} />
                       <Route path="create-review" element={<CreateReviewPage />} />
                       <Route path="settings" element={<ProfilePage />} />

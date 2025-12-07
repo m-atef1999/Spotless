@@ -22,12 +22,12 @@ namespace Spotless.Application.Features.Admins.Queries.GetAdminDashboard
             var today = DateTime.UtcNow.Date;
             var todayEnd = today.AddDays(1);
 
+            // Run queries sequentially - DbContext is NOT thread-safe
             var totalOrdersToday = await _orderRepository.CountAsync(o =>
                 o.OrderDate >= today && o.OrderDate < todayEnd);
 
             var (revenueToday, revenueCurrency) = await _paymentRepository
                 .GetRevenueSummaryAsync(today, todayEnd);
-
 
             var mostUsedServices = await _orderRepository
                 .GetMostUsedServicesAsync(request.PageNumber, request.PageSize);

@@ -22,7 +22,8 @@ namespace Spotless.Infrastructure.Mappers
                 MaxWeightKg = service.MaxWeightKg,
                 EstimatedDurationHours = service.EstimatedDurationHours,
                 IsActive = service.IsActive,
-                IsFeatured = service.IsFeatured
+                IsFeatured = service.IsFeatured,
+                ImageUrl = service.ImageUrl
             };
         }
 

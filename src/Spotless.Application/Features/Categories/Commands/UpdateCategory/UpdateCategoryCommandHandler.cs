@@ -21,7 +21,8 @@ namespace Spotless.Application.Features.Categories.Commands.UpdateCategory
             category.UpdateDetails(
                 request.Name,
                 new Money(request.Price, "EGP"),
-                request.Description
+                request.Description,
+                request.ImageUrl
             );
 
             await _unitOfWork.Categories.UpdateAsync(category);
@@ -33,8 +34,11 @@ namespace Spotless.Application.Features.Categories.Commands.UpdateCategory
                 Name = category.Name,
                 Description = category.Description,
                 Price = category.Price.Amount,
-                ServiceCount = category.Services.Count
+                ServiceCount = category.Services.Count,
+                ImageUrl = category.ImageUrl
             };
         }
     }
 }
+
+

@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "../../layouts/DashboardLayout";
 import { Button } from "../../components/ui/Button";
-import { DriversService, type DriverApplicationDto } from "../../lib/api";
+import { DriversService, OpenAPI, type DriverApplicationDto } from "../../lib/api";
 import { useToast } from "../../components/ui/Toast";
 import { Check, X, FileText, User, Truck } from "lucide-react";
+
+// Helper to get token from OpenAPI config
+const getToken = async () => {
+  if (typeof OpenAPI.TOKEN === 'function') {
+    return await OpenAPI.TOKEN({} as any);
+  }
+  return OpenAPI.TOKEN;
+};
 
 export const DriverApplicationsPage: React.FC = () => {
   const [status, setStatus] = useState<"Submitted" | "Approved" | "Rejected">(
@@ -13,16 +21,62 @@ export const DriverApplicationsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const { addToast } = useToast();
 
-  const { data: applications = [], isLoading } = useQuery<any[], Error>({
+  // Prefetch all tabs on mount for instant switching
+  useEffect(() => {
+    const statuses: ("Submitted" | "Approved" | "Rejected")[] = ["Submitted", "Approved", "Rejected"];
+
+    statuses.forEach((s) => {
+      queryClient.prefetchQuery({
+        queryKey: ["driver-applications", s],
+        queryFn: async () => {
+          const token = await getToken();
+          const response = await fetch(
+            `${OpenAPI.BASE}/api/Drivers/admin/applications?status=${encodeURIComponent(s)}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          if (!response.ok) return [];
+          const result = await response.json();
+          if (Array.isArray(result)) return result;
+          if (result?.data && Array.isArray(result.data)) return result.data;
+          return [];
+        },
+        staleTime: 60000,
+      });
+    });
+  }, [queryClient]);
+
+
+  const { data: applications = [], isLoading, isError, error } = useQuery<any[], Error>({
     queryKey: ["driver-applications", status],
     queryFn: async () => {
-      const response = await DriversService.getApiDriversAdminApplications({
-        status,
-      });
-      const data = response.data;
-      return Array.isArray(data) ? data : (data?.data || []);
+      const token = await getToken();
+      const response = await fetch(
+        `${OpenAPI.BASE}/api/Drivers/admin/applications?status=${encodeURIComponent(status)}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch applications: ${response.status} - ${errorText}`);
+      }
+      const result = await response.json();
+      // PagedResponse returns { data: [...], totalCount, pageNumber, pageSize }
+      if (Array.isArray(result)) return result;
+      if (result?.data && Array.isArray(result.data)) return result.data;
+      return [];
     },
-    staleTime: 10000,
+    staleTime: 60000,
+    gcTime: 300000,
+    retry: 1,
   } as any);
 
   const approveMutation = useMutation({
@@ -67,6 +121,20 @@ export const DriverApplicationsPage: React.FC = () => {
       rejectMutation.mutate(id);
     }
   };
+
+  if (isError) {
+    return (
+      <DashboardLayout role="Admin">
+        <div className="p-6">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+            <h3 className="text-lg font-semibold text-red-800 dark:text-red-400 mb-2">Failed to load applications</h3>
+            <p className="text-red-600 dark:text-red-300 mb-4">{(error as any)?.message || 'Unknown error'}</p>
+            <Button onClick={() => window.location.reload()}>Retry</Button>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout role="Admin">
@@ -143,23 +211,34 @@ export const DriverApplicationsPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-3 md:self-center self-end">
-                    <Button
-                      variant="outline"
-                      onClick={() => handleReject(app.id!)}
-                      isLoading={rejectMutation.isPending}
-                      className="text-red-600 hover:bg-red-50 border-red-200"
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Reject
-                    </Button>
-                    <Button
-                      onClick={() => handleApprove(app.id!)}
-                      isLoading={approveMutation.isPending}
-                      className="bg-green-600 hover:bg-green-700 text-white"
-                    >
-                      <Check className="w-4 h-4 mr-2" />
-                      Approve Application
-                    </Button>
+                    {status === "Submitted" ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleReject(app.id!)}
+                          isLoading={rejectMutation.isPending}
+                          className="text-red-600 hover:bg-red-50 border-red-200"
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Reject
+                        </Button>
+                        <Button
+                          onClick={() => handleApprove(app.id!)}
+                          isLoading={approveMutation.isPending}
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          <Check className="w-4 h-4 mr-2" />
+                          Approve
+                        </Button>
+                      </>
+                    ) : (
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${status === "Approved"
+                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                        : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        }`}>
+                        {status}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))

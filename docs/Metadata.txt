@@ -1,0 +1,46 @@
+# Metadata & Environment Statistics
+
+## Testing Accounts
+- Admins:
+  Email: admin@spotless.com
+  Password: P@ssw0rd123!
+- Drivers:
+  Email: driver@spotless.com
+  Password: Test@123
+- Customers:
+  Email: driver@spotless.com
+  Password: Test@123
+
+alternatively, you can just sign up with your google account or any account to be a customer.
+---
+
+## System Statistics (Seeded Data)
+
+The following data is automatically seeded into the system upon initialization:
+
+### Organization
+- Top-Level Admins: 10 (Different roles: Manager, Dispatcher, Support)
+- Super User: admin@spotless.com
+
+### Users
+- Customers: 10 Total
+  - 6 Individual Accounts
+  - 4 Business Accounts
+- Drivers: 10 Active Drivers (with vehicle details seeded)
+
+### Services Catalog
+- Categories: 5
+  - Dry Cleaning
+  - Laundry & Ironing
+  - Home Cleaning
+  - Carpet & Upholstery
+  - Disinfection & Sanitization
+  - Total: 5 Main Categories
+- Service*: 50 Total (10 Services per Category)
+
+### Scheduling
+- Time Slots: 4 distinct windows
+  - Morning (9-11)
+  - Noon (11-1)
+  - Afternoon (1-3)
+  - Evening (3-5)
