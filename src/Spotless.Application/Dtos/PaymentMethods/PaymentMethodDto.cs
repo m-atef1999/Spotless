@@ -12,12 +12,4 @@ namespace Spotless.Application.Dtos.PaymentMethods
         public bool IsDefault { get; init; }
     }
 
-    public record AddPaymentMethodDto
-    {
-        public PaymentMethodType Type { get; init; }
-        public string Last4Digits { get; init; } = string.Empty;
-        public string CardholderName { get; init; } = string.Empty;
-        public DateTime ExpiryDate { get; init; }
-        public bool IsDefault { get; init; }
-    }
 }

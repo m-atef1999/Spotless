@@ -78,18 +78,6 @@ Audit.Core.Configuration.AddCustomAction(ActionType.OnEventSaving, scope =>
         catch { }
 
 
-        try
-        {
-            if (ev?.CustomFields != null && ev.CustomFields.ContainsKey("RequestBody"))
-            {
-                var rb = ev.CustomFields["RequestBody"] as string;
-                if (!string.IsNullOrEmpty(rb))
-                {
-                    ev.CustomFields["RequestBody"] = Spotless.API.Utils.AuditRedactor.RedactJson(rb);
-                }
-            }
-        }
-        catch { }
 
     }
     catch { }

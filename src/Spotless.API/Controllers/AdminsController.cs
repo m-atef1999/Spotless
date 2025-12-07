@@ -16,7 +16,8 @@ namespace Spotless.API.Controllers
     public class AdminsController(
         IMediator mediator,
         UserManager<ApplicationUser> userManager,
-        IPaginationService paginationService) : ControllerBase
+        IPaginationService paginationService
+        ) : ControllerBase
     {
         private readonly IMediator _mediator = mediator;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
